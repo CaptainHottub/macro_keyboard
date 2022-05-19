@@ -20,6 +20,7 @@ stats = {
     "focused_app": None,
     "is_fullscreen": None,
     "app_hwnd": None}
+    
 def get_stats(loop=False, m=False, f=True, interval=2):
     """
     Parameters
