@@ -1,0 +1,133 @@
+
+
+##############   V2_3   ##############
+added get_stats function,
+it gets mouse position, 
+the hwnd, the name and fullscreen or not of the focused app
+can be toggled into a while loop if loop=True in args. 
+
+
+Modified Button_handler func
+now uses multiple match case, stacked together.
+
+A layer is the name of an app that you want to have specific macros for.
+app = stats["focused_app"][0]
+
+match [app, button.split()]:
+    # the first case whre app is _ means universal macros,
+    # They will happen everytime if the button is pressed
+    case [_, ("btn", mode)]:
+        do something
+
+    # the case's where app is defined as str of name of the app
+    # this will happen when the app focused is "Visual Studio Code" and the button is 5
+    case ["Visual Studio Code", ("5", mode)]:
+        do something
+
+
+    # the last case's where app is _, is default macros
+    # so if i press button 11, and it is not defined above, but is defined bellow,
+    # it will execute
+    case [_, ("btn", mode)]:
+        do something
+
+
+
+##############   V2_2   ##############
+Changed icon_path from "C:\Coding\Python\pythonScript.ico" to:
+"C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
+
+The following was moved into if __name__ == "__main__":
+    DEBUG = 0  # 0 for off 1 for DEBUG logs on
+    logger_setup(DEBUG)
+    from funcs import log
+
+Importing all from funcs
+From funcs importing:
+    import contextlib
+    import threading
+    from threading import Thread
+    import warnings
+    import psutil
+    import pyautogui
+    import os, win32gui, win32process
+    import pyperclip
+    from pywinauto import Application
+    from ctypes import windll
+    from PIL import ImageGrab
+    import logging
+    import time
+
+
+Removed: 
+    #import time
+    #import pyautogui
+    #from threading import Thread
+    #import funcs
+    #import timeit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############   V2_3   ##############
+Removed stuff
+def Button_handler_v1(button):
+    get_stats()
+
+    app = stats["focused_app"][0]
+
+    ###### Macros that work for all modes
+    match button.split():
+        case ["2", mode]: # pause song spotify
+            log.debug("pause song spotify")
+            spotify()
+            return
+        case ["3", mode]:    # move desktop left
+            log.debug("move desktop left")
+            twrv = Thread(target = Change_desktop, args=('left',)).start()
+            return
+
+        case ["4", mode]:     # move desktop right   
+            log.debug("move desktop Right")
+            twrv = Thread(target = Change_desktop, args=('right',)).start()
+            return
+
+    match [app]:
+        case ['Visual Studio Code']:
+            match button.split():
+                case ["5", mode]:    # run code in Vs code
+                    pyautogui.hotkey('ctrl', 'alt', 'n')
+
+                case [btn, mode]:
+                    print(f"button {btn} pressed on Visual Studio Code")    
+
+        case _:
+            match button.split():
+                ###### Macros that work for all modes
+            
+                case [btn, mode]:
+                    print(f"button {btn} pressed on universal layer")
+ 
