@@ -3,7 +3,7 @@ from infi.systray import SysTrayIcon
 import serial.tools.list_ports
 import sys
 
-# tewasdawe
+
 icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
