@@ -113,6 +113,8 @@ def Button_handler(button):
             pyautogui.hotkey('ctrl', 'v') 
 
         case [_, ("A", mode)]:   #image to text
+            # Press Win + Shift + s, 
+            # wait for mouse release event with pynput then do Image_to_text
             log.debug("Image to text")
             twrv = Thread(target = Image_to_text).start()
 
