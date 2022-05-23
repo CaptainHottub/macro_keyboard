@@ -90,15 +90,15 @@ def Button_handler(button):
             log.debug("move desktop Right")
             twrv = Thread(target = Change_desktop, args=('right',)).start()
 
+
+
         # any specific layers
         case ["Visual Studio Code", ("5", mode)]: # run code in Vs code
             pyautogui.hotkey('ctrl', 'alt', 'n') 
 
 
-        # any other button that is not defined / default
-        case [_, (btn, mode)]:
-            print(f"button {btn} pressed on universal layer")
 
+        # any other button that is not defined / default
         case [_, ("1", mode)]:    
             log.debug("ButtonMode")
             twrv = Thread(target = ButtonMode, args=(mode, )).start()
@@ -117,6 +117,9 @@ def Button_handler(button):
             # wait for mouse release event with pynput then do Image_to_text
             log.debug("Image to text")
             twrv = Thread(target = Image_to_text).start()
+
+        #case [_, (btn, mode)]:
+        #    print(f"button {btn} pressed on universal layer")
 
 def on_quit(systray):
     """
