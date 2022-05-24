@@ -1,20 +1,15 @@
-from ctypes import windll
-from threading import Thread
-import threading
-import funcs
-import time
-import pyautogui, sys
-import os, win32gui, win32process
-
+from funcs import *
+from infi.systray import SysTrayIcon
 import serial.tools.list_ports
-from ctypes import windll
+import sys
+#import keyboard
 
-funcs.logger_setup(1)
-from funcs import log
+import ctypes_keyboard
+#from ctypes_keyboard import PressKey, ReleaseKey, SendKey
 
-user32 = windll.user32
-user32.SetProcessDPIAware() # optional, makes functions return real pixel numbers instead of scaled values
-full_screen_rect = (0, 0, user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
+# test
+icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
+#https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 def timer(func):
     def wrapper(*args, **kwargs):
@@ -22,13 +17,13 @@ def timer(func):
         func(*args, **kwargs)
         print(f"Function took: {(time.perf_counter_ns() - start)/1000000} milliseconds")
     return wrapper
- 
+
+
 stats = {
     "mouse_pos" : None,
     "focused_app": None,
     "is_fullscreen": None,
     "app_hwnd": None}
-
 def get_stats(loop=False, m=False, f=True, interval=2):
     """
     Parameters
@@ -79,56 +74,63 @@ def get_stats(loop=False, m=False, f=True, interval=2):
     if f:
         focus()
 
-
-
 #@timer
 def Button_handler(button):
     get_stats()
+
     app = stats["focused_app"][0]
-    # matches the focused app   #layers
     match [app, button.split()]:
-        case [_, [btn, mode]]:
-            match button.split():
-                #case ["1", ("1" | "2" | "3" | "4") as mode]:
-                # basically if button[0] is 1 and if button[1] is 1 thru 4, also defined mode as button[1]
-                
-                # once its pressed, count how many times you pressed it in limited time
-                # grab time in nanoseconds or milliseconds when button is first pressed
-                # then when its pressed again check if it was pressed in a specific amount of time. lets say 500 milliseconds (0.5 seconds)
-                # 
-                # if start_time == None:
-                #    start_time = time.perf_counter_ns()
-                # 
-                # in_between = current_time - start_time
-                # if in_between < 500(milliseconds):
-                #   count+=1 
-                # if in_between > 500(milliseconds): TIME HAS PASSED
-                #   start_time = None
-                #   IF COUNT ==1 : play pause
-                #   IF COUNT ==2 : next song
-                #   IF COUNT ==3 : previous song
-                #
 
-                case ["2", "1"]: # pause song spotify
-                    log.debug("pause song spotify")
-                    funcs.spotify()
-                    #twrv = Thread(target=funcs.Play_pause_V4, args=())
-                    #twrv.start()
+        case [_, ("2", mode)]: # pause song spotify for any app
+            log.debug("pause song spotify")
+            spotify()
 
-                case ["3", ("1" | "2" | "3" | "4") as mode]:    # move desktop left
-                    log.debug("move desktop left")
-                    twrv = Thread(target=funcs.Change_desktop, args=('left',))
-                    twrv.start()
+        case [_, ("3", mode)]:    # move desktop left for any app
+            log.debug("move desktop left")
+            twrv = Thread(target = Change_desktop, args=('left',)).start()
 
-                case ["4", ("1" | "2" | "3" | "4") as mode]:     # move desktop right   
-                    log.debug("move desktop Right")
-                    twrv = Thread(target=funcs.Change_desktop, args=('right',))
-                    twrv.start()
-                
-                case _:
-                    print("there is no macro for that button")
+        case [_, ("4", mode)]:     # move desktop right for any app   
+            log.debug("move desktop Right")
+            twrv = Thread(target = Change_desktop, args=('right',)).start()
 
+        # any specific layers
 
+        case ["Star Citizen", ("5", mode)]: # focus front shields
+            log.debug("numpad 8")
+            ctypes_keyboard.SendKey(0x68)
+        case ["Star Citizen", ("6", mode)]: # focus back shields
+            log.debug("numpad 2")
+            ctypes_keyboard.SendKey(0x62)
+        case ["Star Citizen", ("7", mode)]: # Reset shields
+            log.debug("numpad 5")
+            ctypes_keyboard.SendKey(0x65)
+            """
+            Num keys:
+            0x60 to 0x69
+            0x60 is 0
+            0x69 is 9
+            """
+
+        # any other button that is not defined / default
+        # case [_, (btn, mode)]:
+        #     print(f"button {btn} pressed on {app}")
+
+        case [_, ("5", mode)]:
+            log.debug("button 5 ")
+            ctypes_keyboard.HotKey(0x41)
+
+    
+def on_quit(systray):
+    """
+    Quits the program,
+    ser.close() raises a index out of range error, 2 NoneType errors 
+    then finally a serial.serialutil.PortNotOpenError execption
+    which we catch in the main try. once we catch it wan can do sys.exit(1) 
+    """
+    log.critical("PROGRAM is shutting down")
+    SysTrayIcon.shutdown
+    ser.close()
+   
 def Connect():
     """
     Tries to connect to the arduino.  Outputs None if it cant connect.
@@ -153,8 +155,30 @@ def Connect():
         log.info("Connected to Arduino")
         return ser
 
+def setup(type=None):
+    while True:
+        if type is not None: # this used when trying to reconect to arduino
+            time.sleep(type)
+
+        try:
+            global ser
+            ser = Connect()
+
+        except Exception as e:
+            log.error(e)
+        else:
+            log.info("Setup was a success")
+            print()
+            return ser
+
 def main():
-    ser = Connect()
+    systray = SysTrayIcon(icon_path, "Python Macro", on_quit=on_quit) # little icon in bottom right
+    systray.start()
+
+    ## setup
+    global ser
+    ser = setup()
+    
     while True:
         try: 
             cc = str(ser.readline())
@@ -167,7 +191,7 @@ def main():
 
             Button_handler(button)
 
-        except [serial.serialutil.PortNotOpenError, KeyboardInterrupt]:
+        except serial.serialutil.PortNotOpenError:
             log.critical("Program quiting, goodbye")
             sys.exit(1) 
 
@@ -176,11 +200,14 @@ def main():
             print()
 
             if type(e) is serial.SerialException:
-                log.warning("Arduino disconected")
-                sys.exit(1) 
-       
-    
-    
-
+                log.warning("Arduino disconected, trying to reconect")
+                print()
+                ser = None
+                setup(3)
+                
 if __name__ == "__main__":
+    DEBUG = 1  # 0 for off 1 for DEBUG logs on
+    logger_setup(DEBUG)
+    from funcs import log
+
     main()
