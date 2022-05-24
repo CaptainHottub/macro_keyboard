@@ -67,187 +67,194 @@ user32.SendInput.argtypes = (wintypes.UINT, # nInputs
                              LPINPUT,       # pInputs
                              ctypes.c_int)  # cbSize
 
-#--- Key Code Variables ---#
-class key:
-    cancel = 0x03
-    backspace = 0x08
-    tab = 0x09
-    enter = 0x0D
-    shift = 0x10
-    ctrl = 0x11
-    alt = 0x12
-    capslock = 0x14
-    esc = 0x1B
-    space = 0x20
-    pgup = 0x21
-    pgdown = 0x22
-    end = 0x23
-    home = 0x24
-    leftarrow = 0x26
-    uparrow = 0x26
-    rightarrow = 0x27
-    downarrow = 0x28
-    select = 0x29
-    print = 0x2A
-    execute = 0x2B
-    printscreen = 0x2C
-    insert = 0x2D
-    delete = 0x2E
-    help = 0x2F
-    num0 = 0x30
-    num1 = 0x31
-    num2 = 0x32
-    num3 = 0x33
-    num4 = 0x34
-    num5 = 0x35
-    num6 = 0x36
-    num7 = 0x37
-    num8 = 0x38
-    num9 = 0x39
-    a = 0x41
-    b = 0x42
-    c = 0x43
-    d = 0x44
-    e = 0x45
-    f = 0x46
-    g = 0x47
-    h = 0x48
-    i = 0x49
-    j = 0x4A
-    k = 0x4B
-    l = 0x4C
-    m = 0x4D
-    n = 0x4E
-    o = 0x4F
-    p = 0x50
-    q = 0x51
-    r = 0x52
-    s = 0x53
-    t = 0x54
-    u = 0x55
-    v = 0x56
-    w = 0x57
-    x = 0x58
-    y = 0x59
-    z = 0x5A
-    leftwin = 0x5B
-    rightwin = 0x5C
-    apps = 0x5D
-    sleep = 0x5F
-    numpad0 = 0x60
-    numpad1 = 0x61
-    numpad3 = 0x63
-    numpad4 = 0x64
-    numpad5 = 0x65
-    numpad6 = 0x66
-    numpad7 = 0x67
-    numpad8 = 0x68
-    numpad9 = 0x69
-    multiply = 0x6A
-    add = 0x6B
-    seperator = 0x6C
-    subtract = 0x6D
-    decimal = 0x6E
-    divide = 0x6F
-    F1 = 0x70
-    F2 = 0x71
-    F3 = 0x72
-    F4 = 0x73
-    F5 = 0x74
-    F6 = 0x75
-    F7 = 0x76
-    F8 = 0x77
-    F9 = 0x78
-    F10 = 0x79
-    F11 = 0x7A
-    F12 = 0x7B
-    F13 = 0x7C
-    F14 = 0x7D
-    F15 = 0x7E
-    F16 = 0x7F
-    F17 = 0x80
-    F19 = 0x82
-    F20 = 0x83
-    F21 = 0x84
-    F22 = 0x85
-    F23 = 0x86
-    F24 = 0x87
-    numlock = 0x90
-    scrolllock = 0x91
-    leftshift = 0xA0
-    rightshift = 0xA1
-    leftctrl = 0xA2
-    rightctrl = 0xA3
-    leftmenu = 0xA4
-    rightmenu = 0xA5
-    browserback = 0xA6
-    browserforward = 0xA7
-    browserrefresh = 0xA8
-    browserstop = 0xA9
-    browserfavories = 0xAB
-    browserhome = 0xAC
-    volumemute = 0xAD
-    volumedown = 0xAE
-    volumeup = 0xAF
-    nexttrack = 0xB0
-    prevoustrack = 0xB1
-    stopmedia = 0xB2
-    playpause = 0xB3
-    launchmail = 0xB4
-    selectmedia = 0xB5
-    launchapp1 = 0xB6
-    launchapp2 = 0xB7
-    semicolon = 0xBA
-    equals = 0xBB
-    comma = 0xBC
-    dash = 0xBD
-    period = 0xBE
-    slash = 0xBF
-    accent = 0xC0
-    openingsquarebracket = 0xDB
-    backslash = 0xDC
-    closingsquarebracket = 0xDD
-    quote = 0xDE
-    play = 0xFA
-    zoom = 0xFB
-    PA1 = 0xFD
-    clear = 0xFE
+# from pyautogui
+Keyboard_Codes = {
+    'backspace': 0x08, # VK_BACK
+    '\b': 0x08, # VK_BACK
+    'super': 0x5B, #VK_LWIN
+    'tab': 0x09, # VK_TAB
+    '\t': 0x09, # VK_TAB
+    'clear': 0x0c, # VK_CLEAR
+    'enter': 0x0d, # VK_RETURN
+    '\n': 0x0d, # VK_RETURN
+    'return': 0x0d, # VK_RETURN
+    'shift': 0x10, # VK_SHIFT
+    'ctrl': 0x11, # VK_CONTROL
+    'alt': 0x12, # VK_MENU
+    'pause': 0x13, # VK_PAUSE
+    'capslock': 0x14, # VK_CAPITAL
+    'kana': 0x15, # VK_KANA
+    'hanguel': 0x15, # VK_HANGUEL
+    'hangul': 0x15, # VK_HANGUL
+    'junja': 0x17, # VK_JUNJA
+    'final': 0x18, # VK_FINAL
+    'hanja': 0x19, # VK_HANJA
+    'kanji': 0x19, # VK_KANJI
+    'esc': 0x1b, # VK_ESCAPE
+    'escape': 0x1b, # VK_ESCAPE
+    'convert': 0x1c, # VK_CONVERT
+    'nonconvert': 0x1d, # VK_NONCONVERT
+    'accept': 0x1e, # VK_ACCEPT
+    'modechange': 0x1f, # VK_MODECHANGE
+    ' ': 0x20, # VK_SPACE
+    'space': 0x20, # VK_SPACE
+    'pgup': 0x21, # VK_PRIOR
+    'pgdn': 0x22, # VK_NEXT
+    'pageup': 0x21, # VK_PRIOR
+    'pagedown': 0x22, # VK_NEXT
+    'end': 0x23, # VK_END
+    'home': 0x24, # VK_HOME
+    'left': 0x25, # VK_LEFT
+    'up': 0x26, # VK_UP
+    'right': 0x27, # VK_RIGHT
+    'down': 0x28, # VK_DOWN
+    'select': 0x29, # VK_SELECT
+    'print': 0x2a, # VK_PRINT
+    'execute': 0x2b, # VK_EXECUTE
+    'prtsc': 0x2c, # VK_SNAPSHOT
+    'prtscr': 0x2c, # VK_SNAPSHOT
+    'prntscrn': 0x2c, # VK_SNAPSHOT
+    'printscreen': 0x2c, # VK_SNAPSHOT
+    'insert': 0x2d, # VK_INSERT
+    'del': 0x2e, # VK_DELETE
+    'delete': 0x2e, # VK_DELETE
+    'help': 0x2f, # VK_HELP
+    'win': 0x5b, # VK_LWIN
+    'winleft': 0x5b, # VK_LWIN
+    'winright': 0x5c, # VK_RWIN
+    'apps': 0x5d, # VK_APPS
+    'sleep': 0x5f, # VK_SLEEP
+    'num0': 0x60, # VK_NUMPAD0
+    'num1': 0x61, # VK_NUMPAD1
+    'num2': 0x62, # VK_NUMPAD2
+    'num3': 0x63, # VK_NUMPAD3
+    'num4': 0x64, # VK_NUMPAD4
+    'num5': 0x65, # VK_NUMPAD5
+    'num6': 0x66, # VK_NUMPAD6
+    'num7': 0x67, # VK_NUMPAD7
+    'num8': 0x68, # VK_NUMPAD8
+    'num9': 0x69, # VK_NUMPAD9
+    'multiply': 0x6a, # VK_MULTIPLY  ??? Is this the numpad *?
+    'add': 0x6b, # VK_ADD  ??? Is this the numpad +?
+    'separator': 0x6c, # VK_SEPARATOR  ??? Is this the numpad enter?
+    'subtract': 0x6d, # VK_SUBTRACT  ??? Is this the numpad -?
+    'decimal': 0x6e, # VK_DECIMAL
+    'divide': 0x6f, # VK_DIVIDE
+    'f1': 0x70, # VK_F1
+    'f2': 0x71, # VK_F2
+    'f3': 0x72, # VK_F3
+    'f4': 0x73, # VK_F4
+    'f5': 0x74, # VK_F5
+    'f6': 0x75, # VK_F6
+    'f7': 0x76, # VK_F7
+    'f8': 0x77, # VK_F8
+    'f9': 0x78, # VK_F9
+    'f10': 0x79, # VK_F10
+    'f11': 0x7a, # VK_F11
+    'f12': 0x7b, # VK_F12
+    'f13': 0x7c, # VK_F13
+    'f14': 0x7d, # VK_F14
+    'f15': 0x7e, # VK_F15
+    'f16': 0x7f, # VK_F16
+    'f17': 0x80, # VK_F17
+    'f18': 0x81, # VK_F18
+    'f19': 0x82, # VK_F19
+    'f20': 0x83, # VK_F20
+    'f21': 0x84, # VK_F21
+    'f22': 0x85, # VK_F22
+    'f23': 0x86, # VK_F23
+    'f24': 0x87, # VK_F24
+    'numlock': 0x90, # VK_NUMLOCK
+    'scrolllock': 0x91, # VK_SCROLL
+    'shiftleft': 0xa0, # VK_LSHIFT
+    'shiftright': 0xa1, # VK_RSHIFT
+    'ctrlleft': 0xa2, # VK_LCONTROL
+    'ctrlright': 0xa3, # VK_RCONTROL
+    'altleft': 0xa4, # VK_LMENU
+    'altright': 0xa5, # VK_RMENU
+    'browserback': 0xa6, # VK_BROWSER_BACK
+    'browserforward': 0xa7, # VK_BROWSER_FORWARD
+    'browserrefresh': 0xa8, # VK_BROWSER_REFRESH
+    'browserstop': 0xa9, # VK_BROWSER_STOP
+    'browsersearch': 0xaa, # VK_BROWSER_SEARCH
+    'browserfavorites': 0xab, # VK_BROWSER_FAVORITES
+    'browserhome': 0xac, # VK_BROWSER_HOME
+    'volumemute': 0xad, # VK_VOLUME_MUTE
+    'volumedown': 0xae, # VK_VOLUME_DOWN
+    'volumeup': 0xaf, # VK_VOLUME_UP
+    'nexttrack': 0xb0, # VK_MEDIA_NEXT_TRACK
+    'prevtrack': 0xb1, # VK_MEDIA_PREV_TRACK
+    'stop': 0xb2, # VK_MEDIA_STOP
+    'playpause': 0xb3, # VK_MEDIA_PLAY_PAUSE
+    'launchmail': 0xb4, # VK_LAUNCH_MAIL
+    'launchmediaselect': 0xb5, # VK_LAUNCH_MEDIA_SELECT
+    'launchapp1': 0xb6, # VK_LAUNCH_APP1
+    'launchapp2': 0xb7, # VK_LAUNCH_APP2
+    }
 
-#--- Keyboard Control Functions ---#
+    # There are other virtual key constants that are not used here because the printable ascii keys are
+    # handled in the following `for` loop.
+    # The virtual key constants that aren't used are:
+    # VK_OEM_1, VK_OEM_PLUS, VK_OEM_COMMA, VK_OEM_MINUS, VK_OEM_PERIOD, VK_OEM_2, VK_OEM_3, VK_OEM_4,
+    # VK_OEM_5, VK_OEM_6, VK_OEM_7, VK_OEM_8, VK_PACKET, VK_ATTN, VK_CRSEL, VK_EXSEL, VK_EREOF,
+    # VK_PLAY, VK_ZOOM, VK_NONAME, VK_PA1, VK_OEM_CLEAR
 
 # Category variables
 letters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 shiftsymbols = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?"
 
+def isvalid(keys):
+    # if its multiple code
+    if len(keys) > 1:
+        return [hex(Keyboard_Codes[key]) for key in keys  if key in Keyboard_Codes]
 
+    # if its one code
+    if keys in Keyboard_Codes:
+        return hex(Keyboard_Codes[keys])
+
+# I can try and copy Pyautogui, a bit. it doesnt use user32.SendInput, so numpad keys arent registered correctly
 # Functions
-user32_2 = ctypes.windll.user32
+def PressKey(KeyCode):
+    #if KeyCode in Keyboard_Codes:
+    VK_code = isvalid(KeyCode)
 
-def HotKey(*hexKeyCodes):
-    
-    print(hexKeyCodes)
-    print(key("numpad7"))
-
-    #pass
-
-def PressKey(hexKeyCode):
     x = INPUT(type=INPUT_KEYBOARD,
-              ki=KEYBDINPUT(wVk=hexKeyCode))
+              ki=KEYBDINPUT(wVk=int(KeyCode)))
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
-def ReleaseKey(hexKeyCode):
+def ReleaseKey(KeyCode):
+    # if KeyCode in Keyboard_Codes:
+    #     VK_code = hex(Keyboard_Codes[KeyCode])
+
+    VK_code = isvalid(KeyCode)
+
     x = INPUT(type=INPUT_KEYBOARD,
-              ki=KEYBDINPUT(wVk=hexKeyCode, dwFlags=KEYEVENTF_KEYUP))
+              ki=KEYBDINPUT(wVk=KeyCode, dwFlags=KEYEVENTF_KEYUP))
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 
-def SendKey(hexKeyCode):
+def SendKey(KeyCode):
+    # if KeyCode in Keyboard_Codes:
+    #     VK_code = hex(Keyboard_Codes[KeyCode])
+
+    VK_code = isvalid(KeyCode)
+
     x1 = INPUT(type=INPUT_KEYBOARD,
-              ki=KEYBDINPUT(wVk=hexKeyCode))
+              ki=KEYBDINPUT(wVk=VK_code))
     x2 = INPUT(type=INPUT_KEYBOARD,
-              ki=KEYBDINPUT(wVk=hexKeyCode, dwFlags=KEYEVENTF_KEYUP))
+              ki=KEYBDINPUT(wVk=VK_code, dwFlags=KEYEVENTF_KEYUP))
    
     user32.SendInput(1, ctypes.byref(x1), ctypes.sizeof(x1))
     time.sleep(0.2)
     user32.SendInput(1, ctypes.byref(x2), ctypes.sizeof(x2))
+
+
+
+
+def HotKey(*keys):
+    # gets the key_code of the keys we want pressed
+    VK_codes = isvalid(keys)
+    
+    print(VK_codes)
+    #VK_codes = [hex(Keyboard_Codes[key]) for key in hexKeyCodes  if key in Keyboard_Codes]
 

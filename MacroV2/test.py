@@ -97,19 +97,17 @@ def Button_handler(button):
 
         case ["Star Citizen", ("5", mode)]: # focus front shields
             log.debug("numpad 8")
-            ctypes_keyboard.SendKey(0x68)
+            #ctypes_keyboard.SendKey(0x68)
+            ctypes_keyboard.SendKey('num8')
         case ["Star Citizen", ("6", mode)]: # focus back shields
             log.debug("numpad 2")
-            ctypes_keyboard.SendKey(0x62)
+            #ctypes_keyboard.SendKey(0x62)
+            ctypes_keyboard.SendKey('num2')
         case ["Star Citizen", ("7", mode)]: # Reset shields
             log.debug("numpad 5")
-            ctypes_keyboard.SendKey(0x65)
-            """
-            Num keys:
-            0x60 to 0x69
-            0x60 is 0
-            0x69 is 9
-            """
+            #ctypes_keyboard.SendKey(0x65)
+            ctypes_keyboard.SendKey('num5')
+
 
         # any other button that is not defined / default
         # case [_, (btn, mode)]:
@@ -117,7 +115,7 @@ def Button_handler(button):
 
         case [_, ("5", mode)]:
             log.debug("button 5 ")
-            ctypes_keyboard.HotKey(0x41)
+            #ctypes_keyboard.HotKey('num5', 'num8', 'num2')
 
     
 def on_quit(systray):
