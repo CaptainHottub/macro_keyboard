@@ -5,7 +5,7 @@ import sys
 #import keyboard
 
 import ctypes_keyboard
-#from ctypes_keyboard import PressKey, ReleaseKey, SendKey
+#from ctypes_keyboard import PressKey, ReleaseKey
 
 # test
 icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
