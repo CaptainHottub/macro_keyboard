@@ -2,6 +2,15 @@ import ctypes
 from ctypes import wintypes
 import time
 
+from sympy import EX
+
+
+from funcs import logger_setup
+DEBUG = 1  # 0 for off 1 for DEBUG logs on
+logger_setup(DEBUG)
+from funcs import log
+
+
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
 
@@ -18,6 +27,17 @@ MAPVK_VK_TO_VSC = 0
 # msdn.microsoft.com/en-us/library/dd375731
 VK_TAB  = 0x09
 VK_MENU = 0x12
+
+
+
+class isNotValid(Exception):
+    """Exception raise when key is not valid """
+    def __init__(self, key, message="Key is not in list of valid keys"):
+        self.key = key
+        self.message = message
+        super().__init__(self.message)
+    def __str__(self):
+        return f'{self.key} -> {self.message}'
 
 # C struct definitions
 
@@ -192,44 +212,44 @@ Keyboard_Codes = {
     'launchapp2': 0xb7, # VK_LAUNCH_APP2
     }
 
-    # There are other virtual key constants that are not used here because the printable ascii keys are
-    # handled in the following `for` loop.
-    # The virtual key constants that aren't used are:
-    # VK_OEM_1, VK_OEM_PLUS, VK_OEM_COMMA, VK_OEM_MINUS, VK_OEM_PERIOD, VK_OEM_2, VK_OEM_3, VK_OEM_4,
-    # VK_OEM_5, VK_OEM_6, VK_OEM_7, VK_OEM_8, VK_PACKET, VK_ATTN, VK_CRSEL, VK_EXSEL, VK_EREOF,
-    # VK_PLAY, VK_ZOOM, VK_NONAME, VK_PA1, VK_OEM_CLEAR
 
 # Category variables
 letters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 shiftsymbols = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?"
 
-def isvalid(keys):
-    # if its multiple code
-    if len(keys) > 1:
-        return [hex(Keyboard_Codes[key]) for key in keys  if key in Keyboard_Codes]
+def isvalid(key):
 
-    # if its one code
-    if keys in Keyboard_Codes:
-        return hex(Keyboard_Codes[keys])
-
+    if key not in Keyboard_Codes:
+        raise isNotValid(key)
+    return Keyboard_Codes[key]
+   
 # I can try and copy Pyautogui, a bit. it doesnt use user32.SendInput, so numpad keys arent registered correctly
 # Functions
-def PressKey(KeyCode):
-    #if KeyCode in Keyboard_Codes:
-    VK_code = isvalid(KeyCode)
+def PressKey(key):
+    VK_code = isvalid(key)
+    log.debug(f"got VK back, {VK_code=}")
+    print(type(hex(VK_code)))
+    
+    try:
+        x = INPUT(type=INPUT_KEYBOARD,
+                ki=KEYBDINPUT(wVk=hex(VK_code)))
+        log.debug("x is defiend sending input")
 
-    x = INPUT(type=INPUT_KEYBOARD,
-              ki=KEYBDINPUT(wVk=int(KeyCode)))
-    user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
+    
+        user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
+    except Exception as e:
+        log.debug(e)
+
+    log.debug("input sent")
 
 def ReleaseKey(KeyCode):
     # if KeyCode in Keyboard_Codes:
     #     VK_code = hex(Keyboard_Codes[KeyCode])
 
+    #VK_code = isvalid(KeyCode)
     VK_code = isvalid(KeyCode)
-
     x = INPUT(type=INPUT_KEYBOARD,
-              ki=KEYBDINPUT(wVk=KeyCode, dwFlags=KEYEVENTF_KEYUP))
+              ki=KEYBDINPUT(wVk=VK_code, dwFlags=KEYEVENTF_KEYUP))
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 
@@ -258,3 +278,32 @@ def HotKey(*keys):
     print(VK_codes)
     #VK_codes = [hex(Keyboard_Codes[key]) for key in hexKeyCodes  if key in Keyboard_Codes]
 
+
+# sorta works needs to hold down key,
+def keyTest(*keys):
+
+
+    print(keys)
+    log.debug("entering for loop")
+    for c in keys:
+        log.debug(c)
+        if len(c) > 1:
+            c = c.lower()
+        PressKey(c)
+
+    for c in reversed(keys):
+        if len(c) > 1:
+            c = c.lower()
+        ReleaseKey(c)
+        #time.sleep(interval)
+
+    # for c in args:
+    #     if len(c) > 1:
+    #         c = c.lower()
+    #     platformModule._keyDown(c)
+    #     time.sleep(interval)
+    # for c in reversed(args):
+    #     if len(c) > 1:
+    #         c = c.lower()
+    #     platformModule._keyUp(c)
+    #     time.sleep(interval)

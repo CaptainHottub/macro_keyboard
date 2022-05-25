@@ -96,17 +96,31 @@ def Button_handler(button):
         # any specific layers
 
         case ["Star Citizen", ("5", mode)]: # focus front shields
-            log.debug("numpad 8")
-            #ctypes_keyboard.SendKey(0x68)
-            ctypes_keyboard.SendKey('num8')
+            log.debug("right shift + 1")
+
+            ctypes_keyboard.PressKey(0xa1)  #right shift
+            ctypes_keyboard.PressKey(0x31) # 1
+            time.sleep(0.1)
+            ctypes_keyboard.ReleaseKey(0xa1)#right shift
+            ctypes_keyboard.ReleaseKey(0x31)# 1
+
         case ["Star Citizen", ("6", mode)]: # focus back shields
-            log.debug("numpad 2")
-            #ctypes_keyboard.SendKey(0x62)
-            ctypes_keyboard.SendKey('num2')
+            log.debug("right shift + 2")
+
+            ctypes_keyboard.PressKey(0xa1)  #right shift
+            ctypes_keyboard.PressKey(0x31) # 1
+            time.sleep(0.1)
+            ctypes_keyboard.ReleaseKey(0xa1)#right shift
+            ctypes_keyboard.ReleaseKey(0x31)# 1
+
         case ["Star Citizen", ("7", mode)]: # Reset shields
-            log.debug("numpad 5")
-            #ctypes_keyboard.SendKey(0x65)
-            ctypes_keyboard.SendKey('num5')
+            log.debug("right shift + 3")
+
+            ctypes_keyboard.PressKey(0xa1)  #right shift
+            ctypes_keyboard.PressKey(0x33) # 1
+            time.sleep(0.1)
+            ctypes_keyboard.ReleaseKey(0xa1)#right shift
+            ctypes_keyboard.ReleaseKey(0x33)# 1
 
 
         # any other button that is not defined / default
@@ -115,6 +129,16 @@ def Button_handler(button):
 
         case [_, ("5", mode)]:
             log.debug("button 5 ")
+            
+            ctypes_keyboard.keyTest('ctrl')
+
+            ctypes_keyboard.keyTest('alt', 'tab')
+            # Works
+            # ctypes_keyboard.PressKey(0xa1)  #right shift
+            # ctypes_keyboard.PressKey(0x31) # 1
+            # time.sleep(0.1)
+            # ctypes_keyboard.ReleaseKey(0xa1)#right shift
+            # ctypes_keyboard.ReleaseKey(0x31)# 1
             #ctypes_keyboard.HotKey('num5', 'num8', 'num2')
 
     
