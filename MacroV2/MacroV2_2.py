@@ -9,8 +9,9 @@ from ctypes_keyboard import PressKey, ReleaseKey
 TODO
 in V2_3:
 try and transition all pyautogui keyboard funtions to custom_keyboard
-
 add a write function to custom_keyboard
+
+have one dictionary that contains all Vk_codes
 Remove process_monitor
 """
 
