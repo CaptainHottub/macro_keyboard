@@ -5,16 +5,17 @@ import sys
 import custom_keyboard
 from ctypes_keyboard import PressKey, ReleaseKey
 
+"""
+TODO
+in V2_3:
+try and transition all pyautogui keyboard funtions to custom_keyboard
+
+add a write function to custom_keyboard
+Remove process_monitor
+"""
+
 icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
-
-def timer(func):
-    def wrapper(*args, **kwargs):
-        start = time.perf_counter_ns()
-        func(*args, **kwargs)
-        print(f"Function took: {(time.perf_counter_ns() - start)/1000000} milliseconds")
-    return wrapper
-
 
 stats = {
     "mouse_pos" : None,
@@ -72,7 +73,7 @@ def get_stats(loop=False, m=False, f=True, interval=2):
     if f:
         focus()
 
-#@timer
+
 def Button_handler(button):
     get_stats()
 
