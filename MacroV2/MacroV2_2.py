@@ -2,6 +2,7 @@ from funcs import *
 from infi.systray import SysTrayIcon
 import serial.tools.list_ports
 import sys
+import custom_keyboard
 from ctypes_keyboard import PressKey, ReleaseKey
 
 icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
@@ -98,29 +99,34 @@ def Button_handler(button):
 
         case ["Star Citizen", ("5", mode)]: # focus front shields
             log.debug("right shift + 1")
-            PressKey(0xa1)  #right shift
-            PressKey(0x31) # 1
-            time.sleep(0.1)
-            ReleaseKey(0xa1)#right shift
-            ReleaseKey(0x31)# 1
+            custom_keyboard.hotkey('shiftright', '1')
+
+            # PressKey(0xa1)  #right shift
+            # PressKey(0x31) # 1
+            # time.sleep(0.1)
+            # ReleaseKey(0xa1)#right shift
+            # ReleaseKey(0x31)# 1
 
         case ["Star Citizen", ("6", mode)]: # focus back shields
             log.debug("right shift + 2")
+            custom_keyboard.hotkey('shiftright', '2')
 
-            PressKey(0xa1)  #right shift
-            PressKey(0x32) # 2
-            time.sleep(0.1)
-            ReleaseKey(0xa1)#right shift
-            ReleaseKey(0x32)# 2
+            # PressKey(0xa1)  #right shift
+            # PressKey(0x32) # 2
+            # time.sleep(0.1)
+            # ReleaseKey(0xa1)#right shift
+            # ReleaseKey(0x32)# 2
 
         case ["Star Citizen", ("7", mode)]: # Reset shields
             log.debug("right shift + 3")
+            custom_keyboard.hotkey('shiftright', '3')
 
-            PressKey(0xa1)  #right shift
-            PressKey(0x33) # 3
-            time.sleep(0.1)
-            ReleaseKey(0xa1)#right shift
-            ReleaseKey(0x33)# 3
+            # PressKey(0xa1)  #right shift
+            # PressKey(0x33) # 3
+            # time.sleep(0.1)
+            # ReleaseKey(0xa1)#right shift
+            # ReleaseKey(0x33)# 3
+
 
         # any other button that is not defined / default
         case [_, ("1", mode)]:    
@@ -130,11 +136,11 @@ def Button_handler(button):
         case [_, ("9", mode)]:   # Copy
             log.debug("Copy")
             #NOTE : this can cause a keyboard interupt if used in terminal
-            pyautogui.hotkey('ctrl', 'c')
+            custom_keyboard.hotkey('ctrl', 'c')
 
         case [_, ("0", mode)]:   # Paste 
             log.debug("Paste")
-            pyautogui.hotkey('ctrl', 'v') 
+            custom_keyboard.hotkey('ctrl', 'v')
 
         case [_, ("A", mode)]:   #image to text
             # Press Win + Shift + s, 

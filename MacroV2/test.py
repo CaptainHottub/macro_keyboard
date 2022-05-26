@@ -2,10 +2,9 @@ from funcs import *
 from infi.systray import SysTrayIcon
 import serial.tools.list_ports
 import sys
-#import keyboard
 
 import ctypes_keyboard
-#from ctypes_keyboard import PressKey, ReleaseKey
+import custom_keyboard
 
 # test
 icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
@@ -97,29 +96,36 @@ def Button_handler(button):
 
         case ["Star Citizen", ("5", mode)]: # focus front shields
             log.debug("right shift + 1")
-            ctypes_keyboard.PressKey(0xa1)  #right shift
-            ctypes_keyboard.PressKey(0x31) # 1
-            time.sleep(0.1)
-            ctypes_keyboard.ReleaseKey(0xa1)#right shift
-            ctypes_keyboard.ReleaseKey(0x31)# 1
+
+            custom_keyboard.hotkey('shiftright', '1')
+
+            # ctypes_keyboard.PressKey(0xa1)  #right shift
+            # ctypes_keyboard.PressKey(0x31) # 1
+            # time.sleep(0.1)
+            # ctypes_keyboard.ReleaseKey(0xa1)#right shift
+            # ctypes_keyboard.ReleaseKey(0x31)# 1
 
         case ["Star Citizen", ("6", mode)]: # focus back shields
             log.debug("right shift + 2")
 
-            ctypes_keyboard.PressKey(0xa1)  #right shift
-            ctypes_keyboard.PressKey(0x32) # 2
-            time.sleep(0.1)
-            ctypes_keyboard.ReleaseKey(0xa1)#right shift
-            ctypes_keyboard.ReleaseKey(0x32)# 2
+            custom_keyboard.hotkey('shiftright', '2')
+
+            # ctypes_keyboard.PressKey(0xa1)  #right shift
+            # ctypes_keyboard.PressKey(0x32) # 2
+            # time.sleep(0.1)
+            # ctypes_keyboard.ReleaseKey(0xa1)#right shift
+            # ctypes_keyboard.ReleaseKey(0x32)# 2
 
         case ["Star Citizen", ("7", mode)]: # Reset shields
             log.debug("right shift + 3")
 
-            ctypes_keyboard.PressKey(0xa1)  #right shift
-            ctypes_keyboard.PressKey(0x33) # 3
-            time.sleep(0.1)
-            ctypes_keyboard.ReleaseKey(0xa1)#right shift
-            ctypes_keyboard.ReleaseKey(0x33)# 3
+            custom_keyboard.hotkey('shiftright', '3')
+
+            # ctypes_keyboard.PressKey(0xa1)  #right shift
+            # ctypes_keyboard.PressKey(0x33) # 3
+            # time.sleep(0.1)
+            # ctypes_keyboard.ReleaseKey(0xa1)#right shift
+            # ctypes_keyboard.ReleaseKey(0x33)# 3
 
 
         # any other button that is not defined / default
