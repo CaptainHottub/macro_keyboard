@@ -102,6 +102,7 @@ def Button_handler(button):
         case ["Star Citizen", ("5", mode)]: # focus front shields
             log.debug("right shift + 1")
             custom_keyboard.hotkey('shiftright', '1')
+            time.sleep(0.1)
             custom_keyboard.press('shiftright')
 
             # PressKey(0xa1)  #right shift
@@ -113,6 +114,7 @@ def Button_handler(button):
         case ["Star Citizen", ("6", mode)]: # focus back shields
             log.debug("right shift + 2")
             custom_keyboard.hotkey('shiftright', '2')
+            time.sleep(0.1)
             custom_keyboard.press('shiftright')
 
             # PressKey(0xa1)  #right shift
@@ -124,6 +126,7 @@ def Button_handler(button):
         case ["Star Citizen", ("7", mode)]: # Reset shields
             log.debug("right shift + 3")
             custom_keyboard.hotkey('shiftright', '3')
+            time.sleep(0.1)
             custom_keyboard.press('shiftright')
 
             # PressKey(0xa1)  #right shift
