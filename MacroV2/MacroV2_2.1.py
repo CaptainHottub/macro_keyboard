@@ -179,36 +179,6 @@ def on_quit(type):
     #ser.close()
 
 
-   
-def Connect():
-    """
-    Tries to connect to the arduino.  Outputs None if it cant connect.
-    """
-    log.info("Connecting to Arduino...")
-
-    log.info("Getting port")
-    ports = serial.tools.list_ports.comports()
-    log.debug(f"{ports=}")
-
-    # gets the port the arduino is connected to, returns [ ], if there is no arduino port
-    arduinoPort = [port for port, desc, hwid in sorted(ports) if "Arduino Micro" in desc]
-    log.info("Got arduino port"), log.debug(f"{arduinoPort=}")
-
-    try: 
-        ser = serial.Serial(arduinoPort[0], 9600)
-
-    except serial.serialutil.SerialException:
-        log.warning("Arduino is already connected to something")
-        #toaster.show_toast("Macro Keypad is NOT connected", "Quitting program", icon_path=None, duration=3, threaded=True)
-        #on_quit()
-        #sys.exit(1)
-        raise serial.serialutil.SerialException('Access is denied.')
-
-    else:
-        log.info("Connected to Arduino")
-        toaster.show_toast("Macro Keypad is connected", icon_path=None, duration=3, threaded=True)
-        return ser
-
 def setupV2(type=None):
     while True:
         if type is not None: # this used when trying to reconect to arduino
@@ -246,26 +216,6 @@ def setupV2(type=None):
             print()
 
             return ser
-
-
-def setup(type=None):
-    while True:
-        if type is not None: # this used when trying to reconect to arduino
-            time.sleep(type)
-
-        try:
-            global ser
-            ser = Connect()
-
-        except Exception as e:
-        
-            log.error(e)
-            time.sleep(0.2)
-        else:
-            log.info("Setup was a success")
-            print()
-            return ser
-
 
 def sysIcon():
     global systray
