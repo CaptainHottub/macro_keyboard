@@ -5,6 +5,7 @@ import serial.tools.list_ports
 import sys
 import custom_keyboard
 from ctypes_keyboard import PressKey, ReleaseKey
+from win10toast import ToastNotifier
 
 """
 TODO
@@ -16,8 +17,11 @@ have one dictionary that contains all Vk_codes
 Remove process_monitor
 """
 
-image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2\python2.ico") 
+image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2\pythonIcon.ico") 
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
+
+toaster = ToastNotifier()
+
 
 stats = {
     "mouse_pos" : None,
@@ -160,7 +164,7 @@ def Button_handler(button):
         #case [_, (btn, mode)]:
         #    print(f"button {btn} pressed on universal layer")
 
-def on_quit(systray):
+def on_quit(type):
     """
     Quits the program,
     ser.close() raises a index out of range error, 2 NoneType errors 
@@ -169,7 +173,12 @@ def on_quit(systray):
     """
     log.critical("PROGRAM is shutting down")
     systray.stop()
-    ser.close()
+    if type == 1:
+        ser.close()
+    exit(1)
+    #ser.close()
+
+
    
 def Connect():
     """
@@ -187,13 +196,57 @@ def Connect():
 
     try: 
         ser = serial.Serial(arduinoPort[0], 9600)
+
     except serial.serialutil.SerialException:
         log.warning("Arduino is already connected to something")
-        sys.exit(1)
+        #toaster.show_toast("Macro Keypad is NOT connected", "Quitting program", icon_path=None, duration=3, threaded=True)
+        #on_quit()
+        #sys.exit(1)
+        raise serial.serialutil.SerialException('Access is denied.')
 
     else:
         log.info("Connected to Arduino")
+        toaster.show_toast("Macro Keypad is connected", icon_path=None, duration=3, threaded=True)
         return ser
+
+def setupV2(type=None):
+    while True:
+        if type is not None: # this used when trying to reconect to arduino
+            time.sleep(type)
+
+        try:
+            """
+            Tries to connect to the arduino.  Outputs None if it cant connect.
+            """
+            log.info("Connecting to Arduino...")
+
+            log.info("Getting port")
+            ports = serial.tools.list_ports.comports()
+            log.debug(f"{ports=}")
+
+            # gets the port the arduino is connected to, returns [ ], if there is no arduino port
+            arduinoPort = [port for port, desc, hwid in sorted(ports) if "Arduino Micro" in desc]
+            log.info("Got arduino port"), log.debug(f"{arduinoPort=}")
+            global ser
+            ser = serial.Serial(arduinoPort[0], 9600)
+
+        except serial.serialutil.SerialException as err:
+            log.error("Arduino is already connected to something, Access is denied.")
+            toaster.show_toast("Access is denied","Arduino is already connected to something", icon_path=None, duration=3, threaded=True)
+            on_quit(0)
+
+        except Exception as e:
+        
+            log.error(e)
+            time.sleep(0.2)
+        else:
+            log.info("Connected to Arduino")
+            toaster.show_toast("Macro Keypad is connected", icon_path=None, duration=3, threaded=True)
+            log.info("Setup was a success")
+            print()
+
+            return ser
+
 
 def setup(type=None):
     while True:
@@ -205,17 +258,23 @@ def setup(type=None):
             ser = Connect()
 
         except Exception as e:
+        
             log.error(e)
+            time.sleep(0.2)
         else:
             log.info("Setup was a success")
             print()
             return ser
 
+
 def sysIcon():
-    systray = pystray.Icon("Neural", image, menu=pystray.Menu(
-        pystray.MenuItem("Quit", on_quit)
+    global systray
+    systray = pystray.Icon(name="Python Macro", icon=image, title="Python Macro", menu=pystray.Menu(
+        #pystray.MenuItem("Quit", on_quit)
+        pystray.MenuItem("Quit", lambda: on_quit(1))
     ))
     systray.run()
+
 
 def main():
     # Makes the systray Icon a seperate thread so it doesn't block code
@@ -223,7 +282,7 @@ def main():
     
     ## setup
     global ser
-    ser = setup()
+    ser = setupV2()
     
     while True:
         try: 
@@ -238,15 +297,18 @@ def main():
             Button_handler(button)
 
         except serial.serialutil.PortNotOpenError:
-            log.critical("Program quiting, goodbye")
+            log.critical("Arduino is not plugged in")
+            #log.critical("Program quiting, goodbye")
             sys.exit(1) 
 
         except Exception as e:
             log.warning(e)
             print()
+            time.sleep(0.2)
 
             if type(e) is serial.SerialException:
                 log.warning("Arduino disconected, trying to reconect")
+                toaster.show_toast("Arduino has been disconected", "Rrying to reconnect", icon_path=None, duration=3, threaded=True)
                 print()
                 ser = None
                 setup(3)

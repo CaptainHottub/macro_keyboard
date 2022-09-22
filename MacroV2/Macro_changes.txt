@@ -40,7 +40,7 @@ Was using infi.systray.SysTrayIcon
 Now using pystray and PIL.Image
 
 Changed Icon path from "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico" to:
-"C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2\python2.ico"
+"C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2\pythonIcon.ico"
 And using Image.open() to open the image before
 
 The following was Removed:
