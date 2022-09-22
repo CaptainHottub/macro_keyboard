@@ -261,7 +261,7 @@ def main():
                 toaster.show_toast("Arduino has been disconected", "Rrying to reconnect", icon_path=None, duration=3, threaded=True)
                 print()
                 ser = None
-                setup(3)
+                setupV2(3)
                 
 if __name__ == "__main__":
     DEBUG = 1  # 0 for off 1 for DEBUG logs on
