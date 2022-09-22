@@ -181,31 +181,29 @@ def input_special_char():
 def ButtonMode(mode):
     ButtonDescriptions = f"""Current mode is: {mode}
     If button is not their nothing is assigned to it.
-    Button 1 is used to show this.
-
-    Mode 1:     General
-        Button 2:   Pause/play song spotify
+        
+    Default:
+        Button 1 is used to show this.
+        Button 2:   Pause/play, next or previous song spotify 
         Button 3:   Switches desktop to the left
         Button 4:   Switches desktop to the right
-        Button 5:   Next Song Spotify
-        Button 6:   Previous song Spotify
-        Button 7:   Volume Up
-        Button 8:   Volume Down
+        Button 5:   
+        Button 6:   
+        Button 7:   
+        Button 8:   
         Button 9:   Copy
         Button 10:  Paste
         Button 11:  Converts screenshot of text to text
 
-    Mode 2:     Math on google Docs
-        Button 3:   Switches desktop to the left
-        Button 4:   Switches desktop to the right
-        Button 7:   Insert new equation in google docs
-        Button 8:   Inserts special Char in equation
-                    Ex; multiply or fraction
-        Button 9:   Copy
-        Button 10:  Paste
-        Button 11:  Converts screenshot of text to text
+    When in Vscode:
+        Button 5:   run code in Vs code
 
-    Mode 3 and 4 do nothing 
+    When in Star Citizen:
+        Button 5: focus front shields  
+        Button 6: focus back shields
+        Button 7: Reset shields
+        
+    Mode 2, 3 and 4 do nothing   
     """
     pyautogui.alert(ButtonDescriptions, "Button Mode")  
 

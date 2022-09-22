@@ -15,7 +15,7 @@ have one dictionary that contains all Vk_codes
 Remove process_monitor
 """
 
-icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
+icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python_2.ico"
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 stats = {
