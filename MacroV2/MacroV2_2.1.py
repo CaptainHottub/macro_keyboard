@@ -1,5 +1,6 @@
 from funcs import *
-from infi.systray import SysTrayIcon
+import pystray
+from PIL import Image
 import serial.tools.list_ports
 import sys
 import custom_keyboard
@@ -15,7 +16,7 @@ have one dictionary that contains all Vk_codes
 Remove process_monitor
 """
 
-icon_path = "C:\Coding\Arduino Stuff\Projects\Arduino Python\MacroV2\python.ico"
+image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2\python2.ico") 
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 stats = {
@@ -167,7 +168,7 @@ def on_quit(systray):
     which we catch in the main try. once we catch it wan can do sys.exit(1) 
     """
     log.critical("PROGRAM is shutting down")
-    SysTrayIcon.shutdown
+    systray.stop()
     ser.close()
    
 def Connect():
@@ -210,16 +211,16 @@ def setup(type=None):
             print()
             return ser
 
+def sysIcon():
+    systray = pystray.Icon("Neural", image, menu=pystray.Menu(
+        pystray.MenuItem("Quit", on_quit)
+    ))
+    systray.run()
 
 def main():
-    systray = SysTrayIcon(icon_path, "Python Macro", on_quit=on_quit) # little icon in bottom right
-    systray.start()
-    # systray = pystray.Icon("Neural", image, menu=pystray.Menu(
-    #     pystray.MenuItem("Quit", on_quit)
-    # ))
-
-    # twrv = Thread(target = sysIcon).start()
-
+    # Makes the systray Icon a seperate thread so it doesn't block code
+    twrv = Thread(target = sysIcon).start()
+    
     ## setup
     global ser
     ser = setup()
