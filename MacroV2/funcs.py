@@ -156,7 +156,7 @@ def Image_to_text():
 def input_special_char():
     promptText= """ What greek letter, operator or maths operation do you want
     Greek letters   Codes
-    Theta                 Theta
+    Theta                 theta
     lambda              lambda
     pi                          pi
     Delta                  Delta
@@ -169,13 +169,14 @@ def input_special_char():
     Infinity               infty
 
     Maths operation Codes:
-    Fraction                 frac
+    Fraction                     frac
     Sqrt                         sqrt
     Root                       rootof
-    """ 
-    operator = pyautogui.prompt(text=promptText)
-    pyautogui.write(f"\{operator}")
-    pyautogui.press("space")
+    """
+
+    # operator = pyautogui.prompt(text=promptText)
+    # pyautogui.write(f"\{operator}")
+    # pyautogui.press("space")
 
 
 def ButtonMode(mode):

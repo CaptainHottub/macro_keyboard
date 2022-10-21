@@ -145,7 +145,7 @@ def Button_handler(button):
         case [_, ("1", mode)]:    
             log.debug("ButtonMode")
             twrv = Thread(target = ButtonMode, args=(mode, )).start()
-
+            
         case [_, ("9", mode)]:   # Copy
             log.debug("Copy")
             #NOTE : this can cause a keyboard interupt if used in terminal
