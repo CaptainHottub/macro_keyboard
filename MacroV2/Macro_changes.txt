@@ -33,6 +33,12 @@ match [app, button.split()]:
 
 
 ##############   V2_2.1   ##############
+Updated playPause(), now at V5
+Also moved it into spotify().
+
+PlayPause now gets the parent PID, so it only returns one item, so no need to loop through them all to find the right one.
+Removed Set Focus or wtv its called, is now part of PlayPause
+
 Changed Code for System Tray Icon.
 I did this because it didnt work with the new icon
 

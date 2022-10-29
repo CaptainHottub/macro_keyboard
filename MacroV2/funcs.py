@@ -66,8 +66,6 @@ def logger_setup(level):
 # log.error("error message")
 # log.critical("critical message")
 
-
-
 ### find PID of app, 
 def findProcessIdByName(processName): # This returns the parent of the procces Name, 
     """
