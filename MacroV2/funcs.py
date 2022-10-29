@@ -69,7 +69,7 @@ def logger_setup(level):
 
 
 ### find PID of app, 
-def findProcessIdByName(processName):
+def findProcessIdByName(processName): # This returns the parent of the procces Name, 
     """
     Returns a list of all the process ID's with a specific name.
     
@@ -81,6 +81,17 @@ def findProcessIdByName(processName):
         (listOfProcessIds) List of all process ID's with a specific name.
 
     NOTE: Function will not work if processName is empty
+
+    try:
+    for p in psutil.process_iter(['name']):
+        if processName in p.info['name']:
+            parent = p.parent()
+            if parent != None:
+                return parent.pid
+            
+    except Exception as e:
+        log.error(f"Exception Raised: {e}")
+        return None
     """
     listOfProcessIds = []
     for proc in psutil.process_iter():
@@ -100,47 +111,14 @@ def is_fullscreen():
     except Exception:
         return False
 
-
-
-spotify_PID = None
-def focus_v4(ids):
-    warnings.filterwarnings("ignore", category=UserWarning)
-    try:
-        app = Application().connect(process=ids)
-        app.window().send_keystrokes(" ")
-        global spotify_PID
-        spotify_PID = ids
-
-    except Exception as e:
-        print(f"Exception Raised: {e}")
- 
-def Play_pause_V4():    # get PID of focused app
-    current_focused_pid = win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow())   
-    listOfProcessIds = findProcessIdByName('Spotify')
-
-    if spotify_PID in listOfProcessIds:
-        focus_v4(spotify_PID)
-        return
-    if listOfProcessIds != [] and current_focused_pid not in listOfProcessIds:
-        # if spotify is running, and spotify not in listOfProcessIds
-        # focus spotify
-        threads = [None] * len(listOfProcessIds)
-        for n in range(len(listOfProcessIds)):
-            threads[n] = Thread(target=focus_v4, args=(listOfProcessIds[n],)).start()
-        return
-    pyautogui.press("playpause")  
-
-
-
 def Change_desktop(direction): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab is program is in fullscreen mode
     # twrv = ThreadWithReturnValue(target=is_fullscreen, args=())
     # twrv.start()
     # full = twrv.join()
-    full = is_fullscreen()
-    if full == True:
-        pyautogui.hotkey('alt', 'tab')  
+    # full = is_fullscreen()
+    # if full == True:
+    #     pyautogui.hotkey('alt', 'tab')  
     pyautogui.hotkey('ctrl', 'win', direction)      
-
 
 def Image_to_text():
     img = ImageGrab.grabclipboard()
@@ -208,34 +186,8 @@ def ButtonMode(mode):
     """
     pyautogui.alert(ButtonDescriptions, "Button Mode")  
 
-
-def cpu_ram_monitor():
-    """
-    Prints a progress bar in terminal showing cpu, ram usage, also the cpu usage of the procces.    
-    
-    To use properly, thread it as a daemon so it quits when main thread quits.
-
-    Examples
-        --------
-        >>> from threading import Thread
-        >>> from tqdm import tqdm
-        >>> import time, psutil, os
-        >>>
-        >>> monitor = Thread(target=cpu_ram_monitor, daemon=True)
-        >>> monitor.start()
-    """
-    # python_process = psutil.Process(os.getpid())
-    # with tqdm(total=100, desc='pros%', position=2) as prosbar, tqdm(total=100, desc='cpu%', position=1) as cpubar, tqdm(total=100, desc='ram%', position=0) as rambar:
-    #     while True:
-    #         rambar.n=psutil.virtual_memory().percent
-    #         cpubar.n=psutil.cpu_percent()
-    #         prosbar.n=python_process.cpu_percent()
-    #         rambar.refresh()
-    #         cpubar.refresh()
-    #         prosbar.refresh()
-    #         time.sleep(0.25)
-
 count =0
+spotify_PID = None
 def spotify(timeout = 0.5):
     """Plays/Pauses spotify, presses next song previous song.   
     
@@ -252,13 +204,43 @@ def spotify(timeout = 0.5):
     thread_running = None
     global count
     count += 1
+    
+    def playPauseV5():
+        current_focused_pid = win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow())
+        # Spotify is focused
+        
+        global spotify_PID
+        if spotify_PID in current_focused_pid:
+            log.debug("prosName in current_focused_pid")
+            pyautogui.press("playpause")  
+        elif spotify_PID is None:
+            log.debug("prosName in None")
+            try:
+                for p in psutil.process_iter(['name']):
+                    if 'Spotify' in p.info['name']:
+                        parent = p.parent()
+                        if parent != None:
+                            spotify_PID = parent.pid
+                            break
+                
+                app = Application().connect(process=spotify_PID)
+                app.window().send_keystrokes(" ")
+
+            except Exception as e:
+                log.error(f"Exception Raised: {e}")
+        else:
+            log.debug("prosName in NOT NONE")
+            app = Application().connect(process=spotify_PID)
+            app.window().send_keystrokes(" ")
+
 
     def spotify_timer(timeout):
         time.sleep(timeout)
         global count
         if count == 1:
             log.debug("play pause")
-            twrv = Thread(target=Play_pause_V4, args=()).start()
+            playPauseV5()
+            #twrv = Thread(target=Play_pause_V4, args=()).start()
             #twrv.start()
         elif count == 2:
             log.debug("next song")
