@@ -20,7 +20,6 @@ image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2\pyth
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 toaster = ToastNotifier()
-#hmm
 
 stats = {
     "mouse_pos" : None,
