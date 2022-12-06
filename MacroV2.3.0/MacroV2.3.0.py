@@ -16,134 +16,64 @@ add a write function to custom_keyboard
 have one dictionary that contains all Vk_codes
 """
 
-image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2\pythonIcon.ico") 
+image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2.3.0\pythonIcon.ico") 
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 toaster = ToastNotifier()
 
-stats = {
-    "mouse_pos" : None,
-    "focused_app": None,
-    "is_fullscreen": None,
-    "app_hwnd": None}
-    
-def get_stats(loop=False, m=False, f=True, interval=2):
-    """
-    Parameters
-    ----------
-    loop : bool
-        True of False. [default: False]
-        Will make it loop if true
-    m  : bool
-        True of False. [default: False]
-        Gets the mouse position
-    w  : bool
-        True of False. [default: True]
-        Gets what is focused and if it is fullscreen
-    interval : int or float.
-        update interval [default: 0.2] seconds.
-    """
-    def mouse():
-        stats["mouse_pos"] = pyautogui.position()
-    
-    def focus():
-        hWnd = user32.GetForegroundWindow()
-        stats["app_hwnd"] = hWnd
-        
-        name = win32gui.GetWindowText(hWnd)
-        name = name.split(" - ")
-        name.reverse()
-        stats["focused_app"] = name
-
-        try:
-            rect = win32gui.GetWindowRect(hWnd)
-            if 'Google Chrome' in win32gui.GetWindowText(hWnd): # if youtube or google chrome is in the name of the window.
-                fullscreen = False
-            fullscreen = rect == full_screen_rect
-            
-        except Exception:
-            fullscreen = False
-        stats["is_fullscreen"] = fullscreen
-
-    if loop:
-        while True:
-            time.sleep(interval)
-            if m:
-                mouse()
-            if f:
-                focus()
-    if m:
-        mouse()
-    if f:
-        focus()
-
-
 def Button_handler(button):
-    get_stats()
+    def sheild_focus_star_citizen(key): #macro to focus ship shields in star citizen
+        log.debug(f"right shift + {key}")
+        custom_keyboard.hotkey('shiftright', key)
+        time.sleep(0.1)
+        custom_keyboard.press('shiftright')
 
-    app = stats["focused_app"][0]
+    def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
+        log.debug(f"move desktop {direction}")
+        if focused_app in ("Star Citizen"): 
+            custom_keyboard.hotkey('alt', 'tab')
+            time.sleep(0.1)
+        custom_keyboard.hotkey('ctrl', 'win', direction)
+
+    focused_win_name = win32gui.GetWindowText(user32.GetForegroundWindow())
+
+    win_name = focused_win_name.split(" - ")
+    win_name.reverse()
+
+    app = win_name[0]
+
     match [app, button.split()]:
 
         case [_, ("2", mode)]: # pause song spotify for any app
             log.debug("pause song spotify")
-            spotify()
+            spotifyV2()
 
         case [_, ("3", mode)]:    # move desktop left for any app
-            log.debug("move desktop left")
-            twrv = Thread(target = Change_desktop, args=('left',)).start()
+            twrv = Thread(target = change_desktop, args=('left', app)).start()
 
         case [_, ("4", mode)]:     # move desktop right for any app   
-            log.debug("move desktop Right")
-            twrv = Thread(target = Change_desktop, args=('right',)).start()
+            twrv = Thread(target = change_desktop, args=('right', app)).start()
 
-
-
-        # any specific layers
+        # VS Code Layer
         case ["Visual Studio Code", ("5", mode)]: # run code in Vs code
             pyautogui.hotkey('ctrl', 'alt', 'n') 
 
+        # Star Citizen Layer
         case ["Star Citizen", ("5", mode)]: # focus front shields
-            log.debug("right shift + 1")
-            custom_keyboard.hotkey('shiftright', '1')
-            time.sleep(0.1)
-            custom_keyboard.press('shiftright')
-
-            # PressKey(0xa1)  #right shift
-            # PressKey(0x31) # 1
-            # time.sleep(0.1)
-            # ReleaseKey(0xa1)#right shift
-            # ReleaseKey(0x31)# 1
+            sheild_focus_star_citizen("1")
 
         case ["Star Citizen", ("6", mode)]: # focus back shields
-            log.debug("right shift + 2")
-            custom_keyboard.hotkey('shiftright', '2')
-            time.sleep(0.1)
-            custom_keyboard.press('shiftright')
-
-            # PressKey(0xa1)  #right shift
-            # PressKey(0x32) # 2
-            # time.sleep(0.1)
-            # ReleaseKey(0xa1)#right shift
-            # ReleaseKey(0x32)# 2
+            sheild_focus_star_citizen("2")
 
         case ["Star Citizen", ("7", mode)]: # Reset shields
-            log.debug("right shift + 3")
-            custom_keyboard.hotkey('shiftright', '3')
-            time.sleep(0.1)
-            custom_keyboard.press('shiftright')
-
-            # PressKey(0xa1)  #right shift
-            # PressKey(0x33) # 3
-            # time.sleep(0.1)
-            # ReleaseKey(0xa1)#right shift
-            # ReleaseKey(0x33)# 3
+            sheild_focus_star_citizen("3")
 
 
         # any other button that is not defined / default
         case [_, ("1", mode)]:    
             log.debug("ButtonMode")
             twrv = Thread(target = ButtonMode, args=(mode, )).start()
-            
+
         case [_, ("9", mode)]:   # Copy
             log.debug("Copy")
             #NOTE : this can cause a keyboard interupt if used in terminal
@@ -154,8 +84,6 @@ def Button_handler(button):
             custom_keyboard.hotkey('ctrl', 'v')
 
         case [_, ("A", mode)]:   #image to text
-            # Press Win + Shift + s, 
-            # wait for mouse release event with pynput then do Image_to_text
             log.debug("Image to text")
             twrv = Thread(target = Image_to_text).start()
 
