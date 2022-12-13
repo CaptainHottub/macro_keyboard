@@ -61,9 +61,9 @@ def Button_handler(button):
         case [_, ("4", mode)]:     # move desktop right for any app   
             twrv = Thread(target = change_desktop, args=('right', app)).start()
 
-
-        case [_, ("8", mode)]:     # button 8
-            log.debug("Button 8")
+        case [_, ("8", mode)]:     # runs Task Manager
+            log.debug("Starting Task manager")
+            custom_keyboard_dev.hotkey('ctrl', 'shift', 'esc')
    
 
         # VS Code Layer

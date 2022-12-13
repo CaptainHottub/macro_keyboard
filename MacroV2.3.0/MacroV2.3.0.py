@@ -30,7 +30,10 @@ def Button_handler(button):
 
     def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
         log.debug(f"move desktop {direction}")
-        if focused_app in ("Star Citizen"): 
+        
+        apps_to_alt_tab = ('Star Citizen')  #lis of apps to alt tab when changing desktops
+
+        if focused_app in apps_to_alt_tab: 
             custom_keyboard.hotkey('alt', 'tab')
             time.sleep(0.1)
         custom_keyboard.hotkey('ctrl', 'win', direction)
@@ -41,6 +44,9 @@ def Button_handler(button):
     win_name.reverse()
 
     app = win_name[0]
+
+    if app == '': #desktop/ nothing is focused
+        app = 'Desktop'
 
     match [app, button.split()]:
 
@@ -53,10 +59,16 @@ def Button_handler(button):
 
         case [_, ("4", mode)]:     # move desktop right for any app   
             twrv = Thread(target = change_desktop, args=('right', app)).start()
+        
+        case [_, ("8", mode)]:     # runs Task Manager
+            log.debug("Starting Task manager")
+            custom_keyboard.hotkey('ctrl', 'shift', 'esc')
+
 
         # VS Code Layer
         case ["Visual Studio Code", ("5", mode)]: # run code in Vs code
             pyautogui.hotkey('ctrl', 'alt', 'n') 
+
 
         # Star Citizen Layer
         case ["Star Citizen", ("5", mode)]: # focus front shields
