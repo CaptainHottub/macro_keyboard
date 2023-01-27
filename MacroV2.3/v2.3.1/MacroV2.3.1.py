@@ -4,24 +4,26 @@ from PIL import Image
 import serial.tools.list_ports
 import sys
 import custom_keyboard
-from ctypes_keyboard import PressKey, ReleaseKey
 from win10toast import ToastNotifier
 
 """
 TODO
-in V2.3.1:
+in V2.3.2:
 try and transition all pyautogui keyboard funtions to custom_keyboard
 add a write function to custom_keyboard
-
-have one dictionary that contains all Vk_codes
 """
 
-image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2.3.0\pythonIcon.ico") 
+image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2.3\\v2.3.1\\pythonIcon.ico") 
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 toaster = ToastNotifier()
+NOTIFICATION = {
+    "ShowNotification": True,
+    "Duration": 1.5
+    }
 
 def Button_handler(button):
+
     def sheild_focus_star_citizen(key): #macro to focus ship shields in star citizen
         log.debug(f"right shift + {key}")
         custom_keyboard.hotkey('shiftright', key)
@@ -44,14 +46,23 @@ def Button_handler(button):
     win_name.reverse()
 
     app = win_name[0]
-
-    if app == '': #desktop/ nothing is focused
+    if app == '': #Sets app to 'Desktop' if nothing is focused.
         app = 'Desktop'
 
+    # Match case for buttons.
     match [app, button.split()]:
+        #Format: 
+        #case [AppName, ("ButtonNumber", "MacroMode")]:
+        # Leave AppName _ for any app
+        # MacroMode as mode for any mode
+    
+        # Any app and Any Mode    And that are prioritives 
+        case [_, ("1", mode)]:    # Shows what each button is defined as
+            log.debug("ButtonMode")
+            twrv = Thread(target = ButtonMode, args=(mode, )).start()
 
-        case [_, ("2", mode)]: # pause song spotify for any app
-            log.debug("pause song spotify")
+        case [_, ("2", mode)]:    # pause song spotify for any app
+            log.debug("pause song spotify \n")
             spotifyV2()
 
         case [_, ("3", mode)]:    # move desktop left for any app
@@ -59,16 +70,12 @@ def Button_handler(button):
 
         case [_, ("4", mode)]:     # move desktop right for any app   
             twrv = Thread(target = change_desktop, args=('right', app)).start()
-        
-        case [_, ("8", mode)]:     # runs Task Manager
-            log.debug("Starting Task manager")
-            custom_keyboard.hotkey('ctrl', 'shift', 'esc')
 
 
+        # Specific app but any Mode
         # VS Code Layer
         case ["Visual Studio Code", ("5", mode)]: # run code in Vs code
             pyautogui.hotkey('ctrl', 'alt', 'n') 
-
 
         # Star Citizen Layer
         case ["Star Citizen", ("5", mode)]: # focus front shields
@@ -81,26 +88,36 @@ def Button_handler(button):
             sheild_focus_star_citizen("3")
 
 
-        # any other button that is not defined / default
-        case [_, ("1", mode)]:    
-            log.debug("ButtonMode")
-            twrv = Thread(target = ButtonMode, args=(mode, )).start()
+        # Any App, Specific Mode
+        case [_, ("5", "2")]:     # Cut (Ctrl + x)
+            log.debug("Audacity Cut (Ctrl + x)")
+            custom_keyboard.hotkey('ctrl', 'x')
+       
+        case [_, ("6", "2")]:     # Audacity Split Ctrl + i 
+            log.debug("Audacity Split (ctrl + i)")
+            custom_keyboard.hotkey('ctrl', 'i')
 
-        case [_, ("9", mode)]:   # Copy
+        case [_, ("9", "2")]:     # Backspace
+            log.debug("Backspace")
+            custom_keyboard.press('backspace')
+
+        # Macros that are last priority. 
+        case [_, ("7", mode)]:   # Copy
             log.debug("Copy")
             #NOTE : this can cause a keyboard interupt if used in terminal
             custom_keyboard.hotkey('ctrl', 'c')
 
-        case [_, ("0", mode)]:   # Paste 
+        case [_, ("8", mode)]:   # Paste 
             log.debug("Paste")
             custom_keyboard.hotkey('ctrl', 'v')
 
-        case [_, ("A", mode)]:   #image to text
+        case [_, ("0", mode)]:     # runs Task Manager      is button 10
+            log.debug("Starting Task manager")
+            custom_keyboard.hotkey('ctrl', 'shift', 'esc')
+                
+        case [_, ("A", mode)]:   #image to text             is button 11
             log.debug("Image to text")
             twrv = Thread(target = Image_to_text).start()
-
-        #case [_, (btn, mode)]:
-        #    print(f"button {btn} pressed on universal layer")
 
 def on_quit(type):
     """
@@ -140,7 +157,10 @@ def setupV2(type=None):
 
         except serial.serialutil.SerialException as err:
             log.error("Arduino is already connected to something, Access is denied.")
-            toaster.show_toast("Access is denied","Arduino is already connected to something", icon_path=None, duration=3, threaded=True)
+            
+            if NOTIFICATION["ShowNotification"]:
+                toaster.show_toast("Access is denied","Arduino is already connected to something", icon_path=None, duration=NOTIFICATION["Duration"], threaded=True)
+
             on_quit(0)
 
         except Exception as e:
@@ -149,7 +169,10 @@ def setupV2(type=None):
             time.sleep(0.2)
         else:
             log.info("Connected to Arduino")
-            toaster.show_toast("Macro Keypad is connected", icon_path=None, duration=3, threaded=True)
+
+            if NOTIFICATION["ShowNotification"]:
+                toaster.show_toast("Macro Keypad is connected", icon_path=None, duration=NOTIFICATION["Duration"], threaded=True)
+
             log.info("Setup was a success")
             print()
 

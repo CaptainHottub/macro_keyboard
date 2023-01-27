@@ -99,6 +99,8 @@ def findProcessIdByName(processName): # This returns the parent of the procces N
                 listOfProcessIds.append(pinfo['pid'])
     return listOfProcessIds
 
+
+"""
 def is_fullscreen():
     try:
         hWnd = user32.GetForegroundWindow()
@@ -116,7 +118,9 @@ def Change_desktop(direction): #change desktop hotkey, where direction is either
     # full = is_fullscreen()
     # if full == True:
     #     pyautogui.hotkey('alt', 'tab')  
+     
     pyautogui.hotkey('ctrl', 'win', direction)      
+"""
 
 def Image_to_text():
     img = ImageGrab.grabclipboard()
