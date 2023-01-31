@@ -4,7 +4,6 @@ from PIL import Image
 import serial.tools.list_ports
 import sys
 import custom_keyboard_dev
-from ctypes_keyboard_dev import PressKey, ReleaseKey
 from win10toast import ToastNotifier
 
 """
@@ -16,7 +15,7 @@ add a write function to custom_keyboard
 have one dictionary that contains all Vk_codes
 """
 
-image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2.3.0\pythonIcon.ico") 
+image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\Macro Development\pythonIcon.ico") 
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 toaster = ToastNotifier()
@@ -103,6 +102,16 @@ def Button_handler(button):
         case [_, ("9", "2")]:     # Backspace
             log.debug("Backspace")
             custom_keyboard_dev.press('backspace')
+
+        # TESTING
+        case [_, ("5", mode)]:   # Text to speech
+            log.debug("Text to speech")
+            before = pyperclip.paste()
+            custom_keyboard_dev.hotkey('ctrl', 'c')
+            time.sleep(0.01)
+            #textToSpeech(before)
+            twrv = Thread(target = textToSpeech, args=([before])).start()
+
 
         # Macros that are last priority. 
         case [_, ("7", mode)]:   # Copy

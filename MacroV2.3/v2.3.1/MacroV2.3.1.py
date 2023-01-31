@@ -101,7 +101,14 @@ def Button_handler(button):
             log.debug("Backspace")
             custom_keyboard.press('backspace')
 
-        # Macros that are last priority. 
+        # Macros that are last priority.     
+        case [_, ("5", mode)]:   # Text to speech
+            log.debug("Text to speech")
+            before = pyperclip.paste()
+            custom_keyboard.hotkey('ctrl', 'c')
+            time.sleep(0.01)
+            twrv = Thread(target = textToSpeech, args=([before])).start()
+        
         case [_, ("7", mode)]:   # Copy
             log.debug("Copy")
             #NOTE : this can cause a keyboard interupt if used in terminal

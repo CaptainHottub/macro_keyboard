@@ -13,6 +13,9 @@ import logging
 import time
 #from tqdm import tqdm
 
+import azure.cognitiveservices.speech as speechsdk
+
+
 user32 = windll.user32
 user32.SetProcessDPIAware() # optional, makes functions return real pixel numbers instead of scaled values
 full_screen_rect = (0, 0, user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
@@ -164,6 +167,7 @@ def ButtonMode(mode):
         Button 2:   Controls spotify: Acts like headphone controls.
         Button 3:   Switches desktop to the left
         Button 4:   Switches desktop to the right
+        Button 5:   Text to speech, Converts highlighted text to speech
         Button 7:   Copy
         Button 8:   Paste
         Button 9:
@@ -302,6 +306,31 @@ def spotifyV2(timeout = 0.5):
         sp_tmrV2.start()
         sp_stat.start()
 
+SPEECH_KEY ='6b2625a5e0cf43f09c888af1342080ea'
+SPEECH_REGION = 'westus'
+# This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
+audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
+# The language of the voice that speaks.
+speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
+speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
+def textToSpeech(before):
 
+    log.info("in textToSpeech")
+    raw_text = pyperclip.paste()
+    if before == raw_text:
+        log.debug("Texts are the same")
+        log.debug(raw_text)
+        log.debug(before)
+        speech_synthesizer.stop_speaking()
+    else:
+        log.info("Texts are Not the same")
+        cleaned_text = raw_text.replace("\r\n", " ")    
 
+        good_text = cleaned_text.split(". ")
+        print(good_text)
+
+        for i in good_text:
+            if len(i) > 1:
+                speech_synthesis_result = speech_synthesizer.speak_text_async(i)
