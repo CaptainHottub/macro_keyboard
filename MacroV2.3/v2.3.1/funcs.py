@@ -158,7 +158,7 @@ def ButtonMode(mode):
         Button 4:   Switches desktop to the right
         Button 7:   Copy
         Button 8:   Paste
-        Button 9:   Copy
+        Button 9:   
         Button 10:  Opens Task Manager
         Button 11:  Converts screenshot of text to text
 

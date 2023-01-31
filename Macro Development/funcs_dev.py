@@ -159,17 +159,15 @@ def ButtonMode(mode):
     ButtonDescriptions = f"""Current mode is: {mode}
     If button is not their nothing is assigned to it.
         
-    Default:
-        Button 1 is used to show this.
-        Button 2:   Pause/play, next or previous song spotify 
+    Default/Mode 1/Works on any mode and unspecified app:
+        Button 1:   Shows this
+        Button 2:   Controls spotify: Acts like headphone controls.
         Button 3:   Switches desktop to the left
         Button 4:   Switches desktop to the right
-        Button 5:   
-        Button 6:   
-        Button 7:   
-        Button 8:   Opens Task Manager
-        Button 9:   Copy
-        Button 10:  Paste
+        Button 7:   Copy
+        Button 8:   Paste
+        Button 9:
+        Button 10:  Opens Task Manager
         Button 11:  Converts screenshot of text to text
 
     When in Vscode:
@@ -179,8 +177,13 @@ def ButtonMode(mode):
         Button 5: focus front shields  
         Button 6: focus back shields
         Button 7: Reset shields
+
+    Mode 2:
+        Button 5: Cut (ctrl +x)
+        Button 6: Split/Italics (Ctrl + i) 
+        Button 9: Backspace
         
-    Mode 2, 3 and 4 do nothing   
+    Mode 3 and 4 do nothing
     """
     pyautogui.alert(ButtonDescriptions, "Button Mode")  
 
