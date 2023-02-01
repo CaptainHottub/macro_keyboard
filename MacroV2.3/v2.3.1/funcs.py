@@ -184,7 +184,7 @@ def ButtonMode(mode):
 
 count =0
 spotify_PID = None
-def spotifyV2(timeout = 0.5):
+def spotifyV2(timeout = 0.4):
     """Plays/Pauses spotifyV2, presses next song previous song.   
     
     Press 1 time in timeout seconds to Plays/Pauses.     
