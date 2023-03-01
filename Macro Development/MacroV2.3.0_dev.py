@@ -11,8 +11,6 @@ TODO
 in V2.3.2:
 try and transition all pyautogui keyboard funtions to custom_keyboard
 add a write function to custom_keyboard
-
-have one dictionary that contains all Vk_codes
 """
 
 image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\Macro Development\pythonIcon.ico") 
@@ -103,7 +101,7 @@ def Button_handler(button):
             log.debug("Backspace")
             custom_keyboard_dev.press('backspace')
 
-        # TESTING
+        # Macros that are last priority. 
         case [_, ("5", mode)]:   # Text to speech
             log.debug("Text to speech")
             before = pyperclip.paste()
@@ -112,8 +110,6 @@ def Button_handler(button):
             #textToSpeech(before)
             twrv = Thread(target = textToSpeech, args=([before])).start()
 
-
-        # Macros that are last priority. 
         case [_, ("7", mode)]:   # Copy
             log.debug("Copy")
             #NOTE : this can cause a keyboard interupt if used in terminal
