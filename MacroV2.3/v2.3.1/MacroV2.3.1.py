@@ -232,7 +232,7 @@ def main():
                 setupV2(3)
                 
 if __name__ == "__main__":
-    DEBUG = 1  # 0 for off 1 for DEBUG logs on
+    DEBUG = 0  # 0 for off 1 for DEBUG logs on
     logger_setup(DEBUG)
     from funcs import log
 

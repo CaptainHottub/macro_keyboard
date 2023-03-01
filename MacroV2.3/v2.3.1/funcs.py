@@ -258,7 +258,7 @@ def spotifyV2(timeout = 0.4):
                 app.window().send_keystrokes(" ")
 
             case [2, _]: #count is 2, and any focused
-                log.debug("#spotify is Running, count is 2, and any focused")
+                log.debug("spotify is Running, count is 2, and any focused")
                 log.debug("next song")
                 app.window().send_keystrokes("^{VK_RIGHT}")
                 
