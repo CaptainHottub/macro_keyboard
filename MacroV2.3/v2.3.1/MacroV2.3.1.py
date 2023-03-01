@@ -102,12 +102,12 @@ def Button_handler(button):
             custom_keyboard.press('backspace')
 
         # Macros that are last priority.     
-        case [_, ("5", mode)]:   # Text to speech
-            log.debug("Text to speech")
-            before = pyperclip.paste()
-            custom_keyboard.hotkey('ctrl', 'c')
-            time.sleep(0.01)
-            twrv = Thread(target = textToSpeech, args=([before])).start()
+        # case [_, ("5", mode)]:   # Text to speech
+        #     log.debug("Text to speech")
+        #     before = pyperclip.paste()
+        #     custom_keyboard.hotkey('ctrl', 'c')
+        #     time.sleep(0.01)
+        #     twrv = Thread(target = textToSpeech, args=([before])).start()
         
         case [_, ("7", mode)]:   # Copy
             log.debug("Copy")
@@ -232,7 +232,7 @@ def main():
                 setupV2(3)
                 
 if __name__ == "__main__":
-    DEBUG = 0  # 0 for off 1 for DEBUG logs on
+    DEBUG = 1  # 0 for off 1 for DEBUG logs on
     logger_setup(DEBUG)
     from funcs import log
 

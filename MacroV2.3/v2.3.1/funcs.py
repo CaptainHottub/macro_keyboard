@@ -246,7 +246,7 @@ def spotifyV2(timeout = 0.4):
             log.debug("Spotify is not running")
             pyautogui.press("playpause")  
             return
-
+        app = Application().connect(process=spotify_PID)
         match [count, spotify_focussed]: #spotify is Running, 
             case [1, True]: #count is 1, and focused
                 log.debug("spotify is Running, count is 1, and focused")
@@ -254,18 +254,19 @@ def spotifyV2(timeout = 0.4):
 
             case [1, False]: #count is 1, and not focused
                 log.debug("spotify is Running, count is 1, and not focused")
-                app = Application().connect(process=spotify_PID)
+                
                 app.window().send_keystrokes(" ")
 
             case [2, _]: #count is 2, and any focused
                 log.debug("#spotify is Running, count is 2, and any focused")
                 log.debug("next song")
-                pyautogui.press("nexttrack")
+                app.window().send_keystrokes("^{VK_RIGHT}")
+                
                 
             case [3, _]: #count is 3, and any focused
                 log.debug("spotify is Running, count is 3, and any focused")
                 log.debug("previous song")
-                pyautogui.press("prevtrack")
+                app.window().send_keystrokes("^{VK_LEFT}")
 
         
         log.debug(f"Value of Count is: {count}")
@@ -300,31 +301,31 @@ def spotifyV2(timeout = 0.4):
 
 
 
-SPEECH_KEY ='6b2625a5e0cf43f09c888af1342080ea'
-SPEECH_REGION = 'westus'
-# This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
-audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
-# The language of the voice that speaks.
-speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
-speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+# SPEECH_KEY ='6b2625a5e0cf43f09c888af1342080ea'
+# SPEECH_REGION = 'westus'
+# # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+# speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
+# audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
+# # The language of the voice that speaks.
+# speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
+# speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
-def textToSpeech(before):
+# def textToSpeech(before):
 
-    log.info("in textToSpeech")
-    raw_text = pyperclip.paste()
-    if before == raw_text:
-        log.debug("Texts are the same")
-        log.debug(raw_text)
-        log.debug(before)
-        speech_synthesizer.stop_speaking()
-    else:
-        log.info("Texts are Not the same")
-        cleaned_text = raw_text.replace("\r\n", " ")    
+#     log.info("in textToSpeech")
+#     raw_text = pyperclip.paste()
+#     if before == raw_text:
+#         log.debug("Texts are the same")
+#         log.debug(raw_text)
+#         log.debug(before)
+#         speech_synthesizer.stop_speaking()
+#     else:
+#         log.info("Texts are Not the same")
+#         cleaned_text = raw_text.replace("\r\n", " ")    
 
-        good_text = cleaned_text.split(". ")
-        print(good_text)
+#         good_text = cleaned_text.split(". ")
+#         print(good_text)
 
-        for i in good_text:
-            if len(i) > 1:
-                speech_synthesis_result = speech_synthesizer.speak_text_async(i)
+#         for i in good_text:
+#             if len(i) > 1:
+#                 speech_synthesis_result = speech_synthesizer.speak_text_async(i)
