@@ -301,31 +301,26 @@ def spotifyV2(timeout = 0.4):
 
 
 
-# SPEECH_KEY ='6b2625a5e0cf43f09c888af1342080ea'
-# SPEECH_REGION = 'westus'
-# # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-# speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
-# audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
-# # The language of the voice that speaks.
-# speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
-# speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+SPEECH_KEY ='8819099d546f4a168f0b84e6abd78540'
+SPEECH_REGION = 'westus'
+# This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
+audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
+# The language of the voice that speaks.
+speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
+speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
-# def textToSpeech(before):
+def textToSpeech():
+    log.info("in textToSpeech")
+    text = pyperclip.paste()
 
-#     log.info("in textToSpeech")
-#     raw_text = pyperclip.paste()
-#     if before == raw_text:
-#         log.debug("Texts are the same")
-#         log.debug(raw_text)
-#         log.debug(before)
-#         speech_synthesizer.stop_speaking()
-#     else:
-#         log.info("Texts are Not the same")
-#         cleaned_text = raw_text.replace("\r\n", " ")    
+    cleaned_text = text.replace("\r\n", " ")    
+    good_text = cleaned_text.split(". ")
+    log.debug(good_text)
+    for i in good_text:
+        if len(i) > 1:
+            speech_synthesis_result = speech_synthesizer.speak_text_async(i)
 
-#         good_text = cleaned_text.split(". ")
-#         print(good_text)
-
-#         for i in good_text:
-#             if len(i) > 1:
-#                 speech_synthesis_result = speech_synthesizer.speak_text_async(i)
+def stopSpeech():
+    log.info("in stopSpeech")
+    speech_synthesizer.stop_speaking()
