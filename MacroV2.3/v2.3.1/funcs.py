@@ -312,6 +312,7 @@ speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, au
 
 def textToSpeech():
     log.info("in textToSpeech")
+    pyautogui.hotkey('ctrl', 'c')
     text = pyperclip.paste()
 
     cleaned_text = text.replace("\r\n", " ")    

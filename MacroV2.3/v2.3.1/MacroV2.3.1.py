@@ -104,6 +104,7 @@ def Button_handler(button):
         # Macros that are last priority.     
         case [_, ("5", mode)]:   # Text to speech
             log.debug("Text to speech")
+            custom_keyboard.hotkey('ctrl', 'c')
             twrv = Thread(target = textToSpeech, args=()).start()
         
         case [_, ("6", mode)]:   # Stop Speech
