@@ -86,7 +86,7 @@ def Button_handler(button):
 
         case ["Star Citizen", ("7", mode)]: # Reset shields
             sheild_focus_star_citizen("3")
-
+            
 
         # Any App, Specific Mode
         case [_, ("5", "2")]:     # Cut (Ctrl + x)
