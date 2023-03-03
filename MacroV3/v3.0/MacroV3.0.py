@@ -1,5 +1,7 @@
 #TODO
 """
+Add code that will check if there is a folder with macro version for logs.
+If none add one.
 When I right click on the taskbar icon, I want there to be a toggle button
 When On I want it to open a console window that will print the debug and error messages to it
 and when off it goes away.
@@ -58,7 +60,7 @@ class CustomFormatter(logging.Formatter):
 
 # Creates a file path for the log file.
 now = datetime.datetime.now()
-path = r'C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV3\v3.0\logs'
+path = r'C:\Users\Taylor\Desktop\Macro Logs\V3.0'
 log_file_name = now.strftime("%Y-%B-%d_%H.%M.%S")
 filename = f'{path}\{log_file_name}.log'
 

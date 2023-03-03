@@ -154,3 +154,6 @@
 13:55:04.969 DEBUG - spotify_timerV2: spotify is Running, count is 1, and not focused
 13:55:05.001 DEBUG - spotify_timerV2: Value of Count is: 1
 13:55:05.001 DEBUG - spotify_timerV2: Value of Count is now: 0
+13:57:01.994 CRITICAL - on_quit: PROGRAM is shutting down
+13:57:01.995 WARNING - main: string index out of range
+13:57:02.203 CRITICAL - main: Arduino is not plugged in
