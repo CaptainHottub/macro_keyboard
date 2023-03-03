@@ -30,3 +30,127 @@
 13:54:58.782 DEBUG - spotify_timerV2: spotify is Running, count is 1, and not focused
 13:54:58.814 DEBUG - spotify_timerV2: Value of Count is: 1
 13:54:58.814 DEBUG - spotify_timerV2: Value of Count is now: 0
+13:54:59.370 DEBUG - Button_handler: pause song spotify 
+
+13:54:59.370 DEBUG - spotifyV2: Spotify Func Has been called
+13:54:59.370 DEBUG - spotifyV2: sp_tmrV2 and sp_stat has been defined
+13:54:59.370 DEBUG - spotifyV2: Check if thread is running
+13:54:59.370 DEBUG - spotifyV2: Thread I want is not running
+13:54:59.370 DEBUG - spotifyV2: Thread I want is not running
+13:54:59.370 DEBUG - spotifyV2: Just passed Check if thread is running
+13:54:59.370 DEBUG - spotifyV2: thread_running value is: False
+13:54:59.370 DEBUG - spotifyV2: thread_running is False
+13:54:59.370 DEBUG - spotifyV2: Starting: sp_tmr.start(), and sp_stat.start()
+13:54:59.370 DEBUG - spotify_timerV2: spotify_timer Has just begun
+13:54:59.371 DEBUG - get_spotify_stats: get_spotify_stats Has just started
+13:54:59.371 DEBUG - get_spotify_stats: Getting Current focused PID
+13:54:59.371 DEBUG - get_spotify_stats: Current Focused PID is: [5728, 4948]
+13:54:59.371 DEBUG - get_spotify_stats: Check If Spotify is running
+13:54:59.449 DEBUG - get_spotify_stats: Spotify is running
+13:54:59.449 DEBUG - get_spotify_stats: Spotify PID is: 21132
+13:54:59.782 DEBUG - spotify_timerV2: spotify_timer sleep has just finished
+13:54:59.782 DEBUG - spotify_timerV2: spotify is Running, count is 1, and not focused
+13:54:59.813 DEBUG - spotify_timerV2: Value of Count is: 1
+13:54:59.813 DEBUG - spotify_timerV2: Value of Count is now: 0
+13:55:00.527 DEBUG - Button_handler: pause song spotify 
+
+13:55:00.527 DEBUG - spotifyV2: Spotify Func Has been called
+13:55:00.527 DEBUG - spotifyV2: sp_tmrV2 and sp_stat has been defined
+13:55:00.527 DEBUG - spotifyV2: Check if thread is running
+13:55:00.527 DEBUG - spotifyV2: Thread I want is not running
+13:55:00.527 DEBUG - spotifyV2: Thread I want is not running
+13:55:00.527 DEBUG - spotifyV2: Just passed Check if thread is running
+13:55:00.527 DEBUG - spotifyV2: thread_running value is: False
+13:55:00.527 DEBUG - spotifyV2: thread_running is False
+13:55:00.527 DEBUG - spotifyV2: Starting: sp_tmr.start(), and sp_stat.start()
+13:55:00.528 DEBUG - spotify_timerV2: spotify_timer Has just begun
+13:55:00.528 DEBUG - get_spotify_stats: get_spotify_stats Has just started
+13:55:00.528 DEBUG - get_spotify_stats: Getting Current focused PID
+13:55:00.528 DEBUG - get_spotify_stats: Current Focused PID is: [5728, 4948]
+13:55:00.528 DEBUG - get_spotify_stats: Check If Spotify is running
+13:55:00.605 DEBUG - get_spotify_stats: Spotify is running
+13:55:00.605 DEBUG - get_spotify_stats: Spotify PID is: 21132
+13:55:00.663 DEBUG - Button_handler: pause song spotify 
+
+13:55:00.663 DEBUG - spotifyV2: Spotify Func Has been called
+13:55:00.663 DEBUG - spotifyV2: sp_tmrV2 and sp_stat has been defined
+13:55:00.663 DEBUG - spotifyV2: Check if thread is running
+13:55:00.663 DEBUG - spotifyV2: Thread I want is not running
+13:55:00.663 DEBUG - spotifyV2: Thread I want is not running
+13:55:00.663 DEBUG - spotifyV2: Spotify timer and or spotify stats thread are running
+13:55:00.663 DEBUG - spotifyV2: Just passed Check if thread is running
+13:55:00.663 DEBUG - spotifyV2: thread_running value is: True
+13:55:00.936 DEBUG - spotify_timerV2: spotify_timer sleep has just finished
+13:55:00.936 DEBUG - spotify_timerV2: spotify is Running, count is 2, and any focused
+13:55:00.936 DEBUG - spotify_timerV2: next song
+13:55:00.936 DEBUG - spotify_timerV2: Value of Count is: 2
+13:55:00.936 DEBUG - spotify_timerV2: Value of Count is now: 0
+13:55:01.524 DEBUG - Button_handler: pause song spotify 
+
+13:55:01.524 DEBUG - spotifyV2: Spotify Func Has been called
+13:55:01.524 DEBUG - spotifyV2: sp_tmrV2 and sp_stat has been defined
+13:55:01.524 DEBUG - spotifyV2: Check if thread is running
+13:55:01.524 DEBUG - spotifyV2: Thread I want is not running
+13:55:01.524 DEBUG - spotifyV2: Thread I want is not running
+13:55:01.524 DEBUG - spotifyV2: Just passed Check if thread is running
+13:55:01.524 DEBUG - spotifyV2: thread_running value is: False
+13:55:01.524 DEBUG - spotifyV2: thread_running is False
+13:55:01.524 DEBUG - spotifyV2: Starting: sp_tmr.start(), and sp_stat.start()
+13:55:01.524 DEBUG - spotify_timerV2: spotify_timer Has just begun
+13:55:01.525 DEBUG - get_spotify_stats: get_spotify_stats Has just started
+13:55:01.525 DEBUG - get_spotify_stats: Getting Current focused PID
+13:55:01.525 DEBUG - get_spotify_stats: Current Focused PID is: [5728, 4948]
+13:55:01.525 DEBUG - get_spotify_stats: Check If Spotify is running
+13:55:01.602 DEBUG - get_spotify_stats: Spotify is running
+13:55:01.602 DEBUG - get_spotify_stats: Spotify PID is: 21132
+13:55:01.927 DEBUG - spotify_timerV2: spotify_timer sleep has just finished
+13:55:01.927 DEBUG - spotify_timerV2: spotify is Running, count is 1, and not focused
+13:55:01.959 DEBUG - spotify_timerV2: Value of Count is: 1
+13:55:01.959 DEBUG - spotify_timerV2: Value of Count is now: 0
+13:55:02.616 DEBUG - Button_handler: pause song spotify 
+
+13:55:02.616 DEBUG - spotifyV2: Spotify Func Has been called
+13:55:02.616 DEBUG - spotifyV2: sp_tmrV2 and sp_stat has been defined
+13:55:02.616 DEBUG - spotifyV2: Check if thread is running
+13:55:02.616 DEBUG - spotifyV2: Thread I want is not running
+13:55:02.616 DEBUG - spotifyV2: Thread I want is not running
+13:55:02.616 DEBUG - spotifyV2: Just passed Check if thread is running
+13:55:02.616 DEBUG - spotifyV2: thread_running value is: False
+13:55:02.616 DEBUG - spotifyV2: thread_running is False
+13:55:02.617 DEBUG - spotifyV2: Starting: sp_tmr.start(), and sp_stat.start()
+13:55:02.617 DEBUG - spotify_timerV2: spotify_timer Has just begun
+13:55:02.617 DEBUG - get_spotify_stats: get_spotify_stats Has just started
+13:55:02.617 DEBUG - get_spotify_stats: Getting Current focused PID
+13:55:02.617 DEBUG - get_spotify_stats: Current Focused PID is: [5728, 4948]
+13:55:02.617 DEBUG - get_spotify_stats: Check If Spotify is running
+13:55:02.700 DEBUG - get_spotify_stats: Spotify is running
+13:55:02.700 DEBUG - get_spotify_stats: Spotify PID is: 21132
+13:55:03.026 DEBUG - spotify_timerV2: spotify_timer sleep has just finished
+13:55:03.026 DEBUG - spotify_timerV2: spotify is Running, count is 1, and not focused
+13:55:03.058 DEBUG - spotify_timerV2: Value of Count is: 1
+13:55:03.058 DEBUG - spotify_timerV2: Value of Count is now: 0
+13:55:03.455 DEBUG - change_desktop: move desktop left
+13:55:03.953 DEBUG - change_desktop: move desktop right
+13:55:04.241 DEBUG - change_desktop: move desktop left
+13:55:04.562 DEBUG - Button_handler: pause song spotify 
+
+13:55:04.562 DEBUG - spotifyV2: Spotify Func Has been called
+13:55:04.562 DEBUG - spotifyV2: sp_tmrV2 and sp_stat has been defined
+13:55:04.562 DEBUG - spotifyV2: Check if thread is running
+13:55:04.562 DEBUG - spotifyV2: Thread I want is not running
+13:55:04.562 DEBUG - spotifyV2: Thread I want is not running
+13:55:04.562 DEBUG - spotifyV2: Just passed Check if thread is running
+13:55:04.562 DEBUG - spotifyV2: thread_running value is: False
+13:55:04.562 DEBUG - spotifyV2: thread_running is False
+13:55:04.562 DEBUG - spotifyV2: Starting: sp_tmr.start(), and sp_stat.start()
+13:55:04.562 DEBUG - spotify_timerV2: spotify_timer Has just begun
+13:55:04.563 DEBUG - get_spotify_stats: get_spotify_stats Has just started
+13:55:04.563 DEBUG - get_spotify_stats: Getting Current focused PID
+13:55:04.563 DEBUG - get_spotify_stats: Current Focused PID is: [5728, 4948]
+13:55:04.563 DEBUG - get_spotify_stats: Check If Spotify is running
+13:55:04.654 DEBUG - get_spotify_stats: Spotify is running
+13:55:04.655 DEBUG - get_spotify_stats: Spotify PID is: 21132
+13:55:04.969 DEBUG - spotify_timerV2: spotify_timer sleep has just finished
+13:55:04.969 DEBUG - spotify_timerV2: spotify is Running, count is 1, and not focused
+13:55:05.001 DEBUG - spotify_timerV2: Value of Count is: 1
+13:55:05.001 DEBUG - spotify_timerV2: Value of Count is now: 0
