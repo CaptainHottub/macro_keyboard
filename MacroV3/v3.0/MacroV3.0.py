@@ -9,7 +9,7 @@ and when off it goes away.
 try and transition all pyautogui keyboard funtions to custom_keyboard
 add a write function to custom_keyboard
 """
-import contextlib
+#import contextlib
 import pystray
 import serial.tools.list_ports
 import sys
@@ -18,7 +18,9 @@ import datetime
 import threading
 import psutil
 import pyautogui
-import os, win32gui, win32process
+import os
+import win32gui
+import win32process
 import pyperclip
 import ctypes
 import logging
@@ -34,6 +36,8 @@ user32 = ctypes.windll.user32
 user32.SetProcessDPIAware() # optional, makes functions return real pixel numbers instead of scaled values
 full_screen_rect = (0, 0, user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
 
+#Script directory
+script_path = os.path.dirname(os.path.abspath(__file__))
 
 #Custom logger format, 
 class CustomFormatter(logging.Formatter):
@@ -81,48 +85,73 @@ logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
 
-### find PID of app, 
-def findProcessIdByName(processName): # This returns the parent of the procces Name, 
-    """
-    Returns a list of all the process ID's with a specific name.
+# ### find PID of app, 
+# def findProcessIdByName(processName): # This returns the parent of the procces Name, 
+#     """
+#     Returns a list of all the process ID's with a specific name.
     
-    Args:
-        processName (str) - Name of the process you want to find.
-        Ex: "Spotify"
+#     Args:
+#         processName (str) - Name of the process you want to find.
+#         Ex: "Spotify"
         
-    Returns:
-        (listOfProcessIds) List of all process ID's with a specific name.
+#     Returns:
+#         (listOfProcessIds) List of all process ID's with a specific name.
 
-    NOTE: Function will not work if processName is empty
+#     NOTE: Function will not work if processName is empty
 
-    try:
-    for p in psutil.process_iter(['name']):
-        if processName in p.info['name']:
-            parent = p.parent()
-            if parent != None:
-                return parent.pid
+#     try:
+#     for p in psutil.process_iter(['name']):
+#         if processName in p.info['name']:
+#             parent = p.parent()
+#             if parent != None:
+#                 return parent.pid
             
-    except Exception as e:
-        logger.error(f"Exception Raised: {e}")
-        return None
-    """
-    listOfProcessIds = []
-    for proc in psutil.process_iter():
-        with contextlib.suppress(psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pinfo = proc.as_dict(attrs=['pid', 'name'])
-            if processName.lower() in pinfo['name'].lower() :
-                listOfProcessIds.append(pinfo['pid'])
-    return listOfProcessIds
+#     except Exception as e:
+#         logger.error(f"Exception Raised: {e}")
+#         return None
+#     """
+#     listOfProcessIds = []
+#     for proc in psutil.process_iter():
+#         with contextlib.suppress(psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+#             pinfo = proc.as_dict(attrs=['pid', 'name'])
+#             if processName.lower() in pinfo['name'].lower() :
+#                 listOfProcessIds.append(pinfo['pid'])
+#     return listOfProcessIds
 
-def is_fullscreen():
-    try:
-        hWnd = user32.GetForegroundWindow()
-        rect = win32gui.GetWindowRect(hWnd)
-        if 'Google Chrome' in win32gui.GetWindowText(hWnd): # if youtube or google chrome is in the name of the window.
-            return False
-        return rect == full_screen_rect
-    except Exception:
-        return False
+# def is_fullscreen():
+#     try:
+#         hWnd = user32.GetForegroundWindow()
+#         rect = win32gui.GetWindowRect(hWnd)
+#         if 'Google Chrome' in win32gui.GetWindowText(hWnd): # if youtube or google chrome is in the name of the window.
+#             return False
+#         return rect == full_screen_rect
+#     except Exception:
+#         return False
+
+# def input_special_char():
+#     promptText= """ What greek letter, operator or maths operation do you want
+#     Greek letters   Codes
+#     Theta                 theta
+#     lambda              lambda
+#     pi                          pi
+#     Delta                  Delta
+#     Ohm                   Omega
+
+#     Operators       Codes
+#     Multiply            times
+#     Divide              div
+#     Multiply Dot    cdot
+#     Infinity               infty
+
+#     Maths operation Codes:
+#     Fraction                     frac
+#     Sqrt                         sqrt
+#     Root                       rootof
+#     """
+
+#     # operator = pyautogui.prompt(text=promptText)
+#     # pyautogui.write(f"\{operator}")
+#     # pyautogui.press("space")
 
 def Image_to_text():
     img = ImageGrab.grabclipboard()
@@ -134,31 +163,6 @@ def Image_to_text():
     if '\n\x0c' in file:
         file = file.replace('\n\x0c','')
     pyperclip.copy(file)
-
-def input_special_char():
-    promptText= """ What greek letter, operator or maths operation do you want
-    Greek letters   Codes
-    Theta                 theta
-    lambda              lambda
-    pi                          pi
-    Delta                  Delta
-    Ohm                   Omega
-
-    Operators       Codes
-    Multiply            times
-    Divide              div
-    Multiply Dot    cdot
-    Infinity               infty
-
-    Maths operation Codes:
-    Fraction                     frac
-    Sqrt                         sqrt
-    Root                       rootof
-    """
-
-    # operator = pyautogui.prompt(text=promptText)
-    # pyautogui.write(f"\{operator}")
-    # pyautogui.press("space")
 
 def ButtonMode(mode):
     ButtonDescriptions = f"""Current mode is: {mode}
@@ -351,7 +355,9 @@ try and transition all pyautogui keyboard funtions to custom_keyboard
 add a write function to custom_keyboard
 """
 
-image = Image.open("C:\Coding\Arduino Stuff\Projects\macro_keyboard\MacroV2.3\\v2.3.1\\pythonIcon.ico") 
+# Gets the path of icon image
+icon_path = fr"{script_path}\pythonIcon.ico"
+image = Image.open(icon_path)    # Opens the Icon 
 #https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 toaster = ToastNotifier()

@@ -1,0 +1,9 @@
+13:36:36.034 DEBUG - <module>: Add: 20 + 10 = 30
+13:36:36.035 DEBUG - <module>: Sub: 20 - 10 = 10
+13:36:36.035 DEBUG - <module>: Mul: 20 * 10 = 200
+13:36:36.035 DEBUG - <module>: Div: 20 / 10 = 2.0
+13:36:36.035 DEBUG - <module>: debug message
+13:36:36.035 INFO - <module>: info message
+13:36:36.035 WARNING - <module>: warning message
+13:36:36.036 ERROR - <module>: error message
+13:36:36.036 CRITICAL - <module>: critical message
