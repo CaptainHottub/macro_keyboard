@@ -304,9 +304,9 @@ def spotifyV2(timeout = 0.4):
 
 
         
-        logger.debug(f"Value of Count is: {count}")
+        logger.debug(f"Value of {count = }")
         count =0
-        logger.debug(f"Value of Count is now: {count}")
+        logger.debug(f"Value of {count = } ")
         print("\n")
 
     
