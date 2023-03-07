@@ -1,14 +1,3 @@
-#TODO
-"""
-Add code that will check if there is a folder with macro version for logs.
-If none add one.
-When I right click on the taskbar icon, I want there to be a toggle button
-When On I want it to open a console window that will print the debug and error messages to it
-and when off it goes away.
-
-try and transition all pyautogui keyboard funtions to custom_keyboard
-add a write function to custom_keyboard
-"""
 #import contextlib
 import pystray
 import serial.tools.list_ports
@@ -371,14 +360,6 @@ def stopSpeech():
     speech_synthesizer.stop_speaking()
 
 
-
-"""
-TODO
-in V3.0:
-try and transition all pyautogui keyboard funtions to custom_keyboard
-add a write function to custom_keyboard
-"""
-
 # Gets the path of icon image
 icon_path = fr"{script_path}\pythonIcon.ico"
 image = Image.open(icon_path)    # Opens the Icon 
@@ -602,8 +583,22 @@ def main():
                 setupV2(3)
                 
 if __name__ == "__main__":
-    DEBUG = 0  # 0 for off 1 for DEBUG logs on
-    # logger_setup(DEBUG)
-    # from funcs import log
+    """
+    TODO
+    in V3.0:
+    try and transition all pyautogui keyboard funtions to custom_keyboard
+    add a write function to custom_keyboard
 
+    Add code that will check if there is a folder with macro version for logs.
+    If none add one.
+    When I right click on the taskbar icon, I want there to be a toggle button
+    When On I want it to open a console window that will print the debug and error messages to it
+    and when off it goes away.
+
+    try and transition all pyautogui keyboard funtions to custom_keyboard
+    add a write function to custom_keyboard
+    """
+
+    
     main()
+    
