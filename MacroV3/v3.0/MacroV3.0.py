@@ -84,6 +84,30 @@ stream_handler.setFormatter(CustomFormatter())
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
+# timer function
+
+# from functools import wraps
+# from time import perf_counter
+# def get_time(func):
+#     """Times any function\n
+#     Use as decorator to time funcs\n
+#     @get_time """
+
+#     @wraps(func)
+#     def timer(*args, **kwargs):
+#         start_time = perf_counter()
+        
+#         func(*args, **kwargs)
+
+#         end_time = perf_counter()
+#         total_time = round(end_time - start_time, 6)
+
+#         func_name = func.__name__
+#         logger.info(f'{func_name} took {total_time} seconds to complete')
+    
+#     return timer
+
+
 
 # ### find PID of app, 
 # def findProcessIdByName(processName): # This returns the parent of the procces Name, 
@@ -218,7 +242,7 @@ def spotifyV2(timeout = 0.4):
     thread_running = None
     global count
     count += 1
-    
+
     def get_spotify_stats():
         logger.debug("get_spotify_stats Has just started")
         
@@ -419,6 +443,7 @@ def Button_handler(button):
         # Specific app but any Mode
         # VS Code Layer
         case ["Visual Studio Code", ("5", mode)]: # run code in Vs code
+            logger.debug("run code in Vs code")
             pyautogui.hotkey('ctrl', 'alt', 'n') 
 
         # Star Citizen Layer
