@@ -585,10 +585,14 @@ def main():
 if __name__ == "__main__":
     """
     TODO
-    in V3.0:
-    try and transition all pyautogui keyboard funtions to custom_keyboard
-    add a write function to custom_keyboard
+    in V3.1:
 
+    redo get PID and filter for it.
+    call func then have it return list with name, hwnd and pid
+    or just return apps with the name I want in them.
+    comb thru spotify func to see if PID search is done everytime.
+    
+    
     Add code that will check if there is a folder with macro version for logs.
     If none add one.
     When I right click on the taskbar icon, I want there to be a toggle button
