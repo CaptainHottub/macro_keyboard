@@ -591,6 +591,12 @@ if __name__ == "__main__":
     Can also remove pywinauto
     Just have timer go then when its done press the button.
     
+    update image to text, so it presses Win+shift+s
+    then waits until mouse up to save image and do tts
+    when I press esc have it stop, and have it account for close snippet(the x button)
+
+    Add  get_processes(sorted = False) func from test, does what I want below
+
     redo get PID and filter for it.
     call func then have it return list with name, hwnd and pid
     or just return apps with the name I want in them.

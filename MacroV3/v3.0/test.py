@@ -322,7 +322,10 @@ def spotifyV2(timeout = 0.4):
 
 
 def get_processes(sorted = False): # you win
-    """Returns list of all apps, their PIDS and hwnd"""
+    """Returns list of dictionarys of all apps, their PIDS and hwnd\n
+    leave empty if you want the whole list
+    Put True in if you want the list sorted by title
+    """
     print(sorted)
 
     @WNDENUMPROC
