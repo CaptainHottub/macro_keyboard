@@ -1,29 +1,47 @@
-#import contextlib
 import pystray
 import serial.tools.list_ports
 import sys
 import custom_keyboard
 import datetime
 import threading
-import psutil
 import pyautogui
 import os
-import win32gui
-import win32process
 import pyperclip
-import ctypes
+import win32gui
 import logging
 import time
 
 import azure.cognitiveservices.speech as speechsdk
 
 from PIL import Image, ImageGrab
-from pywinauto import Application
 from win10toast import ToastNotifier
 
-user32 = ctypes.windll.user32
-user32.SetProcessDPIAware() # optional, makes functions return real pixel numbers instead of scaled values
-full_screen_rect = (0, 0, user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
+from pywinauto import Application
+import win32process
+import psutil
+
+# import ctypes
+# import ctypes.wintypes as wintypes
+
+# # Ctypes Stuff
+# WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+# EnumWindows = ctypes.WinDLL('user32').EnumWindows
+# EnumWindows.argtypes = WNDENUMPROC, wintypes.LPARAM  # LPARAM not INT
+# EnumWindows.restype = wintypes.BOOL
+
+# GetWindowText = ctypes.WinDLL('user32').GetWindowTextW
+# GetWindowTextLength = ctypes.WinDLL('user32').GetWindowTextLengthW
+
+# IsWindow = ctypes.WinDLL('user32').IsWindow
+
+# GetWindowThreadProcessId = ctypes.WinDLL('user32').GetWindowThreadProcessId
+# ctypes.WinDLL('user32').GetWindowThreadProcessId.restype = wintypes.DWORD
+# ctypes.WinDLL('user32').GetWindowThreadProcessId.argtypes = (
+#         wintypes.HWND,     # _In_      hWnd
+#         wintypes.LPDWORD,) # _Out_opt_ lpdwProcessId
+
+
 
 #Script directory
 script_path = os.path.dirname(os.path.abspath(__file__))
@@ -97,74 +115,50 @@ logger.addHandler(stream_handler)
 #     return timer
 
 
-
-# ### find PID of app, 
-# def findProcessIdByName(processName): # This returns the parent of the procces Name, 
+# def filter_process_list(process_to_find: str, process_list):
+#     """         loops thru the list to find processes with name you want        \n
+#     Returns list of dictionarys containing processes with process_to_find in name \n
+#     Returns empty list if there are none
 #     """
-#     Returns a list of all the process ID's with a specific name.
-    
-#     Args:
-#         processName (str) - Name of the process you want to find.
-#         Ex: "Spotify"
-        
-#     Returns:
-#         (listOfProcessIds) List of all process ID's with a specific name.
+#     logger.debug("filter_process_list")
+#     return [
+#             proc 
+#             for proc in process_list
+#             if process_to_find.lower() in proc['Title'].lower()
+#             ]
 
-#     NOTE: Function will not work if processName is empty
 
-#     try:
-#     for p in psutil.process_iter(['name']):
-#         if processName in p.info['name']:
-#             parent = p.parent()
-#             if parent != None:
-#                 return parent.pid
-            
-#     except Exception as e:
-#         logger.error(f"Exception Raised: {e}")
-#         return None
-#     """
-#     listOfProcessIds = []
-#     for proc in psutil.process_iter():
-#         with contextlib.suppress(psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-#             pinfo = proc.as_dict(attrs=['pid', 'name'])
-#             if processName.lower() in pinfo['name'].lower() :
-#                 listOfProcessIds.append(pinfo['pid'])
-#     return listOfProcessIds
-
-# def is_fullscreen():
-#     try:
-#         hWnd = user32.GetForegroundWindow()
-#         rect = win32gui.GetWindowRect(hWnd)
-#         if 'Google Chrome' in win32gui.GetWindowText(hWnd): # if youtube or google chrome is in the name of the window.
-#             return False
-#         return rect == full_screen_rect
-#     except Exception:
-#         return False
-
-# def input_special_char():
-#     promptText= """ What greek letter, operator or maths operation do you want
-#     Greek letters   Codes
-#     Theta                 theta
-#     lambda              lambda
-#     pi                          pi
-#     Delta                  Delta
-#     Ohm                   Omega
-
-#     Operators       Codes
-#     Multiply            times
-#     Divide              div
-#     Multiply Dot    cdot
-#     Infinity               infty
-
-#     Maths operation Codes:
-#     Fraction                     frac
-#     Sqrt                         sqrt
-#     Root                       rootof
+# def get_processes(sort = False):
+#     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
+#     leave empty if you want the whole list
+#     Put True in if you want the list sorted by title
 #     """
 
-#     # operator = pyautogui.prompt(text=promptText)
-#     # pyautogui.write(f"\{operator}")
-#     # pyautogui.press("space")
+#     @WNDENUMPROC
+#     def py_callback( hwnd, lparam ):
+#         pid = wintypes.DWORD()
+#         tid = GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+#         if IsWindow(hwnd):
+#             length = GetWindowTextLength(hwnd)
+#             buff = ctypes.create_unicode_buffer(length + 1)
+#             GetWindowText(hwnd, buff, length + 1) 
+
+#             if buff.value and buff.value not in ['Default IME', 'MSCTFIME UI']:
+#                 results.append({"Title": buff.value,
+#                                 "PID": tid,
+#                                 "HWND": hwnd})
+#         return True
+
+#     results = []
+#     EnumWindows(py_callback,0)
+
+#     if sort:
+#         logger.debug("sorting")
+#         resultslist = sorted(results, key=lambda d: d['Title'])
+#         return resultslist
+
+#     return results
+
 
 def Image_to_text():
     img = ImageGrab.grabclipboard()
@@ -210,128 +204,6 @@ def ButtonMode(mode):
     """
     pyautogui.alert(ButtonDescriptions, "Button Mode")  
 
-count =0
-spotify_PID = None
-def spotifyV2(timeout = 0.4):
-    """Plays/Pauses spotifyV2, presses next song previous song.   
-    
-    Press 1 time in timeout seconds to Plays/Pauses.     
-     Press 2 times in timeout seconds to get next song.  
-    Press 3 times in timeout seconds to get previous song.   
-     If Spotify is not running presses 2 and 3 will be ignored and play/pause will happen
-
-    Args:
-      timeout (integer): Defines how much time you have
-       to press the button for it to do something
-    Returns:
-      None
-    """
-    logger.debug("Spotify Func Has been called")
-
-    thread_running = None
-    global count
-    count += 1
-
-    def get_spotify_stats():
-        logger.debug("get_spotify_stats Has just started")
-        
-        try:
-            logger.debug("Getting Current focused PID")
-            global current_focused_pid
-            current_focused_pid = win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow())
-            logger.debug(f"Current Focused PID is: {current_focused_pid}")
-
-            logger.debug("Check If Spotify is running")
-            for p in psutil.process_iter(['name']):
-                if 'Spotify' in p.info['name'] and p.parent() != None:
-                    logger.debug("Spotify is running")
-
-                    global spotify_PID
-                    spotify_PID = p.parent().pid
-
-                    logger.debug(f"Spotify PID is: {spotify_PID}")
-                    break
-            else:
-                logger.debug("Spotify is not running")
-                spotify_PID = None
-                return
-            
-        except Exception as e:
-            logger.error(f"Exception Raised: {e}")
-
-
-    def spotify_timerV2(timeout):
-        logger.debug("spotify_timer Has just begun")
-        time.sleep(timeout)
-        logger.debug("spotify_timer sleep has just finished")
-
-        global count
-
-        # True is spotify is focused, and False if not
-        spotify_focussed = spotify_PID in current_focused_pid
-        
-        if spotify_PID is None: #Spotify is not running
-            logger.debug("Spotify is not running")
-            #pyautogui.press("playpause")  
-            #custom_keyboard.press("playpause")  
-            return
-        
-        #app = Application().connect(process=spotify_PID)
-        match [count, spotify_focussed]: #spotify is Running, 
-            case [1, True]: #count is 1, and focused
-                logger.debug("spotify is Running, count is 1, and focused")
-                custom_keyboard.press("playpause")  
-
-            case [1, False]: #count is 1, and not focused
-                logger.debug("spotify is Running, count is 1, and not focused")
-                custom_keyboard.press("playpause")  
-                #app.window().send_keystrokes(" ")
-
-            case [2, _]: #count is 2, and any focused
-                logger.debug("spotify is Running, count is 2, and any focused")
-                logger.debug("next song")
-                #app.window().send_keystrokes("c")
-                custom_keyboard.press("nexttrack")  
-
-                
-            case [3, _]: #count is 3, and any focused
-                logger.debug("spotify is Running, count is 3, and any focused")
-                logger.debug("previous song")
-                #app.window().send_keystrokes("c")
-                custom_keyboard.press("prevtrack")  
-
-
-        
-        logger.debug(f"Value of {count = }")
-        count =0
-        logger.debug(f"Value of {count = } ")
-        print("\n")
-
-    
-    sp_tmrV2 = threading.Thread(target=spotify_timerV2, args=(timeout,),daemon=True)
-    sp_stat = threading.Thread(target=get_spotify_stats, args=(),daemon=True)
-    logger.debug("sp_tmrV2 and sp_stat has been defined")
-
-    logger.debug("Check if thread is running")
-    for thread in threading.enumerate():
-        if '(spotify_timerV2)' in thread.name or '(get_spotify_stats)' in thread.name:
-            logger.debug("Spotify timer and or spotify stats thread are running")
-            thread_running = True
-            break
-        else:
-            logger.debug("Thread I want is not running")
-            thread_running = False
-
-    logger.debug("Just passed Check if thread is running")
-    logger.debug(f"thread_running value is: {thread_running}")
-
-    if thread_running is False:
-        logger.debug("thread_running is False")
-        logger.debug("Starting: sp_tmr.start(), and sp_stat.start()")
-        sp_tmrV2.start()
-        sp_stat.start()
-
-
 SPEECH_KEY ='8819099d546f4a168f0b84e6abd78540'
 SPEECH_REGION = 'westus'
 # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
@@ -356,6 +228,70 @@ def textToSpeech():
 def stopSpeech():
     logger.info("in stopSpeech")
     speech_synthesizer.stop_speaking()
+
+
+def spotifyV3(timeout = 0.4, count=[0]):
+    """Plays/Pauses spotifyV3, presses next song previous song.   
+    
+    Press 1 time in timeout seconds to Plays/Pauses.        \n
+    Press 2 times in timeout seconds to get next song.      \n
+    Press 3 times in timeout seconds to get previous song.  \n   
+
+    Args:
+      timeout (integer): Defines how much time you have to press the button for it to do something
+      count (list): Don't touch this, it is a counter for the function
+    Returns:
+      None
+    """
+    count[0] += 1
+    
+    logger.debug("Spotify Func Has been called")
+
+    def spotify_timerV3():
+        """Waits for timeout to finish then it send a keyboard input based on value of count[0]"""
+
+        logger.debug("spotify_timer Has just begun")
+        time.sleep(timeout)
+        logger.debug("spotify_timer sleep has just finished")
+
+        actions = [
+            "playpause",
+            "nexttrack",
+            "prevtrack"]
+        
+        logger.debug("Entering try")
+        try:
+            action = actions[count[0]-1]
+        
+            custom_keyboard.press(action)  
+            logger.debug(f'Value of {count[0] = }, executing folowing action: {action}')
+
+        except IndexError as ind:
+            print('\n')
+            logger.error(f'IndexError has just happened, reason: {ind}')
+            logger.error(f'Button was pressed to many times. You pressed it {count[0]} times.\n')
+
+        except Exception as e:
+            logger.error(e)
+        
+        finally:
+            count[0] = 0
+            logger.debug(f"Value of {count[0] = }\n")
+
+    """         Finds if thread I want is running, if not it starts, if it is does nothing          """
+    # adds True to list if func hmm is running as a thread
+    thread_running = [
+        True
+        for thread in threading.enumerate()
+        if spotify_timerV3.__name__ in thread.name
+        ]
+    
+    if not any(thread_running):
+        logger.debug("Thread I want is not running, starting it")
+        spotify_thread = threading.Thread(target=spotify_timerV3, args=(),daemon=True)
+        spotify_thread.start()
+    else:
+        logger.debug("thread I want is running")
 
 
 # Gets the path of icon image
@@ -387,7 +323,7 @@ def Button_handler(button):
             time.sleep(0.1)
         custom_keyboard.hotkey('ctrl', 'win', direction)
 
-    focused_win_name = win32gui.GetWindowText(user32.GetForegroundWindow())
+    focused_win_name = win32gui.GetWindowText(win32gui.GetForegroundWindow())
 
     win_name = focused_win_name.split(" - ")
     win_name.reverse()
@@ -410,7 +346,7 @@ def Button_handler(button):
 
         case [_, ("2", mode)]:    # pause song spotify for any app
             logger.debug("pause song spotify \n")
-            spotifyV2()
+            spotifyV3()
 
         case [_, ("3", mode)]:    # move desktop left for any app
             twrv = threading.Thread(target = change_desktop, args=('left', app)).start()
@@ -582,37 +518,31 @@ def main():
                 
 if __name__ == "__main__":
     """
-    TODO
-    in V3.1:
+    Changelog:
+        Updated spotify func, it is much smaller and doesnt need to get hwnd of spotify
+        
+        added 2 new functions, both are for getting app stats, like name and hwnd and pid
+        they are currently commented out. 
+        The Ctype stuff that is commented out just below imports is needed for the 2 functions to work
+        I want to add them to another file called tools or utils or something, IDK
 
-    I believe I have fixedd the issue where spotify play pause would control chrome videos
-    I have set the following chrome flag to disabled: chrome://flags/#hardware-media-key-handling
-    I can remove all the stuff that checks if spotify is running and gets its pid
-    Can also remove pywinauto
-    Just have timer go then when its done press the button.
-    
-    update image to text, so it presses Win+shift+s
-    then waits until mouse up to save image and do tts
-    when I press esc have it stop, and have it account for close snippet(the x button)
+        removed the need for the following modules: pywinauto, win32process, psutil
 
-    Add  get_processes(sorted = False) func from test, does what I want below
+    TODO for V3.1:
+        update image to text, so it presses Win+shift+s
+        then waits until mouse up to save image and do tts
+        when I press esc have it stop, and have it account for close snippet(the x button)
 
-    redo get PID and filter for it.
-    call func then have it return list with name, hwnd and pid
-    or just return apps with the name I want in them.
-    comb thru spotify func to see if PID search is done everytime.
-    
-    
-    Add code that will check if there is a folder with macro version for logs.
-    If none add one.
-    When I right click on the taskbar icon, I want there to be a toggle button
-    When On I want it to open a console window that will print the debug and error messages to it
-    and when off it goes away.
 
-    try and transition all pyautogui keyboard funtions to custom_keyboard
-    add a write function to custom_keyboard
+        Add code that will check if there is a folder with macro version for logs.
+        If none add one.
+        When I right click on the taskbar icon, I want there to be a toggle button
+        When On I want it to open a console window that will print the debug and error messages to it
+        and when off it goes away.
+
+        try and transition all pyautogui keyboard funtions to custom_keyboard
+        add a write function to custom_keyboard
     """
 
-    
     main()
     
