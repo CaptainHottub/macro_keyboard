@@ -540,8 +540,14 @@ if __name__ == "__main__":
         When On I want it to open a console window that will print the debug and error messages to it
         and when off it goes away.
 
+        When I right click on the taskbar icon, I want there to be a toggle button
+        When On I want it to open a console window that will print the debug and error messages to it
+        and when off it goes away.
+
         try and transition all pyautogui keyboard funtions to custom_keyboard
         add a write function to custom_keyboard
+
+
     """
 
     main()

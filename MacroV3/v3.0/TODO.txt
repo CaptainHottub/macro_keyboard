@@ -1,4 +1,18 @@
+update image to text, so it presses Win+shift+s
+then waits until mouse up to save image and do tts
+when I press esc have it stop, and have it account for close snippet(the x button)
+
+
+Add code that will check if there is a folder with macro version for logs.
+If none add one.
 When I right click on the taskbar icon, I want there to be a toggle button
 When On I want it to open a console window that will print the debug and error messages to it
 and when off it goes away.
+
+When I right click on the taskbar icon, I want there to be a toggle button
+When On I want it to open a console window that will print the debug and error messages to it
+and when off it goes away.
+
+try and transition all pyautogui keyboard funtions to custom_keyboard
+add a write function to custom_keyboard
 
