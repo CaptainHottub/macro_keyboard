@@ -8,8 +8,9 @@ import ctypes
 import ctypes.wintypes as wintypes
 import time
 
-
-
+import os
+import pyperclip
+from PIL import Image, ImageGrab
 
 # Ctypes Stuff
 WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
@@ -215,22 +216,62 @@ def spotifyV3(timeout = 0.4, count=[0]):
     else:
         logger.debug("thread I want is running")
 
+def imt():
+    logger.debug("imt has just started")
+    # update image to text, so it presses Win+shift+s
+    # then waits until mouse up to save image and do imt
+    # when I press esc have it stop, and have it account for close snippet(the x button)
+
+    """ IDEA
+    I press the button,
+    0.4 second timer
+
+    wins + shift + s hotkey
+
+    Enters snippet mode
+    track the following:
+        mouse down and its pos
+        mouse up and its pos
+
+    wait for mouse up, then check if the latest item in clipboard is an image.
+
+    use pyautogui to find the x button in snippet mode snippet mode, gets its pos and dimensions.
+    check if mouse down and mouse up were in the same position as x button.
+
+    if above is true and if latest clipboard item is NOT an image  stop the function, as i probobly pressed the x 
+    also check if i pressed escape in snippet mode, because that closes it.
+    if those are true, stop function.
+
+    if they are false and latest clipboard item is an image
+    then do imt that I have now.
+
+    Actually no to "then do imt that I have now."
+
+    use pytesseract     https://pypi.org/project/pytesseract/
+    import pytesseract
+    img = ImageGrab.grabclipboard()
+    text = pytesseract.image_to_string(img)
+    print(text)
+
+    pyperclip.copy(text)
+
+    above should work, IDK
+
+    """
+
+
 
 if __name__ == '__main__':
     logger.debug("__name__ == '__main__'")
 
     # TODO    
-    # I believe I have fixedd the issue where spotify play pause would control chrome videos
-    # I have set the following chrome flag to disabled: chrome://flags/#hardware-media-key-handling
-    # I can remove all the stuff that checks if spotify is running and gets its pid
-    # Can also remove pywinauto
-    # Just have timer go then when its done press the button.
-    
     # update image to text, so it presses Win+shift+s
-    # then waits until mouse up to save image and do tts
+    # then waits until mouse up to save image and do imt
     # when I press esc have it stop, and have it account for close snippet(the x button)
 
-    # Add  get_processes(sorted = False) func from test, does what I want below
+
+    imt()
+
 
     # WORKS
 
@@ -244,3 +285,4 @@ if __name__ == '__main__':
     # #pause
     # spotifyV3()
     # time.sleep(1)
+    
