@@ -269,13 +269,14 @@ def spotifyV2(timeout = 0.4):
 
         # True is spotify is focused, and False if not
         spotify_focussed = spotify_PID in current_focused_pid
-
+        
         if spotify_PID is None: #Spotify is not running
             logger.debug("Spotify is not running")
-            pyautogui.press("playpause")  
+            #pyautogui.press("playpause")  
+            #custom_keyboard.press("playpause")  
             return
         
-        app = Application().connect(process=spotify_PID)
+        #app = Application().connect(process=spotify_PID)
         match [count, spotify_focussed]: #spotify is Running, 
             case [1, True]: #count is 1, and focused
                 logger.debug("spotify is Running, count is 1, and focused")
@@ -283,14 +284,12 @@ def spotifyV2(timeout = 0.4):
 
             case [1, False]: #count is 1, and not focused
                 logger.debug("spotify is Running, count is 1, and not focused")
-                #pyautogui.press("playpause")  
-                app.window().send_keystrokes(" ")
-       
+                custom_keyboard.press("playpause")  
+                #app.window().send_keystrokes(" ")
 
             case [2, _]: #count is 2, and any focused
                 logger.debug("spotify is Running, count is 2, and any focused")
                 logger.debug("next song")
-                #pyautogui.press("nexttrack")  
                 #app.window().send_keystrokes("c")
                 custom_keyboard.press("nexttrack")  
 
@@ -298,7 +297,6 @@ def spotifyV2(timeout = 0.4):
             case [3, _]: #count is 3, and any focused
                 logger.debug("spotify is Running, count is 3, and any focused")
                 logger.debug("previous song")
-                #pyautogui.press("prevtrack")  
                 #app.window().send_keystrokes("c")
                 custom_keyboard.press("prevtrack")  
 
@@ -587,6 +585,12 @@ if __name__ == "__main__":
     TODO
     in V3.1:
 
+    I believe I have fixedd the issue where spotify play pause would control chrome videos
+    I have set the following chrome flag to disabled: chrome://flags/#hardware-media-key-handling
+    I can remove all the stuff that checks if spotify is running and gets its pid
+    Can also remove pywinauto
+    Just have timer go then when its done press the button.
+    
     redo get PID and filter for it.
     call func then have it return list with name, hwnd and pid
     or just return apps with the name I want in them.
