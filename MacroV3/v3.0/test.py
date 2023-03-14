@@ -12,6 +12,12 @@ import time
 import os
 from PIL import Image, ImageGrab
 
+import pytesseract
+import pyperclip
+from pynput import mouse, keyboard
+
+
+
 # Ctypes Stuff
 WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
@@ -54,13 +60,14 @@ class CustomFormatter(logging.Formatter):
         formatter = logging.Formatter(log_fmt, datefmt='%H:%M:%S')
         return formatter.format(record)
 
-# create logger
+#create logger
 logger = logging.getLogger("My_app")
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s - %(funcName)s: %(message)s', datefmt='%H:%M:%S') 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(CustomFormatter())
 logger.addHandler(stream_handler)
+
 
 
 def get_time(func):
@@ -216,16 +223,15 @@ def spotifyV3(timeout = 0.4, count=[0]):
     else:
         logger.debug("thread I want is running")
 
-import pytesseract
-import pyperclip
-from pynput import mouse, keyboard
-m = mouse.Controller()
 
 def imt():
+
     """Presses Win Shif S to open snippet mode, waits for mouse release then does tesseract OCR
     Press Ctrl V to paste text
     """
     logger.debug("imt has just started")
+
+    m = mouse.Controller()
 
     def on_release(key):
         if key == keyboard.Key.esc:
@@ -284,6 +290,10 @@ if __name__ == '__main__':
 
     # TODO    
 
+    #NAH Too much work
+    # When I right click on the taskbar icon, I want there to be a toggle button
+    # When On I want it to open a console window that will print the debug and error messages to it
+    # and when off it goes away.
 
 
     # WORKS

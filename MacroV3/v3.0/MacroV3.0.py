@@ -46,9 +46,28 @@ from pynput import mouse, keyboard
 #         wintypes.LPDWORD,) # _Out_opt_ lpdwProcessId
 
 
-
 #Script directory
 script_path = os.path.dirname(os.path.abspath(__file__))
+log_folder_path = r'C:\Users\Taylor\Desktop\Macro Logs'
+
+def log_folder(log_folder_path):
+    """Returns path to log folder with version name.\n
+    Will create a folder at that path location.
+    
+    Define log_folder_path as the path of the log folder you want.
+    """
+    script_path = os.path.dirname(os.path.abspath(__file__))
+
+    version = script_path.split('\\')[-1]
+    version = version.upper()
+        
+    log_folder = f'{log_folder_path}\{version}'
+
+    if os.path.isdir(log_folder):
+        return log_folder
+    os.mkdir(log_folder)
+
+    return log_folder
 
 #Custom logger format, 
 class CustomFormatter(logging.Formatter):
@@ -75,7 +94,8 @@ class CustomFormatter(logging.Formatter):
 
 # Creates a file path for the log file.
 now = datetime.datetime.now()
-path = r'C:\Users\Taylor\Desktop\Macro Logs\V3.0'
+path = log_folder(log_folder_path)
+#path = r'C:\Users\Taylor\Desktop\Macro Logs\V3.0'
 log_file_name = now.strftime("%Y-%B-%d_%H.%M.%S")
 filename = f'{path}\{log_file_name}.log'
 
@@ -600,20 +620,15 @@ if __name__ == "__main__":
         The Ctype stuff that is commented out just below imports is needed for the 2 functions to work
         I want to add them to another file called tools or utils or something, IDK
 
+        changed image to text so that it pressed win shift s to open snippet mode.
+        then it waits for you to release the left mouse then it grabs the image from clipboard
+        and uses pytesseract to do OCR on it.
+
+        added a func that checks and creates a log folders if there is not one.
+
         removed the need for the following modules: pywinauto, win32process, psutil
 
     TODO for V3.1:
-        update image to text, so it presses Win+shift+s
-        then waits until mouse up to save image and do tts
-        when I press esc have it stop, and have it account for close snippet(the x button)
-
-
-        Add code that will check if there is a folder with macro version for logs.
-        If none add one.
-        When I right click on the taskbar icon, I want there to be a toggle button
-        When On I want it to open a console window that will print the debug and error messages to it
-        and when off it goes away.
-
         When I right click on the taskbar icon, I want there to be a toggle button
         When On I want it to open a console window that will print the debug and error messages to it
         and when off it goes away.
