@@ -1,3 +1,4 @@
+import contextlib
 import pystray
 import serial.tools.list_ports
 import sys
@@ -16,9 +17,12 @@ import azure.cognitiveservices.speech as speechsdk
 from PIL import Image, ImageGrab
 from win10toast import ToastNotifier
 
-from pywinauto import Application
-import win32process
-import psutil
+import pytesseract
+from pynput import mouse, keyboard
+
+# from pywinauto import Application
+# import win32process
+# import psutil
 
 # import ctypes
 # import ctypes.wintypes as wintypes
@@ -160,16 +164,65 @@ logger.addHandler(stream_handler)
 #     return results
 
 
-def Image_to_text():
-    img = ImageGrab.grabclipboard()
-    img.save("C:/Users/Taylor/itt/image.png")
-    os.system('cmd /c "cd C:\\Users\\Taylor\\itt & tesseract Image.png tesseract-result"')
+def Image_to_text2():
+    """Presses Win Shift S to open snippet mode, waits for mouse release then does tesseract OCR
+    Press Ctrl V to paste text
+    """
+
+    logger.debug("imt has just started")
+
+    m = mouse.Controller()
+
+    def on_release(key):
+        if key == keyboard.Key.esc:
+            logger.debug('esc pressed and released')
+            # Stop listener and the func
+            m.click(mouse.Button.left,1)
+            return False
+
+    keyboard_listener = keyboard.Listener(
+        on_release=on_release)
     
-    file = open("C:\\Users\\Taylor\\itt\\tesseract-result.txt", 'r', encoding='utf-8').read()
-    # removes the arrow from the text
-    if '\n\x0c' in file:
-        file = file.replace('\n\x0c','')
-    pyperclip.copy(file)
+    custom_keyboard.hotkey('winleft', 'shift', 's')
+    time.sleep(0.2)
+
+    keyboard_listener.start()
+
+    mouse_clicks = []   
+                
+    with mouse.Events() as events:
+        for event in events:
+            with contextlib.suppress(Exception):
+                if event.button == mouse.Button.left:
+                    text = {
+                        'x': event.x,
+                        'y': event.y,
+                        'button': str(event.button),
+                        'pressed': event.pressed}
+                    mouse_clicks.append(text)
+                    if event.pressed == False:
+                        break
+    
+    pressed =  keyboard_listener.is_alive()
+    if not pressed:
+        print("keyboard_listener is not running")
+        return False
+    
+    #checks if the mouse moved
+    click1, click2 = mouse_clicks
+    dx = click1['x'] - click2['x']
+    dy = click1['y'] - click2['y']
+    if dx == 0 and dy == 0:
+        print("mouse didnt move")
+        return False
+    
+    time.sleep(0.1)
+    
+    # grabs the image from clipboard and converts the image to text.
+    img = ImageGrab.grabclipboard()
+    text = pytesseract.image_to_string(img)
+    text = text.replace('\x0c', '')
+    pyperclip.copy(text)
 
 def ButtonMode(mode):
     ButtonDescriptions = f"""Current mode is: {mode}
@@ -248,6 +301,7 @@ def textToSpeech():
 def stopSpeech():
     logger.info("in stopSpeech")
     speech_synthesizer.stop_speaking()
+    speech_synthesizer.stop_speaking_async()
 
 
 def spotifyV3(timeout = 0.4, count=[0]):
@@ -430,7 +484,7 @@ def Button_handler(button):
                 
         case [_, ("A", mode)]:   #image to text             is button 11
             logger.debug("Image to text")
-            twrv = threading.Thread(target = Image_to_text).start()
+            twrv = threading.Thread(target = Image_to_text2).start()
 
 def on_quit(type):
     """
