@@ -218,21 +218,22 @@ def textToSpeech():
     pyautogui.hotkey('ctrl', 'c')
     text = pyperclip.paste()
 
+    speech_synthesis_result = speech_synthesizer.speak_text_async(text)
 
     #print(repr(text))
     #Formats the text
 
-    text1 = text.replace("\r\n\r\n", "")
+    # text1 = text.replace("\r\n\r\n", "")
 
-    text2 = text1.split(". ")
+    # text2 = text1.split(". ")
 
-    text3 = [f'{i}.' for i in text2 if i != '']
+    # text3 = [f'{i}.' for i in text2 if i != '']
 
-    logger.debug(text3)
-    for i in text3:
-        if len(i) > 1:
-            speech_synthesis_result = speech_synthesizer.speak_text_async(i)
-            time.sleep(0.2)
+    # logger.debug(text3)
+    # for i in text3:
+    #     if len(i) > 1:
+    #         speech_synthesis_result = speech_synthesizer.speak_text_async(i)
+    #         time.sleep(0.2)
 
     # #Old Formating
     # #print(repr(good_text))
