@@ -218,12 +218,31 @@ def textToSpeech():
     pyautogui.hotkey('ctrl', 'c')
     text = pyperclip.paste()
 
-    cleaned_text = text.replace("\r\n", " ")    
-    good_text = cleaned_text.split(". ")
-    logger.debug(good_text)
-    for i in good_text:
+
+    #print(repr(text))
+    #Formats the text
+
+    text1 = text.replace("\r\n\r\n", "")
+
+    text2 = text1.split(". ")
+
+    text3 = [f'{i}.' for i in text2 if i != '']
+
+    logger.debug(text3)
+    for i in text3:
         if len(i) > 1:
             speech_synthesis_result = speech_synthesizer.speak_text_async(i)
+            time.sleep(0.2)
+
+    # #Old Formating
+    # #print(repr(good_text))
+    # cleaned_text = text.replace("\r\n", " ")    
+    # good_text = cleaned_text.split(". ")
+    # logger.debug(good_text)
+
+    # for i in good_text:
+    #     if len(i) > 1:
+    #         speech_synthesis_result = speech_synthesizer.speak_text_async(i)
 
 def stopSpeech():
     logger.info("in stopSpeech")
@@ -494,14 +513,14 @@ def main():
                 logger.info(cc)
                 continue
 
-            global button
+            #global button
             button = (f"{cc[9]} {cc[11]}")
 
             Button_handler(button)
 
         except serial.serialutil.PortNotOpenError:
             logger.critical("Arduino is not plugged in")
-            #logger.critical("Program quiting, goodbye")
+            logger.critical("Program quiting, goodbye")
             sys.exit(1) 
 
         except Exception as e:

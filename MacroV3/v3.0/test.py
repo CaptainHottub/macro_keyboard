@@ -9,7 +9,6 @@ import ctypes.wintypes as wintypes
 import time
 
 import os
-import pyperclip
 from PIL import Image, ImageGrab
 
 # Ctypes Stuff
