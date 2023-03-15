@@ -19,7 +19,7 @@ from win10toast import ToastNotifier
 
 import pytesseract
 from pynput import mouse, keyboard
-
+import autoit
 # from pywinauto import Application
 # import win32process
 # import psutil
@@ -399,6 +399,8 @@ NOTIFICATION = {
     "Duration": 1.5
     }
 
+
+
 def Button_handler(button):
 
     def sheild_focus_star_citizen(key): #macro to focus ship shields in star citizen
@@ -410,11 +412,12 @@ def Button_handler(button):
     def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
         logger.debug(f"move desktop {direction}")
         
-        apps_to_alt_tab = ('Star Citizen')  #lis of apps to alt tab when changing desktops
+        apps_to_alt_tab = ['Star Citizen', 'Task Manager']  #lis of apps to alt tab when changing desktops
 
         if focused_app in apps_to_alt_tab: 
             custom_keyboard.hotkey('alt', 'tab')
             time.sleep(0.1)
+
         custom_keyboard.hotkey('ctrl', 'win', direction)
 
     focused_win_name = win32gui.GetWindowText(win32gui.GetForegroundWindow())
@@ -425,6 +428,8 @@ def Button_handler(button):
     app = win_name[0]
     if app == '': #Sets app to 'Desktop' if nothing is focused.
         app = 'Desktop'
+
+    #logger.debug(f"Focused app is {app}")
 
     # Match case for buttons.
     match [app, button.split()]:
@@ -464,7 +469,23 @@ def Button_handler(button):
 
         case ["Star Citizen", ("7", mode)]: # Reset shields
             sheild_focus_star_citizen("3")
-            
+        
+
+        # TEST
+        case ["Destiny 2", ("5", mode)]: # Rocket Flying Test
+            #left clicks, then presses q, then moves mouse down 15 pixels
+            logger.debug("Rocket Flying Test")
+            autoit.mouse_click()
+
+            custom_keyboard.press('q')
+
+            x,y = autoit.mouse_get_pos()
+
+            autoit.mouse_move(x,y+15)
+    
+            logger.debug("wut")
+
+
 
         # Any App, Specific Mode
         case [_, ("5", "2")]:     # Cut (Ctrl + x)
