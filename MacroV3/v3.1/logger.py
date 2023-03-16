@@ -1,7 +1,11 @@
 import logging
 import datetime
-
 import os
+
+# for notiffications
+from win10toast import ToastNotifier
+toaster = ToastNotifier()
+
 
 #Script directory
 script_path = os.path.dirname(os.path.abspath(__file__))

@@ -1,16 +1,8 @@
-from logger import logger
+from logger import logger, toaster
 import tools
 import serial.tools.list_ports
 import threading
 import time
-from win10toast import ToastNotifier
-
-toaster = ToastNotifier()
-NOTIFICATION = {
-    "ShowNotification": True,
-    "Duration": 1.5
-    }
-
 
 class MacroDriver:
     def __init__(self, baud_rate = 9600):
@@ -42,11 +34,11 @@ class MacroDriver:
                 try:
                     self.serial_port = serial.Serial(self.com_port, self.baud_rate)
                     logger.info(f'Connected to serial port {self.com_port} at {self.baud_rate} baud')
-                    toaster.show_toast("Connected","Connected to Arduino succesfully!", icon_path=None, duration=NOTIFICATION["Duration"], threaded=True)
+                    toaster.show_toast("Connected","Connected to Arduino succesfully!", duration=2, threaded=True)
 
                 except serial.serialutil.SerialException:
                     logger.critical('Arduino is already connected to something, shutingdown')
-                    toaster.show_toast("Access is denied","Arduino is already connected to something", icon_path=None, duration=NOTIFICATION["Duration"], threaded=True)
+                    toaster.show_toast("Access is denied","Arduino is already connected to something", duration=2, threaded=True)
                     self.stop()
 
                 except Exception as e:
@@ -75,8 +67,7 @@ class MacroDriver:
                     
                     toaster.show_toast("Arduino Micro disconnected", 
                                        f'Arduino Micro disconnected from {self.com_port}. Looking for device...', 
-                                       icon_path=None, 
-                                       duration=NOTIFICATION["Duration"], 
+                                       duration=2, 
                                        threaded=True)
                     
                     self.serial_port = None

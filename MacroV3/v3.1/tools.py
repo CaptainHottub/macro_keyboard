@@ -1,6 +1,6 @@
 import contextlib
 from functools import wraps
-from logger import logger
+from logger import logger, toaster
 
 import threading
 import time
@@ -38,6 +38,25 @@ ctypes.WinDLL('user32').GetWindowThreadProcessId.argtypes = (
         wintypes.LPDWORD,) # _Out_opt_ lpdwProcessId
 
 GetForegroundWindow = ctypes.WinDLL('user32').GetForegroundWindow
+
+# Setting up the speech config
+try:
+    with open(r'C:\Coding\azure_speech_config.txt', 'r') as f:
+        contents = f.read()
+        contents = contents.split(', ')
+        SPEECH_KEY = contents[0]
+        SPEECH_REGION = contents[1]
+
+    # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+    speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
+    audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
+    # The language of the voice that speaks.
+    speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+
+except Exception as e:
+    logger.error(f'Error setting up speech config: {e}')
+    toaster.show_toast("Speech Config Error", "See Log File for more information", duration=5, threaded=True)
 
 # timer function
 def get_time(func):
@@ -249,8 +268,13 @@ def ButtonMode(mode):
     """
     pyautogui.alert(ButtonDescriptions, "Button Mode")  
 
-SPEECH_KEY ='8819099d546f4a168f0b84e6abd78540'
-SPEECH_REGION = 'westus'
+
+with open(r'C:\Coding\azure_speech_config.txt', 'r') as f:
+    contents = f.read()
+    contents = contents.split(', ')
+    SPEECH_KEY = contents[0]
+    SPEECH_REGION = contents[1]
+
 # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
 speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
 audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
