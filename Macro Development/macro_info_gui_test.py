@@ -1,28 +1,74 @@
-from tkinter import *
-mode = 0
+# from tkinter import *
+# mode = 0
 
 
-window = Tk()
-window.geometry("420x420")
-window.title("macro_info_gui_test")
-window.config(background='black')
+# window = Tk()
+# window.geometry("420x420")
+# window.title("macro_info_gui_test")
+# window.config(background='black')
 
-modeButton = Button(window, text="Mode", width=10, height=4).grid(row=2, column=0)
+import tkinter as tk
+import tkinter.font as tkfont
+import itertools
+import devmacro
 
-Button1= Button(window, text='Button 1', width=10, height=4).grid(row=0, column=1)
-Button2= Button(window, text='Button 2', width=10, height=4).grid(row=0, column=2)
-Button3= Button(window, text='Button 3', width=10, height=4).grid(row=0, column=3)
-Button4= Button(window, text='Button 4', width=10, height=4).grid(row=0, column=4)
+root = tk.Tk()
+root.geometry("420x420")
+root.title("macro_info_gui_test")
 
-Button5= Button(window, text='Button 5', width=10, height=4).grid(row=1, column=1)
-Button6= Button(window, text='Button 6', width=10, height=4).grid(row=1, column=2)
-Button7= Button(window, text='Button 7', width=10, height=4).grid(row=1, column=3)
-Button8= Button(window, text='Button 8', width=10, height=4).grid(row=1, column=4)
 
-Button9= Button(window, text='Button 9', width=10, height=4).grid(row=2, column=1)
-Button10= Button(window, text='Button 10', width=10, height=4).grid(row=2, column=2)
-Button11= Button(window, text='Button 11', width=10, height=4).grid(row=2, column=3)
-Button12= Button(window, text='Button 12', width=10, height=4).grid(row=2, column=4)
+devmacro.test()
+
+mode = 1
+
+# Define a function to print the name of the button that was clicked
+def print_button_name(button_name):
+        global mode
+        if button_name == 'Mode':
+                if mode < 4:
+                      mode += 1
+                else:
+                      mode = 1
+
+        if button_name != 'Mode' and 10 <= button_name <= 12:
+                button_names = {'10': '0', 
+                        '11': 'A', 
+                        '12': 'B'}
+                button_name = button_names[str(button_name)]
+
+        print(f"Button {button_name} was clicked.")
+
+        if button_name != 'Mode':
+                button_str_to_send = f'{button_name} {mode}'
+                devmacro.Button_handler(button_str_to_send)
+
+        #print(button_names[button])
+
+for i, j in itertools.product(range(3), range(5)):
+    if i < 2 and j == 0:
+        continue
+
+    number = (4*i) +j  
+
+    button = tk.Button(root, text=f"Button {number}", width = 10, height = 4,  command=lambda name=number: print_button_name(name))
+
+    if i == 2 and j == 0 :
+        button_name = "Mode"
+
+        button = tk.Button(root, text= button_name, width = 10, height = 4,  command=lambda name=button_name: print_button_name(name))
+    
+    button.grid(row=i, column=j)
+
+
+font = tkfont.nametofont("TkDefaultFont")
+my_str="Arduino"
+
+height=font.measure(my_str)+10
+width=font.metrics()['linespace']
+
+canvas = tk.Canvas(root, height=height, width=width)
+canvas.create_text((0,6), angle=-90, anchor="sw", text=my_str, fill='SystemButtonText', font=font)
+canvas.grid(row=0, column=0, rowspan=2)
 
 """
         Column0     Column1     Column2     Column3     Column4
@@ -35,4 +81,4 @@ Row2    Mode        Button9     Button10    Button11    Button12
 
 
 #https://www.youtube.com/watch?v=XKHEtdqhLK8
-window.mainloop()
+root.mainloop()

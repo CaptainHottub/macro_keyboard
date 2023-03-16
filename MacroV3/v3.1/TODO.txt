@@ -1,0 +1,5 @@
+Add a requirements file 
+
+MAYBE
+try and transition all pyautogui keyboard funtions to custom_keyboard
+add a write function to custom_keyboard

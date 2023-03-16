@@ -1,1 +1,0 @@
-autoit.mouse_move(x,y+15)

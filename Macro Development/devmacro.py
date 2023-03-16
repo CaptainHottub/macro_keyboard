@@ -231,7 +231,16 @@ def main():
                 print()
                 ser = None
                 setupV2(3)
-                
+
+
+def test():
+    DEBUG = 1  # 0 for off 1 for DEBUG logs on
+    logger_setup(DEBUG)
+    global log
+    from funcs_dev import log
+
+
+
 if __name__ == "__main__":
     DEBUG = 1  # 0 for off 1 for DEBUG logs on
     logger_setup(DEBUG)

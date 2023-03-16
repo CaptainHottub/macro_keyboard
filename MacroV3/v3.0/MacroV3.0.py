@@ -20,6 +20,14 @@ from win10toast import ToastNotifier
 import pytesseract
 from pynput import mouse, keyboard
 import autoit
+
+#import gui_test
+
+import tkinter as tk
+import tkinter.font as tkfont
+import itertools
+
+mode = 1
 # from pywinauto import Application
 # import win32process
 # import psutil
@@ -356,7 +364,7 @@ def spotifyV3(timeout = 0.4, count=[0]):
         logger.debug("Entering try")
         try:
             action = actions[count[0]-1]
-        
+
             custom_keyboard.press(action)  
             logger.debug(f'Value of {count[0] = }, executing folowing action: {action}')
 
@@ -475,13 +483,17 @@ def Button_handler(button):
         case ["Destiny 2", ("5", mode)]: # Rocket Flying Test
             #left clicks, then presses q, then moves mouse down 15 pixels
             logger.debug("Rocket Flying Test")
-            autoit.mouse_click()
-
-            custom_keyboard.press('q')
 
             x,y = autoit.mouse_get_pos()
+            autoit.mouse_click()
 
-            autoit.mouse_move(x,y+15)
+            #autoit.mouse_move(x,y+160, 2)
+
+            custom_keyboard.press('q')
+            #autoit.mouse_move(x,y+160, 2)
+            #x,y = autoit.mouse_get_pos()
+
+            #autoit.mouse_move(x,y+60, 2)
     
             logger.debug("wut")
 
@@ -535,11 +547,11 @@ def on_quit(type):
     which we catch in the main try. once we catch it wan can do sys.exit(1) 
     """
     logger.critical("PROGRAM is shutting down")
-    systray.stop()
+
     if type == 1:
         ser.close()
+    systray.stop()
     exit(1)
-    #ser.close()
 
 def setupV2(type=None):
     while True:
@@ -567,7 +579,7 @@ def setupV2(type=None):
             
             if NOTIFICATION["ShowNotification"]:
                 toaster.show_toast("Access is denied","Arduino is already connected to something", icon_path=None, duration=NOTIFICATION["Duration"], threaded=True)
-
+            logger.error(err)
             on_quit(0)
 
         except Exception as e:
@@ -585,18 +597,106 @@ def setupV2(type=None):
 
             return ser
 
+
+
+
+
+"""
+
+def print_button_name(button_name):
+    global mode
+    if button_name == 'Mode':
+        if mode < 4:
+            mode += 1
+        else:
+            mode = 1
+
+    if button_name != 'Mode' and 10 <= button_name <= 12:
+        button_names = {'10': '0', 
+            '11': 'A', 
+            '12': 'B'}
+        button_name = button_names[str(button_name)]
+
+    #print(f"Button {button_name} was clicked.")
+
+    if button_name != 'Mode':
+        button_str_to_send = f'{button_name} {mode}'
+        try:
+            Button_handler(button_str_to_send)
+        except Exception as e:
+            print(e)
+
+def gui_test():
+    global root
+    root = tk.Tk()
+    #root.geometry("420x420")
+    root.title("macro_info_gui_test")
+
+    for i, j in itertools.product(range(3), range(5)):
+        if i < 2 and j == 0:
+            continue
+
+        number = (4*i) +j  
+
+        button = tk.Button(root, text=f"Button {number}", width = 10, height = 4,  command=lambda name=number: print_button_name(name))
+
+        if i == 2 and j == 0 :
+            button_name = "Mode"
+
+            button = tk.Button(root, text= button_name, width = 10, height = 4,  command=lambda name=button_name: print_button_name(name))
+        
+        button.grid(row=i, column=j)
+
+
+    font = tkfont.nametofont("TkDefaultFont")
+    my_str="Arduino"
+
+    height=font.measure(my_str)+10
+    width=font.metrics()['linespace']
+
+    canvas = tk.Canvas(root, height=height, width=width)
+    canvas.create_text((0,6), angle=-90, anchor="sw", text=my_str, fill='SystemButtonText', font=font)
+    canvas.grid(row=0, column=0, rowspan=2)
+
+
+    #         Column0     Column1     Column2     Column3     Column4
+    # Row0    Arduino1    Button1     Button2     Button3     Button4
+
+    # Row1    Arduino2    Button5     Button6     Button7     Button8
+
+    # Row2    Mode        Button9     Button10    Button11    Button12
+    
+    #root.withdraw()
+    #https://www.youtube.com/watch?v=XKHEtdqhLK8
+    root.mainloop()
+    #root.withdraw()
+
+state = False
+def on_clicked(icon, item):
+    global state
+    state = not item.checked
+    if state:
+        gui_test()
+
+    else:
+        root.destroy()
+
+
+
+"""
+
+
 def sysIcon():
     global systray
     systray = pystray.Icon(name="Python Macro", icon=image, title="Python Macro", menu=pystray.Menu(
-        #pystray.MenuItem("Quit", on_quit)
+        #pystray.MenuItem('Show', on_clicked, checked=lambda item: state),
         pystray.MenuItem("Quit", lambda: on_quit(1))
     ))
     systray.run()
 
 
 def main():
-    # Makes the systray Icon a seperate thread so it doesn't block code
-    twrv = threading.Thread(target = sysIcon).start()
+    twrv = threading.Thread(target = sysIcon, daemon=True).start()
     
     ## setup
     global ser
@@ -617,7 +717,8 @@ def main():
         except serial.serialutil.PortNotOpenError:
             logger.critical("Arduino is not plugged in")
             logger.critical("Program quiting, goodbye")
-            sys.exit(1) 
+            exit(1)
+            #sys.exit(1) 
 
         except Exception as e:
             logger.warning(e)
