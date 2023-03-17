@@ -122,9 +122,20 @@ class MacroDriver:
 
             case [_, "4", mode]:     # move desktop right for any app   
                 twrv = threading.Thread(target = tools.change_desktop, args=('right', app)).start()
+            
+            
+            # TEST
+            case ["Destiny 2", "5", mode]: # Rocket Flying Test
+                #left clicks, then presses q, then moves mouse down 15 pixels
+                logger.debug("Rocket Flying Test")
+                tools.rocket_flying()
+
+            case ["Destiny 2", "6", mode]: # Wellskate Test
+                logger.debug("Wellskate Test")
+                tools.wellskate()
 
 
-            # Specific app but any Mode
+            # Specific app and Any Mode
             # VS Code Layer
             case ["Visual Studio Code", "5", mode]: # run code in Vs code
                 logger.debug("run code in Vs code")
@@ -139,13 +150,6 @@ class MacroDriver:
 
             case ["Star Citizen", "7", mode]: # Reset shields
                 tools.sheild_focus_star_citizen("3")
-
-
-            # TEST
-            case ["Destiny 2", "5", mode]: # Rocket Flying Test
-                #left clicks, then presses q, then moves mouse down 15 pixels
-                logger.debug("Rocket Flying Test")
-                tools.rocket_flying()
 
 
             # Any App, Specific Mode

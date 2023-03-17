@@ -46,10 +46,11 @@ if __name__ == '__main__':
         added perform_hotkey, perform_press and get_focused in tools.
         I think I make it better, but we'll see.
 
+    
 
-
-    TODO for V3.2:
-        IDK
+    TODO:
+        Work on rocket flying   https://www.youtube.com/watch?v=ItN-K-WSCkM 
+        wellskate macro too
 
         try and transition all pyautogui keyboard funtions to custom_keyboard
         add a write function to custom_keyboard

@@ -154,13 +154,24 @@ def rocket_flying():# Rocket Flying Test
     #currently it only works if your looking straight up.
     # presses left mouse then q fast.
     logger.debug("Rocket Flying Test")
-    #x,y = autoit.mouse_get_pos()
+    sensitivity = 15
+    y_move = 15*(15/sensitivity)
+
+    x, y = autoit.mouse_get_pos()
     autoit.mouse_click()
-    #autoit.mouse_move(x,y+160, 2)
-    
-    #custom_keyboard.press('q')
+    #autoit.mouse_move(x,y+y_move, 0)
+
     perform_press('q')
     
+def wellskate(): #wellskate
+    perform_press('3')
+    time.sleep(0.8)
+    pyautogui.click(button='right')
+    time.sleep(0.1)
+    perform_hotkey(['space', 'f'])
+    # perform_press('space')
+    # perform_press('f')
+
 def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
     logger.debug(f"move desktop {direction}")
     
