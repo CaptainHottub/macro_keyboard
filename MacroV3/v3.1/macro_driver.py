@@ -131,7 +131,6 @@ class MacroDriver:
                 tools.rocket_flying()
 
             case ["Destiny 2", "6", mode]: # Wellskate Test
-                logger.debug("Wellskate Test")
                 tools.wellskate()
 
 

@@ -158,6 +158,8 @@ def rocket_flying():# Rocket Flying Test
     perform_press('q')
     
 def wellskate(): #wellskate
+    """ Performs the wellskate macro for destiny 2"""
+    logger.debug("Wellskate")
     perform_press('3')
     time.sleep(0.5)
     pyautogui.click(button='right')
