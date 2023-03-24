@@ -151,31 +151,24 @@ def sheild_focus_star_citizen(key): #macro to focus ship shields in star citizen
     perform_press('shiftright')
 
 def rocket_flying():# Rocket Flying Test
+    # https://www.youtube.com/watch?v=ItN-K-WSCkM
     #currently it only works if your looking straight up.
-    # presses left mouse then q fast.
     logger.debug("Rocket Flying Test")
-    sensitivity = 15
-    y_move = 15*(15/sensitivity)
-
-    x, y = autoit.mouse_get_pos()
     autoit.mouse_click()
-    #autoit.mouse_move(x,y+y_move, 0)
-
     perform_press('q')
     
 def wellskate(): #wellskate
     perform_press('3')
-    time.sleep(0.8)
+    time.sleep(0.5)
     pyautogui.click(button='right')
-    time.sleep(0.1)
     perform_hotkey(['space', 'f'])
-    # perform_press('space')
-    # perform_press('f')
+    time.sleep(0.1)
+    perform_press('1')
 
 def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
     logger.debug(f"move desktop {direction}")
     
-    apps_to_alt_tab = ['Star Citizen', 'Task Manager']  #lis of apps to alt tab when changing desktops
+    apps_to_alt_tab = ['Star Citizen']  #lis of apps to alt tab when changing desktops
 
     if focused_app in apps_to_alt_tab: 
         perform_hotkey(['alt', 'tab'])
