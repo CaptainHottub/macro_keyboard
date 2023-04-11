@@ -2,7 +2,7 @@
 // Standard Libraries
 // --------------------------------------------------------------
 
-
+#include <HID-Project.h>
 #include <Keypad.h>
 // This library is for interfacing with the 3x4 Matrix
 // Can be installed from the library manager, search for "keypad"
@@ -45,17 +45,25 @@ byte rowPins[ROWS] = {4, 5, A3 };    //connect to the row pinouts of the keypad
 byte colPins[COLS] = {6, 7, 8, 9 };  //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
+
+int RXLED = 17; 
+
 void setup() {
   pinMode(ModeButton, INPUT_PULLUP);  // initialize the button pin as a input:  
-  Serial.begin(9600); // initialize serial communication:
-
+  pinMode(RXLED, OUTPUT); // that is the red led on the board
   
-  Serial.begin(9600);
+  Serial.begin(9600); // initialize serial communication:
+  //Serial.begin(9600);
 }
 
 
 
 void loop() {
+
+// turns red leds off
+digitalWrite(RXLED, HIGH);
+TXLED1;
+
 char key = keypad.getKey();
 
 checkModeButton();
