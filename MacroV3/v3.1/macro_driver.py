@@ -111,7 +111,7 @@ class MacroDriver:
             # Any app and Any Mode    And that are prioritives 
             case [_, "1", mode]:    # Shows what each button is defined as
                 logger.debug("ButtonMode")
-                twrv = threading.Thread(target = tools.ButtonMode, args=(mode, )).start()
+                twrv = threading.Thread(target = tools.ButtonMode, args=(mode, )).start()   
 
             case [_, "2", mode]:    # pause song spotify for any app
                 logger.debug("pause song spotify \n")
