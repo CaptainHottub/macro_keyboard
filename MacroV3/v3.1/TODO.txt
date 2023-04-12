@@ -1,8 +1,14 @@
 Add a requirements file 
 
+I think I have recreated the code, it is in should_work.ino 
+Will just need to change macro_drive code to increment mode when received str is "Mode Button"
+And change the string parsing
+https://wokwi.com/projects/361758088356902913
+
 Recreate or find the code that is on the arduino, If I find it change it so that it only handles what button was pressed.
 move the button mode stuff to the driver script.
-Find out if I can send RGB information to the Arduino from the driver script.
+I CAN.  Find out if I can send RGB information to the Arduino from the driver script.
+
 
 I want to redesign the macro pcb so that i can use the typical hotswap socekts and so 5 pin switches fit too. 
 North facing LEDs.
