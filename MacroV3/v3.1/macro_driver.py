@@ -151,38 +151,43 @@ class MacroDriver:
                 tools.sheild_focus_star_citizen("3")
 
 
-            # Any App, Specific Mode
-            case [_, "5", "2"]:     # Cut (Ctrl + x)
-                logger.debug("Audacity Cut (Ctrl + x)")
-                tools.perform_hotkey(['ctrl', 'x'])
+            # # Any App, Specific Mode
+            # case [_, "5", "2"]:     # Cut (Ctrl + x)
+            #     logger.debug("Audacity Cut (Ctrl + x)")
+            #     tools.perform_hotkey(['ctrl', 'x'])
 
-            case [_, "6", "2"]:     # Audacity Split Ctrl + i 
-                logger.debug("Audacity Split (ctrl + i)")
-                tools.perform_hotkey(['ctrl', 'i'])       
+            # case [_, "6", "2"]:     # Audacity Split Ctrl + i 
+            #     logger.debug("Audacity Split (ctrl + i)")
+            #     tools.perform_hotkey(['ctrl', 'i'])       
 
-            case [_, "9", "2"]:     # Backspace
-                logger.debug("Backspace")               
-                tools.perform_press(['backspace'])
+            # case [_, "9", "2"]:     # Backspace
+            #     logger.debug("Backspace")               
+            #     tools.perform_press(['backspace'])
 
 
             # Macros that are last priority.     
             case [_, "5", mode]:   # Text to speech
-                logger.debug("Text to speech")
+                #logger.debug("Text to speech")
                 #custom_keyboard.hotkey('ctrl', 'c')
                 twrv = threading.Thread(target = tools.textToSpeech, args=()).start()
 
             case [_, "6", mode]:   # Stop Speech
-                logger.debug("Stop Speech")
+                #logger.debug("Stop Speech")
                 twrv = threading.Thread(target = tools.stopSpeech, args=()).start()
 
             case [_, "7", mode]:   # Copy
-                logger.debug("Copy")
+                #logger.debug("Copy")
                 #NOTE : this can cause a keyboard interupt if used in terminal
                 tools.perform_hotkey(['ctrl', 'c'])             
 
             case [_, "8", mode]:   # Paste 
-                logger.debug("Paste")
+                #logger.debug("Paste")
                 tools.perform_hotkey(['ctrl', 'v'])
+
+            case [_, "9", mode]:   # Search highlighted text
+                #logger.debug("Search highlighted text")
+                tools.search_highlighted_text()
+
 
             case [_, "0", mode]:     # runs Task Manager      is button 10
                 logger.debug("Starting Task manager")

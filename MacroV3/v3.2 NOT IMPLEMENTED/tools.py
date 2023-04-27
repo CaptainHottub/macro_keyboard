@@ -324,7 +324,7 @@ def textToSpeech():
 
 def stopSpeech():
     logger.info("in stopSpeech")
-    speech_synthesizer.stop_speaking()
+    #speech_synthesizer.stop_speaking()
     speech_synthesizer.stop_speaking_async()
 
 def spotifyV3(timeout = 0.4, count=[0]):

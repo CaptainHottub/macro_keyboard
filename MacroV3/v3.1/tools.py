@@ -324,7 +324,7 @@ def textToSpeech():
 
 def stopSpeech():
     logger.info("in stopSpeech")
-    speech_synthesizer.stop_speaking()
+    #speech_synthesizer.stop_speaking()
     speech_synthesizer.stop_speaking_async()
 
 def spotifyV3(timeout = 0.4, count=[0]):
@@ -392,3 +392,20 @@ def spotifyV3(timeout = 0.4, count=[0]):
     else:
         logger.debug("thread I want is running")
 
+
+def search_highlighted_text():
+    """Searches highlighted text in google.
+    
+    Copies highlighted text, opens new tab, pastes text, presses enter."""
+    logger.debug("in search_highlighted_text")
+    perform_hotkey(['ctrl', 'c'])
+
+    time.sleep(0.1)
+
+    perform_hotkey(['ctrl', 't'])
+    time.sleep(0.2)
+
+    perform_hotkey(['ctrl', 'v'])
+    time.sleep(0.2)
+    
+    perform_press('enter')
