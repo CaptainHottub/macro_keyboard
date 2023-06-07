@@ -7,6 +7,11 @@ MacroV3.1.py is the current version.
 
 V3.1 or V3.2 wont run because I didn't update the Autoit package. I will fix it when I can.
 
+I hava macro that will play/pause, next song and previous song for spotify. It works by just pressing the media key.    
+There is an issue with this approach and it is that Google Chrome and possibly other chromium based browsers interact with media keys too.  
+So pressing the PlayPause media key will playPause spotify and whatever video you may have open in a webbrowser. To stop Google Chromes interaction with media keys 
+you need to disable it in chrome://flags/#hardware-media-key-handling
+
 WHAT I WANT TO DO:  
 Add a requirements file, use pipreqs to make it.  
 Update to python 3.11 
