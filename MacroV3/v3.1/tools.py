@@ -251,14 +251,19 @@ def ButtonMode(mode):
         Button 3:   Switches desktop to the left
         Button 4:   Switches desktop to the right
         Button 5:   Text to speech, Converts highlighted text to speech
+        Button 6:   Stop Speech
         Button 7:   Copy
         Button 8:   Paste
-        Button 9:   
+        Button 9:   Search highlighted text
         Button 10:  Opens Task Manager
-        Button 11:  Converts screenshot of text to text
+        Button 11:  Converts image to text
 
     When in Vscode:
         Button 5:   run code in Vs code
+	
+    When in Destiny 2:
+        Button 5: Rocket Flying Test 
+        Button 6: Wellskate Test
 
     When in Star Citizen:
         Button 5: focus front shields  
