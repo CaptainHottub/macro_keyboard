@@ -300,7 +300,10 @@ def textToSpeech():
     time.sleep(0.1)
     text = pyperclip.paste()
 
-    speech_synthesis_result = speech_synthesizer.speak_text_async(text)
+
+    speech_synthesizer.speak_text(text)
+
+    #speech_synthesis_result = speech_synthesizer.speak_text_async(text)
 
     #print(repr(text))
     #Formats the text
@@ -329,8 +332,8 @@ def textToSpeech():
 
 def stopSpeech():
     logger.info("in stopSpeech")
-    #speech_synthesizer.stop_speaking()
-    speech_synthesizer.stop_speaking_async()
+    speech_synthesizer.stop_speaking()
+    #speech_synthesizer.stop_speaking_async()
 
 def spotifyV3(timeout = 0.4, count=[0]):
     """Plays/Pauses spotifyV3, presses next song previous song.   
