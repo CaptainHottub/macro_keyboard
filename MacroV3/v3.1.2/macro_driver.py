@@ -40,9 +40,14 @@ class MacroDriver:
         while self.run:
             if self.serial_port is None:
                 # Look for the device
+                #devices_to_connect = ['Arduino Micro', 'USB Serial Device']
+                # arduino_ports = [
+                #     p.device for p in serial.tools.list_ports.comports()
+                #     if 'Arduino Micro' in p.description
+                # ]
                 arduino_ports = [
                     p.device for p in serial.tools.list_ports.comports()
-                    if 'Arduino Micro' in p.description
+                    if 'USB Serial Device' in p.description
                 ]
                 if not arduino_ports:
                     logger.info('No Arduino Micro found in comports. Retrying in 5 seconds...')
@@ -70,7 +75,7 @@ class MacroDriver:
 
                 try:
                     button_string = str(self.serial_port.readline(), 'utf-8').strip()
-
+                    logger.info(button_string)
                     if 'mode button was pressed' in button_string:
                         logger.info(button_string)
                         continue
