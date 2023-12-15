@@ -10,7 +10,7 @@ Another one uses Microsoft Azures Text To Speech API to read the text I selected
 
 MacroV3.1.2.py is the current version.
 
-This is still a work in progress, expect this repository to change very soon. 	
+This is still a work in progress, expect this repository to change very soon. Going to start using the Pi Pico instead of the Arduino Pro Micro.
 
 Currently, the V1 through V3 just means the Driver version.	
 
