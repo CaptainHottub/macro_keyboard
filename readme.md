@@ -1,9 +1,9 @@
 This is my macro keyboard project, V1 through V3 is using Ryan Bates Macro Keyboard Ver2.0 design.  
 http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/  
-This Summer I am planning on making my own varient of it, what will use Kailh Hot-Swap PCB sockets:   
+I am planning on making my own varient of it, what will use Kailh Hot-Swap PCB sockets:   
 https://www.amazon.ca/Hot-swap-CPG151101S11-Mechanical-Keyboard-Accessories/dp/B0BVH3SVHW   
 
-MacroV3.1.py is the current version.
+MacroV3.1.2.py is the current version.
 
 V3.1 or V3.2 wont run because I didn't update the Autoit package. I will fix it when I can.
 
