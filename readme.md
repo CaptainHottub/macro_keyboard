@@ -12,7 +12,7 @@ One of these macros uses the Tesseract OCR module in Python. I press the button 
 
 Another one uses Microsoft Azures Text To Speech API to read the text I selected.
 
-MacroV3.1.2.py is the current version.
+v2.0.001 is the current version.
 
 This is still a work in progress, expect this repository to change very soon. Going to start using the Pi Pico instead of the Arduino Pro Micro.
 

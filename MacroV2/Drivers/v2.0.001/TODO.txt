@@ -1,6 +1,7 @@
 Add a requirements file 
 
 MOST of This is outdated
+Merge this todo with the v2.1.001 Todo
 
 
 Merge the pause feature to V3.2

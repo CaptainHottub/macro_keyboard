@@ -1,5 +1,5 @@
 Add a requirements file 
-Update to python 3.11
+Update to python 3.12
 Update the ReadMe
 
 https://wokwi.com/projects/361758088356902913
