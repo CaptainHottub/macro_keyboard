@@ -1,5 +1,9 @@
 This is my macro keyboard project. It uses a Python script that acts as a driver.
 
+Hi UBCV, if  you were wondering, this is one of Taylor McLaughlin's git hub repositories.
+
+As of December 19th, 2023, I have designed and ordered a new PCB for my Macro
+
 It receives text from the microcontroller over USB serial and it executes macros and some more complex stuff.
 
 I'm doing this instead of using QMK or having the microcontroller send keystrokes because it allows me to do some more complex things.
@@ -14,9 +18,9 @@ This is still a work in progress, expect this repository to change very soon. Go
 
 Currently, the V1 through V3 just means the Driver version.	
 
-I am not sure how I'm going to name things, I think I'll move and rename verything from V1 to V3 to a V1 Folder and have it named as Driver V1.3.1.2 or something.	
+I am not sure how I'm going to name things, I think I'll move and rename everything from V1 to V3 to a V1 Folder and have it named Driver V1.3.1.2 or something.	
 
-I imagine that the PCB im going to design will be named V2.0.001, same goes for the driver.	
+I imagine that the PCB is going to design will be named V2.0.001, same goes for the driver.	
 
 V1 through V3 is using Ryan Bates Macro Keyboard Ver2.0 design.  
 http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/  
