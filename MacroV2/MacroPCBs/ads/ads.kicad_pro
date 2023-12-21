@@ -122,7 +122,7 @@
         "min_via_diameter": 0.5,
         "solder_mask_clearance": 0.0,
         "solder_mask_min_width": 0.0,
-        "solder_mask_to_copper_clearance": 0.005,
+        "solder_mask_to_copper_clearance": 0.0,
         "use_height_for_length_calcs": true
       },
       "teardrop_options": [
@@ -392,7 +392,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "macrov2.0.001.kicad_pro",
+    "filename": "ads.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -426,8 +426,8 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "",
-      "specctra_dsn": "",
+      "netlist": "../../../../../Program Files/KiCad/7.0/",
+      "specctra_dsn": "ads.dsn",
       "step": "",
       "vrml": ""
     },
@@ -457,14 +457,6 @@
       "version": 1
     },
     "net_format_name": "",
-    "ngspice": {
-      "fix_include_paths": true,
-      "meta": {
-        "version": 0
-      },
-      "model_mode": 0,
-      "workbook_filename": ""
-    },
     "page_layout_descr_file": "",
     "plot_directory": "",
     "spice_current_sheet_as_root": false,
@@ -477,7 +469,7 @@
   },
   "sheets": [
     [
-      "4de1fd36-c486-4527-b451-b6db308c052e",
+      "ac990337-029b-46de-9809-32e20d79a046",
       ""
     ]
   ],

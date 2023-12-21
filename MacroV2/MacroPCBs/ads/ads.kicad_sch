@@ -1,14 +1,8 @@
 (kicad_sch (version 20230121) (generator eeschema)
 
-  (uuid 4de1fd36-c486-4527-b451-b6db308c052e)
+  (uuid ac990337-029b-46de-9809-32e20d79a046)
 
   (paper "A4")
-
-  (title_block
-    (title "Macro PCB")
-    (date "2023-12-19")
-    (rev "2.0.001")
-  )
 
   (lib_symbols
     (symbol "Connector:Conn_01x15_Pin" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
@@ -1812,6 +1806,11 @@
           (reference "#PWR019") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR019") (unit 1)
+        )
+      )
     )
   )
 
@@ -1834,6 +1833,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR024") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR024") (unit 1)
         )
       )
@@ -1865,6 +1869,11 @@
           (reference "LED11") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED11") (unit 1)
+        )
+      )
     )
   )
 
@@ -1890,6 +1899,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "LED2") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "LED2") (unit 1)
         )
       )
@@ -1919,6 +1933,11 @@
           (reference "S6") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S6") (unit 1)
+        )
+      )
     )
   )
 
@@ -1942,6 +1961,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "S5") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "S5") (unit 1)
         )
       )
@@ -1970,6 +1994,11 @@
           (reference "#PWR038") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR038") (unit 1)
+        )
+      )
     )
   )
 
@@ -1992,6 +2021,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR03") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR03") (unit 1)
         )
       )
@@ -2021,6 +2055,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "SW2") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "SW2") (unit 1)
         )
       )
@@ -2056,6 +2095,11 @@
           (reference "D5") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D5") (unit 1)
+        )
+      )
     )
   )
 
@@ -2088,6 +2132,11 @@
           (reference "D1") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D1") (unit 1)
+        )
+      )
     )
   )
 
@@ -2111,6 +2160,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "SW3") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "SW3") (unit 1)
         )
       )
@@ -2139,6 +2193,11 @@
           (reference "#PWR035") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR035") (unit 1)
+        )
+      )
     )
   )
 
@@ -2164,6 +2223,11 @@
           (reference "#PWR011") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR011") (unit 1)
+        )
+      )
     )
   )
 
@@ -2186,6 +2250,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR020") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR020") (unit 1)
         )
       )
@@ -2221,6 +2290,11 @@
           (reference "D3") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D3") (unit 1)
+        )
+      )
     )
   )
 
@@ -2244,6 +2318,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "S2") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "S2") (unit 1)
         )
       )
@@ -2272,6 +2351,11 @@
           (reference "#PWR034") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR034") (unit 1)
+        )
+      )
     )
   )
 
@@ -2294,6 +2378,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR017") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR017") (unit 1)
         )
       )
@@ -2329,6 +2418,11 @@
           (reference "D2") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D2") (unit 1)
+        )
+      )
     )
   )
 
@@ -2361,6 +2455,11 @@
           (reference "D9") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D9") (unit 1)
+        )
+      )
     )
   )
 
@@ -2387,6 +2486,11 @@
           (reference "S7") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S7") (unit 1)
+        )
+      )
     )
   )
 
@@ -2409,6 +2513,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR040") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR040") (unit 1)
         )
       )
@@ -2444,6 +2553,11 @@
           (reference "D8") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D8") (unit 1)
+        )
+      )
     )
   )
 
@@ -2469,6 +2583,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "LED10") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "LED10") (unit 1)
         )
       )
@@ -2498,6 +2617,11 @@
           (reference "S8") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S8") (unit 1)
+        )
+      )
     )
   )
 
@@ -2523,6 +2647,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "LED7") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "LED7") (unit 1)
         )
       )
@@ -2555,6 +2684,11 @@
           (reference "SW1") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "SW1") (unit 1)
+        )
+      )
     )
   )
 
@@ -2580,6 +2714,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "LED3") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "LED3") (unit 1)
         )
       )
@@ -2609,6 +2748,11 @@
           (reference "S11") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S11") (unit 1)
+        )
+      )
     )
   )
 
@@ -2631,6 +2775,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR022") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR022") (unit 1)
         )
       )
@@ -2666,6 +2815,11 @@
           (reference "D13") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D13") (unit 1)
+        )
+      )
     )
   )
 
@@ -2688,6 +2842,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR07") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR07") (unit 1)
         )
       )
@@ -2730,6 +2889,11 @@
           (reference "J1") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "J1") (unit 1)
+        )
+      )
     )
   )
 
@@ -2752,6 +2916,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR028") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR028") (unit 1)
         )
       )
@@ -2783,6 +2952,11 @@
           (reference "LED8") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED8") (unit 1)
+        )
+      )
     )
   )
 
@@ -2811,6 +2985,11 @@
           (reference "LED0") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED0") (unit 1)
+        )
+      )
     )
   )
 
@@ -2833,6 +3012,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR016") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR016") (unit 1)
         )
       )
@@ -2864,6 +3048,11 @@
           (reference "LED12") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED12") (unit 1)
+        )
+      )
     )
   )
 
@@ -2886,6 +3075,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR037") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR037") (unit 1)
         )
       )
@@ -2914,6 +3108,11 @@
           (reference "#PWR030") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR030") (unit 1)
+        )
+      )
     )
   )
 
@@ -2936,6 +3135,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR029") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR029") (unit 1)
         )
       )
@@ -2964,6 +3168,11 @@
           (reference "#PWR032") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR032") (unit 1)
+        )
+      )
     )
   )
 
@@ -2986,6 +3195,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR039") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR039") (unit 1)
         )
       )
@@ -3015,6 +3229,11 @@
           (reference "S1") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S1") (unit 1)
+        )
+      )
     )
   )
 
@@ -3038,6 +3257,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "S10") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "S10") (unit 1)
         )
       )
@@ -3066,6 +3290,11 @@
           (reference "#PWR033") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR033") (unit 1)
+        )
+      )
     )
   )
 
@@ -3088,6 +3317,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR023") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR023") (unit 1)
         )
       )
@@ -3119,6 +3353,11 @@
           (reference "LED14") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED14") (unit 1)
+        )
+      )
     )
   )
 
@@ -3141,6 +3380,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR013") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR013") (unit 1)
         )
       )
@@ -3176,6 +3420,11 @@
           (reference "D11") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D11") (unit 1)
+        )
+      )
     )
   )
 
@@ -3198,6 +3447,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR05") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR05") (unit 1)
         )
       )
@@ -3229,6 +3483,11 @@
           (reference "LED6") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED6") (unit 1)
+        )
+      )
     )
   )
 
@@ -3252,6 +3511,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "S4") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "S4") (unit 1)
         )
       )
@@ -3281,6 +3545,11 @@
           (reference "S12") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S12") (unit 1)
+        )
+      )
     )
   )
 
@@ -3306,6 +3575,11 @@
           (reference "#PWR02") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR02") (unit 1)
+        )
+      )
     )
   )
 
@@ -3328,6 +3602,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR015") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR015") (unit 1)
         )
       )
@@ -3359,6 +3638,11 @@
           (reference "LED5") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED5") (unit 1)
+        )
+      )
     )
   )
 
@@ -3381,6 +3665,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR08") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR08") (unit 1)
         )
       )
@@ -3409,6 +3698,11 @@
           (reference "#PWR021") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR021") (unit 1)
+        )
+      )
     )
   )
 
@@ -3431,6 +3725,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR026") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR026") (unit 1)
         )
       )
@@ -3459,6 +3758,11 @@
           (reference "#PWR04") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR04") (unit 1)
+        )
+      )
     )
   )
 
@@ -3481,6 +3785,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR010") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR010") (unit 1)
         )
       )
@@ -3516,6 +3825,11 @@
           (reference "D10") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D10") (unit 1)
+        )
+      )
     )
   )
 
@@ -3538,6 +3852,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR041") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR041") (unit 1)
         )
       )
@@ -3569,6 +3888,11 @@
           (reference "LED4") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED4") (unit 1)
+        )
+      )
     )
   )
 
@@ -3591,6 +3915,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR01") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR01") (unit 1)
         )
       )
@@ -3626,6 +3955,11 @@
           (reference "D4") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D4") (unit 1)
+        )
+      )
     )
   )
 
@@ -3651,6 +3985,11 @@
           (reference "#PWR031") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR031") (unit 1)
+        )
+      )
     )
   )
 
@@ -3673,6 +4012,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR014") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR014") (unit 1)
         )
       )
@@ -3704,6 +4048,11 @@
           (reference "LED1") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED1") (unit 1)
+        )
+      )
     )
   )
 
@@ -3729,6 +4078,11 @@
           (reference "#PWR025") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR025") (unit 1)
+        )
+      )
     )
   )
 
@@ -3751,6 +4105,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR042") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR042") (unit 1)
         )
       )
@@ -3780,6 +4139,11 @@
           (reference "S13") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S13") (unit 1)
+        )
+      )
     )
   )
 
@@ -3802,6 +4166,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR027") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR027") (unit 1)
         )
       )
@@ -3831,6 +4200,11 @@
           (reference "S3") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S3") (unit 1)
+        )
+      )
     )
   )
 
@@ -3857,6 +4231,11 @@
           (reference "S9") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "S9") (unit 1)
+        )
+      )
     )
   )
 
@@ -3879,6 +4258,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR018") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR018") (unit 1)
         )
       )
@@ -3949,6 +4333,11 @@
           (reference "U1") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "U1") (unit 1)
+        )
+      )
     )
   )
 
@@ -3977,6 +4366,11 @@
           (reference "LED13") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED13") (unit 1)
+        )
+      )
     )
   )
 
@@ -4002,6 +4396,11 @@
           (reference "#PWR043") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR043") (unit 1)
+        )
+      )
     )
   )
 
@@ -4024,6 +4423,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR036") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR036") (unit 1)
         )
       )
@@ -4055,6 +4459,11 @@
           (reference "LED9") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "LED9") (unit 1)
+        )
+      )
     )
   )
 
@@ -4077,6 +4486,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR012") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR012") (unit 1)
         )
       )
@@ -4112,6 +4526,11 @@
           (reference "D6") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D6") (unit 1)
+        )
+      )
     )
   )
 
@@ -4144,6 +4563,11 @@
           (reference "D7") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "D7") (unit 1)
+        )
+      )
     )
   )
 
@@ -4169,6 +4593,11 @@
           (reference "#PWR09") (unit 1)
         )
       )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
+          (reference "#PWR09") (unit 1)
+        )
+      )
     )
   )
 
@@ -4191,6 +4620,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "#PWR06") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "#PWR06") (unit 1)
         )
       )
@@ -4223,6 +4657,11 @@
     (instances
       (project "macrov2.0.001"
         (path "/4de1fd36-c486-4527-b451-b6db308c052e"
+          (reference "D12") (unit 1)
+        )
+      )
+      (project "ads"
+        (path "/ac990337-029b-46de-9809-32e20d79a046"
           (reference "D12") (unit 1)
         )
       )
