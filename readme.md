@@ -2,7 +2,12 @@ This is my macro keyboard project. It uses a Python script that acts as a driver
 
 Hi UBCV, if  you were wondering, this is one of Taylor McLaughlin's git hub repositories.
 
-As of December 19th, 2023, I have designed and ordered a new PCB for my Macro
+DEVLOG:
+
+09/01/24: I assembled the Macro and found out I wired up the mode button and LEDs wrong. 
+I will fix it soon and will order more PCBs, in the meantime I will make a new driver that will work with multiple keypresses and rotary encoders.
+
+01/01/24: I Received PCBs on December 28 and will be assembling them soon.
 
 It receives text from the microcontroller over USB serial and it executes macros and some more complex stuff.
 
