@@ -1,33 +1,18 @@
 #this will be the new code for thee Pi Pico based Macro
 
 """TODO:
-2. multi button presses to work   
+Will  need to merge drivers, v2.0.001 and v2.1.001 to  make v2.2.001
+I want to use the Driver  class from v2.1
+I want to use th button handler,  tools and  custom_keyboard from v2.0
 
-For multi keys to work, Ill probably have to move the send action stuff to when the key is released.
-
-Have a list of 12 0, then when a button is pressed, put the timestamp of the key in the list.
-If it is released, make the item at index[key_num] 0
-
-After the if MatrixEvent := keys.events.get(): and the mode button one
-
-Check if actions has something in it.
-if it does have code that will get the current timestamp, and look in the list for anything thats not 0
-
-dif = now - before
-if dif > 0.50:
-
-then add 
-
-msg = {
-        "Event": key_name,
-        "isBeingHeld": True,
-        "Mode": Mode,
-    }          
-actions.append(msg)
+replace the spotify controller with NewAudioControlTest and add the chrome audio control code
+which will be use mode button or button 0 as the layer with button 1
 
 
+1. then figure out how to communicate with driver and make a new driver version to   work with it, take improvements from the not implemented driver version
+receive the string over serial then pass it thru list = eval(msg)
 
-3. then figure out how to communicate with driver and make a new driver version to   work with it, take improvements from the not implemented driver version
+
 "Event": "Encoder1",
 "Position": encoder_1_position,
 "ChangeInPosition": encoder_1_position_change,
@@ -38,7 +23,7 @@ actions.append(msg)
 I will have to make something that will interpret all those and that will allow for multiple actions at once
 
 """
-
+import time
 import neopixel
 import keypad
 import board
@@ -91,7 +76,8 @@ OFF_COLOR = (0, 255, 0)
 ON_COLOR = (255, 0, 255)
 onBoardLED = neopixel.NeoPixel(board.GP25, 1, brightness=1)
 
-key_names = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A',  'B']
+key_names = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'ModeButton']
+held_keys = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 while True:
     # actions = {
@@ -106,6 +92,18 @@ while True:
     encoder_2_position = encoder_2.position
     if encoder_1_last_position is None or encoder_1_position != encoder_1_last_position:
         encoder_1_position_change = encoder_1_position -  encoder_1_last_position
+
+        for i in held_keys:
+            if i != 0:
+                #if there is a button  that is being held
+                diff = (time.time() - i)/1000
+                if diff > 0.100: 
+                    msg = {
+                        "Event": key_names[held_keys.index(i)],
+                        "isBeingHeld": True,
+                        "Mode": Mode
+                    }          
+                    actions.append(msg)
 
         #msg = f"Encoder1Pos: {encoder_1_position}, Encoder1PosChange: {encoder_1_position_change}, isButtonPressed: {not encoder_1_button.value}"
         #print(msg) 
@@ -124,8 +122,21 @@ while True:
     if encoder_2_last_position is None or encoder_2_position != encoder_2_last_position:
         encoder_2_position_change = encoder_2_position -  encoder_2_last_position
 
+        for i in held_keys:
+            if i != 0:
+                #if there is a button  that is being held
+                diff = (time.time() - i)/1000
+                if diff > 0.100: 
+                    msg = {
+                        "Event": key_names[held_keys.index(i)],
+                        "isBeingHeld": True,
+                        "Mode": Mode
+                    }          
+                    actions.append(msg)
+
         # msg = f"Encoder2Pos: {encoder_2_position}, Encoder2PosChange: {encoder_2_position_change}, isButtonPressed: {not encoder_2_button.value}"
         # print(msg)
+
 
         msg = {
             "Event": "Encoder2",
@@ -147,46 +158,88 @@ while True:
     #     encoder_1_button_state = None
 
 
-    # Key stuff
+    #because of how this was written, holding down the mode button then pressing button 1 sends garbage. this is a bug and I dont really care to fix it.
 
     if MatrixEvent := keys.events.get():
         if MatrixEvent.pressed:
-
             onBoardLED[0] = ON_COLOR
+            current_timestap  = MatrixEvent.timestamp
+            for i in held_keys:
+                if i != 0:
+                    #if there is a button  that is being held
+                    diff = (current_timestap - i)/1000
+                    if diff > 0.100: 
+                        msg = {
+                            "Event": key_names[held_keys.index(i)],
+                            "isBeingHeld": True,
+                            "Mode": Mode
+                        }          
+                        actions.append(msg)
+        
+            held_keys[MatrixEvent.key_number]  = current_timestap
+
             new_key_name = key_names[int(MatrixEvent.key_number)]
 
             #print(f"Button {new_key_name}.{Mode}")
-
-            msg = {
-                "Event": new_key_name,
-                "isButtonPressed": MatrixEvent.pressed,
-                "Mode": Mode,
-            }                
-            actions.append(msg)
+            if MatrixEvent.key_number != 0:
+                msg = {
+                    "Event": new_key_name,
+                    "isButtonPressed": MatrixEvent.pressed,
+                    "Mode": Mode
+                }                
+                actions.append(msg)
 
         if MatrixEvent.released:
             onBoardLED[0] = OFF_COLOR
 
+
+            if MatrixEvent.key_number == 0 and held_keys[0] != 0:
+                #if held_keys[0] != 0:
+                    #if there is a button  that is being held
+                    diff = (MatrixEvent.timestamp - held_keys[0])/1000
+                    if diff < 0.250: 
+                        msg = {
+                            "Event": new_key_name,
+                            "isButtonPressed": MatrixEvent.released,
+                            "Mode": Mode
+                        }  
+                        actions.append(msg)
+                              
+                #actions.append(msg)
+
+            held_keys[MatrixEvent.key_number]  = 0
+
+
     if ModeEvent := ModeButton.events.get():
         if ModeEvent.pressed:
-
             onBoardLED[0] = ON_COLOR
+            held_keys[-1]  = ModeEvent.timestamp
 
-            if Mode == 4:
-                Mode = 1
-            else:
-                Mode  += 1
             #print(f"mode button was pressed   macro button is : {Mode}")
-
-            msg = {
-                "Event": "ModeButton",
-                "isButtonPressed": ModeEvent.pressed,
-                "Mode": Mode,
-            } 
-            actions.append(msg)
 
         if ModeEvent.released:
             onBoardLED[0] = OFF_COLOR
+
+            # if the last item in the list has a timestamp
+            if held_keys[-1] != 0:
+    
+                diff = (ModeEvent.timestamp - held_keys[-1])/1000
+                if diff < 0.250:
+
+                    if Mode == 4:
+                        Mode = 1
+                    else:
+                        Mode  += 1
+
+                    msg = {
+                        "Event": "ModeButton",
+                        "isButtonPressed": ModeEvent.released,
+                        "Mode": Mode
+                    } 
+                    actions.append(msg)
+
+
+            held_keys[-1]  = 0
 
     if actions:
         print(actions) 
