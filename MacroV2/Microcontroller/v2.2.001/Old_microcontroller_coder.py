@@ -224,7 +224,7 @@ while True:
             if held_keys[-1] != 0:
     
                 diff = (ModeEvent.timestamp - held_keys[-1])/1000
-                if diff < 0.250:   # if its less then
+                if diff < 0.250:
 
                     if Mode == 4:
                         Mode = 1
