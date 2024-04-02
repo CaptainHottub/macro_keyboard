@@ -217,8 +217,8 @@ class MacroDriver:
             #     logger.debug('"Encoder2", "RLB", []')
             
             case ["Encoder2", "RRB", []]:
-                 logger.debug('Encoder2 rotate right with button, reseting zoom')
-                 tools.perform_hotkey(['ctrl', '0'])
+                logger.debug('Encoder2 rotate right with button, reseting zoom')
+                tools.perform_hotkey(['ctrl', '0'])
 
     def Button_handlerV3(self):
         #logger.debug("Button_handlerV2")
