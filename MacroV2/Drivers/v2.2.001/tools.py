@@ -326,8 +326,10 @@ speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, au
 
 def textToSpeech():
     logger.info("in textToSpeech")
-    logger.critical("MUST UPDATE THIS TO NEW VERSION")
-    
+    """Microsoft Azure moves to TLS 1.2 On October 31 2024
+    IDK what that really means, so if this breaks after that date, we will know why
+    https://learn.microsoft.com/en-us/security/engineering/solving-tls1-problem
+    """
     perform_hotkey(['ctrl', 'c'])
     time.sleep(0.1)
     text = pyperclip.paste()
