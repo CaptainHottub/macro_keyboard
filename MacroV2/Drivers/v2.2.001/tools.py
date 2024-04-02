@@ -19,6 +19,10 @@ import autoit
 import ctypes
 import ctypes.wintypes as wintypes
 
+from pywinauto.application import Application
+import psutil
+
+
 # Ctypes Stuff
 WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
@@ -130,6 +134,23 @@ def get_focused():
 
     return buff.value or None
 
+def pidGetter(name: str)-> int: 
+    """
+    Returns the PID of the parent Process you want.
+
+    Put in the name of the app you want a PID from as a string.
+    
+    And you will get the PID of the parent proccess as an int.
+    """
+    PID = None
+    for p in psutil.process_iter(['name']):
+        if name in p.info['name']:
+            parent = p.parent()
+            if parent != None:
+                PID = parent.pid
+                break
+    return PID
+
 
 def perform_hotkey(hotkey):
     #logger.debug(f"perform_hotkey {hotkey = }")
@@ -240,6 +261,16 @@ def Image_to_text2():
     text = pytesseract.image_to_string(img)
     text = text.replace('\x0c', '')
     pyperclip.copy(text)
+    logger.debug("imt has finished")
+
+    # a very crude way to close the snip and skecth notification
+    current_pos = m.position
+    m.position = (1875, 941)
+    time.sleep(0.05)
+    m.press(mouse.Button.left)
+    m.release(mouse.Button.left)
+
+    m.position = current_pos
 
 def ButtonMode(mode):
     ButtonDescriptions = f"""Current mode is: {mode}
@@ -295,6 +326,7 @@ speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, au
 
 def textToSpeech():
     logger.info("in textToSpeech")
+    logger.critical("MUST UPDATE THIS TO NEW VERSION")
     
     perform_hotkey(['ctrl', 'c'])
     time.sleep(0.1)
@@ -417,3 +449,209 @@ def search_highlighted_text():
     time.sleep(0.2)
     
     perform_press('enter')
+
+""" 
+this is a new way to controll spotify and chrome.
+The spotifyControlTest alloys me to the same stuff as before, but also contol the volume of audio coming from spotify
+
+chromeAudioControlTest allows me to play pause yt videos.
+
+
+"""
+def mediaTimerV1(destination: str, timeout = 0.4, count=[0]):
+    """Plays/Pauses media, presses next song previous song.   
+    
+    Press 1 time in timeout seconds to Plays/Pauses.        \n
+    Press 2 times in timeout seconds to get next song.      \n
+    Press 3 times in timeout seconds to get previous song.  \n   
+
+    Args:
+      timeout (integer): Defines how much time you have to press the button for it to do something
+      count (list): Don't touch this, it is a counter for the function
+    Returns:
+      None
+    """
+    count[0] += 1
+    
+    logger.debug("Media Func Has been called")
+
+    def timerV3():
+        """Waits for timeout to finish then it send a keyboard input based on value of count[0]"""
+
+        logger.debug("timer Has just begun")
+        time.sleep(timeout)
+        logger.debug("timer sleep has just finished")
+
+        actions = [
+            "PlayPause",
+            "NextTrack",
+            "PrevTrack"]
+        
+        logger.debug("Entering try")
+        try:
+            action = actions[count[0]-1]
+            if destination == "Spotify":
+                spotifyControlTest(action)
+
+            elif destination == "Chrome":
+                chromeAudioControlTest(action)
+
+            else:
+                print("destination is invalid")
+            #perform_press(action)
+            #custom_keyboard.press(action)
+              
+            logger.debug(f'Value of {count[0] = }, executing folowing action: {action}')
+
+        except IndexError as ind:
+            print('\n')
+            logger.error(f'IndexError has just happened, reason: {ind}')
+            logger.error(f'Button was pressed to many times. You pressed it {count[0]} times.\n')
+
+        except Exception as e:
+            logger.error(e)
+        
+        finally:
+            count[0] = 0
+            logger.debug(f"Value of {count[0] = }\n")
+
+    """         Finds if thread I want is running, if not it starts, if it is does nothing          """
+    # adds True to list if func hmm is running as a thread
+    thread_running = [
+        True
+        for thread in threading.enumerate()
+        if timerV3.__name__ in thread.name
+        ]
+    
+    if not any(thread_running):
+        logger.debug("Thread I want is not running, starting it")
+        media_thread = threading.Thread(target=timerV3, args=(),daemon=True)
+        media_thread.start()
+    else:
+        logger.debug("thread I want is running")
+
+spotify_PID = False
+Chrome_Parent_PID = False
+##Controlls Spotify
+def spotifyControlTest(action):
+    """Uses pywinauto to connect and send keystrokes to Spotify.    
+
+    These are the available actions:
+     - "VolumeUp"
+     - "VolumeDown"
+     - "PrevTrack"
+     - "NextTrack"
+     - "PlayPause"
+     - "Back5s"
+     - "Forward5s"
+     - "Like"
+
+    To use simply:
+
+    spotifyControl("PrevTrack")
+    """
+    logger.debug("in spotifyControlTest")
+    
+    SPOTIFY_HOTKEYS = {
+        "VolumeUp": "^{UP}",
+        "VolumeDown": "^{DOWN}",
+        "PrevTrack": "^{LEFT}",
+        "NextTrack": "^{RIGHT}",
+        "PlayPause": "{SPACE}",
+        "Back5s": "+{LEFT}",
+        "Forward5s": "+{RIGHT}",
+        "Like": "%+{B}",
+        "Quit": "",
+    }
+
+    #https://github.com/mavvos/SpotifyGlobal/blob/main/SpotifyGlobal.py#L118
+    global spotify_PID
+    if spotify_PID is False:
+        logger.debug("spotify_PID is False")
+        PID = pidGetter('Spotify')
+        if PID is None:
+            print('There is no app with name of "Spotify"')
+            return
+        spotify_PID = PID
+    
+    app = Application().connect(process=spotify_PID)
+    #print(spotify_PID)
+
+    spotify = app["Chrome_Widget_Win0"]
+    spotify.send_keystrokes(SPOTIFY_HOTKEYS[action])
+    # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
+    # spotify.send_keystrokes(SPOTIFY_HOTKEYS["Forward5s"])
+    # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
+
+def chromeAudioControlTest(action):
+    """Uses pywinauto to connect and interact with chromes media controls   
+
+    These are the available actions:
+     - "PrevTrack"
+     - "NextTrack"
+     - "PlayPause"
+
+    To use simply:
+
+    chromeAudioControl("PrevTrack")
+
+    This code assumes that the audio source you want to interact with was the last one you used
+    / is first in Global Media Controls.
+    
+    If there is nothing in the Global Media Controls this will do nothing.
+
+    If you click something else while it does its thing it will break.
+    """
+    logger.debug("In chromeAudioControlTest")
+    # ### inspector C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64
+    # Chrome_Parent_PID = []
+
+    global Chrome_Parent_PID
+    if Chrome_Parent_PID is False:
+        logger.debug("Chrome_Parent_PID is False")
+        PID = pidGetter('chrome')
+        if PID is None:
+            print('There is no app with name of "Spotify"')
+            return
+        Chrome_Parent_PID = PID
+
+    logger.debug("Got PID")
+
+    app = Application(backend="uia").connect(process=Chrome_Parent_PID)
+
+    logger.debug("Connected to Chrome")
+
+    media_control_button = app.window().child_window(title="Control your music, videos, and more", control_type="Button")
+    logger.debug("got media_control_button")
+    try:
+        media_control_button.click()
+    except Exception as e:
+        print(e)
+        print("There is nothing in the Global Media Controls")
+        return 
+
+    #time.sleep(0.1)
+
+    ### this skips right to it
+    last_video_media_control = app.window().child_window(title="Back to tab", control_type="Button", found_index=0)
+    media_controls = last_video_media_control.children()
+
+    logger.debug("got media_controls")
+
+    actions = {
+        'Previous Track': 1,
+        'SeekBackward': 2,
+        'PlayPause': 3,
+        'SeekForward': 4,
+        'Next Track': 5}
+    
+    num = actions[action]
+
+    if len(media_controls) == 9:
+        num += 1
+    media_controls[num].click()
+
+    logger.debug(f"pressed media_controls {actions[action]}")
+
+    media_control_button.click()
+    logger.debug("Closed tab")
