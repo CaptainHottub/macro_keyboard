@@ -566,6 +566,15 @@ def spotifyControlTest(action):
         "Quit": "",
     }
 
+    """
+    How this is currently setup, the little media player popup doesnt show up. so it I dont know what the song is.    
+    That would mean I wouldnt need modern flyouts.
+    """
+    # if action in ["PrevTrack", "NextTrack", "PlayPause"]:
+    #     perform_press(action)
+    #     return
+
+
     #https://github.com/mavvos/SpotifyGlobal/blob/main/SpotifyGlobal.py#L118
     global spotify_PID
     if spotify_PID is False:
