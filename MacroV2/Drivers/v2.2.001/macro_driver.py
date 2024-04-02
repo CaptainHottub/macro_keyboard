@@ -200,17 +200,25 @@ class MacroDriver:
                 logger.debug('Forward5s')
                 tools.spotifyControlTest("Forward5s")
 
-            # case ["Encoder2", "RL", []]:
-            #     logger.debug('"Encoder2", "RL", []')
-            
-            # case ["Encoder2", "RR", []]:
-            #     logger.debug('"Encoder2", "RR", []')
+            case ["Encoder2", "RL", []]:
+                logger.debug('Encoder2 rotate left, zoming out')
+                tools.perform_hotkey(['ctrl', '-'])
+        
+            case ["Encoder2", "RR", []]:
+                logger.debug('Encoder2 rotate right, zoming in')
+                tools.perform_hotkey(['ctrl', '='])   
+                """
+                I did 'ctrl' + '=', because the + symbol requires the Shift key
+                so what happens is 'ctrl' + 'shift' + '=' to get 'ctrl' + '+'
+                and in adobe acrobat pdf extension, 'ctrl' + 'shift' + '=' rotates the page.
+                """
 
             # case ["Encoder2", "RLB", []]:
             #     logger.debug('"Encoder2", "RLB", []')
             
-            # case ["Encoder2", "RRB", []]:
-            #     logger.debug('"Encoder2", "RRB", []')
+            case ["Encoder2", "RRB", []]:
+                 logger.debug('Encoder2 rotate right with button, reseting zoom')
+                 tools.perform_hotkey(['ctrl', '0'])
 
     def Button_handlerV3(self):
         #logger.debug("Button_handlerV2")
