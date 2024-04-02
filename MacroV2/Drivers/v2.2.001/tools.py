@@ -266,7 +266,7 @@ def Image_to_text2():
     # a very crude way to close the snip and skecth notification
     current_pos = m.position
     m.position = (1875, 941)
-    time.sleep(0.05)
+    time.sleep(0.15)
     m.press(mouse.Button.left)
     m.release(mouse.Button.left)
 
