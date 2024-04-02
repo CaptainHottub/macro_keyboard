@@ -1,11 +1,36 @@
-This is my macro keyboard project, V1 through V3 is using Ryan Bates Macro Keyboard Ver2.0 design.  
+This is my macro keyboard project. It uses a Python script that acts as a driver.
+
+Hi UBCV, if  you were wondering, this is one of Taylor McLaughlin's git hub repositories.
+
+DEVLOG:
+
+09/01/24: I assembled the Macro and found out I wired up the mode button and LEDs wrong. 
+I will fix it soon and will order more PCBs, in the meantime I will make a new driver that will work with multiple keypresses and rotary encoders.
+
+01/01/24: I Received PCBs on December 28 and will be assembling them soon.
+
+It receives text from the microcontroller over USB serial and it executes macros and some more complex stuff.
+
+I'm doing this instead of using QMK or having the microcontroller send keystrokes because it allows me to do some more complex things.
+
+One of these macros uses the Tesseract OCR module in Python. I press the button it's assigned to on the macro and it takes a screenshot and outputs the text in it to my clipboard, so I can paste it immediately.
+
+Another one uses Microsoft Azures Text To Speech API to read the text I selected.
+
+v2.0.001 is the current version.
+
+This is still a work in progress, expect this repository to change very soon. Going to start using the Pi Pico instead of the Arduino Pro Micro.
+
+Currently, the V1 through V3 just means the Driver version.	
+
+I am not sure how I'm going to name things, I think I'll move and rename everything from V1 to V3 to a V1 Folder and have it named Driver V1.3.1.2 or something.	
+
+I imagine that the PCB is going to design will be named V2.0.001, same goes for the driver.	
+
+V1 through V3 is using Ryan Bates Macro Keyboard Ver2.0 design.  
 http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/  
-I am planning on making my own varient of it, what will use Kailh Hot-Swap PCB sockets:   
+I am planning on making my own varient of it, that will use Kailh Hot-Swap PCB sockets:   
 https://www.amazon.ca/Hot-swap-CPG151101S11-Mechanical-Keyboard-Accessories/dp/B0BVH3SVHW   
-
-MacroV3.1.2.py is the current version.
-
-V3.1 or V3.2 wont run because I didn't update the Autoit package. I will fix it when I can.
 
 I hava macro that will play/pause, next song and previous song for spotify. It works by just pressing the media key.    
 There is an issue with this approach and it is that Google Chrome and possibly other chromium based browsers interact with media keys too.  
@@ -14,7 +39,7 @@ you need to disable it in chrome://flags/#hardware-media-key-handling
 
 WHAT I WANT TO DO:  
 Add a requirements file, use pipreqs to make it.  
-Update to python 3.11 
+Update to python 3.12
 
 I need to remove lines 280 to 291 in tools.py
 
@@ -23,7 +48,7 @@ Example:
   logging==True   
   log_folder_path=="C:\User\Desktop"  
   system_tray_icon==True  
-  system_tray_icon_image_path=="C:\Users\Taylor\Desktop\macro_keyboard-master\MacroV3\v3.1\pythonIcon.ico"  
+  system_tray_icon_image_path=="C:\Users\User\Desktop\macro_keyboard-master\MacroV3\v3.1\pythonIcon.ico"  
 
   connected_notification==True  
   access_denied_notification==True  
