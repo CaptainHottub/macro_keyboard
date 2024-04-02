@@ -1,4 +1,4 @@
-This is my macro keyboard project. It uses a Python script that acts as a driver.
+This is my macro keyboard project. It uses a Python script that acts as a driver. The current version is v2.2.001
 
 Hi UBCV, if  you were wondering, this is one of Taylor McLaughlin's git hub repositories.
 
@@ -9,8 +9,6 @@ I'm doing this instead of using QMK or having the microcontroller send keystroke
 One of these macros uses the Tesseract OCR module in Python. I press the button it's assigned to on the macro and it takes a screenshot and outputs the text in it to my clipboard, so I can paste it immediately.
 
 Another one uses Microsoft Azures Text To Speech API to read the text I selected.
-
-v2.0.001 is the current version.
 
 This is still a work in progress, expect this repository to change very soon. Going to start using the Pi Pico instead of the Arduino Pro Micro.
 
