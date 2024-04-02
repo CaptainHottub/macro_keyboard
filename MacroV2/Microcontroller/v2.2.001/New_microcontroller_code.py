@@ -4,7 +4,7 @@ import board
 import rotaryio
 import digitalio
 import supervisor
-
+import time
 # try both encoders, at the same time
 # currently the encoder must be pressed down and spun for it to control audio, I want that feature to be used to control spotify volume  and song scrubbing.
 
@@ -47,7 +47,7 @@ Mode = 1
 # MODELEDVALUES = [(0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 0)]
 OFF_COLOR = (0, 255, 0)
 ON_COLOR = (255, 0, 255)
-onBoardLED = neopixel.NeoPixel(board.GP25, 1, brightness=1)
+onBoardLED = neopixel.NeoPixel(board.GP25, 50, brightness=255)
 
 key_names = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'ModeButton']
 held_keys = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -129,16 +129,24 @@ while True:
     encoder_1_position = encoder_1.position
     encoder_2_position = encoder_2.position
     if encoder_1_last_position is None or encoder_1_position != encoder_1_last_position:
+        onBoardLED[0] = ON_COLOR
         encoder_1_position_change = encoder_1_position - encoder_1_last_position
 
         msgContructor("Encoder1", "rotary encoder", not encoder_1_button.value, encoder_1_position_change)
+        time.sleep(0.1)
+        onBoardLED[0] = OFF_COLOR
+
 
     encoder_1_last_position = encoder_1_position
 
     if encoder_2_last_position is None or encoder_2_position != encoder_2_last_position:
+        onBoardLED[0] = ON_COLOR
         encoder_2_position_change = encoder_2_position -  encoder_2_last_position
 
         msgContructor("Encoder2", "rotary encoder", not encoder_2_button.value, encoder_2_position_change)
+        time.sleep(0.1)
+        onBoardLED[0] = OFF_COLOR
+
 
     encoder_2_last_position = encoder_2_position
 
