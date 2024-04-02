@@ -5,25 +5,18 @@ Hi UBCV, if  you were wondering, this is one of Taylor McLaughlin's git hub repo
 It receives text from the microcontroller over USB serial and it executes macros and some more complex stuff.
 
 I'm doing this instead of using QMK or having the microcontroller send keystrokes because it allows me to do some more complex things.
-
 One of these macros uses the Tesseract OCR module in Python. I press the button it's assigned to on the macro and it takes a screenshot and outputs the text in it to my clipboard, so I can paste it immediately.
-
 Another one uses Microsoft Azures Text To Speech API to read the text I selected.
-
 This is still a work in progress, expect this repository to change very soon. Going to start using the Pi Pico instead of the Arduino Pro Micro.
-
 Currently, the V1 through V3 just means the Driver version.	
-
 I am not sure how I'm going to name things, I think I'll move and rename everything from V1 to V3 to a V1 Folder and have it named Driver V1.3.1.2 or something.	
-
-I imagine that the PCB is going to design will be named V2.0.001, same goes for the driver.	
 
 V1 through V3 is using Ryan Bates Macro Keyboard Ver2.0 design.  
 http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/  
 I am planning on making my own varient of it, that will use Kailh Hot-Swap PCB sockets:   
 https://www.amazon.ca/Hot-swap-CPG151101S11-Mechanical-Keyboard-Accessories/dp/B0BVH3SVHW   
 
-I hava macro that will play/pause, next song and previous song for spotify. It works by just pressing the media key.    
+I have macro that will play/pause, next song and previous song for spotify. It works by just pressing the media key.    
 There is an issue with this approach and it is that Google Chrome and possibly other chromium based browsers interact with media keys too.  
 So pressing the PlayPause media key will playPause spotify and whatever video you may have open in a webbrowser. To stop Google Chromes interaction with media keys 
 you need to disable it in chrome://flags/#hardware-media-key-handling
