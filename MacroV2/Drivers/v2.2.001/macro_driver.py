@@ -93,7 +93,7 @@ class MacroDriver:
                     if 'USB Serial Device' in p.description
                 ]
 
-                arduino_ports=["COM3"]
+                #arduino_ports=["COM3"]
             
                 if not arduino_ports:
                     logger.info('No Arduino Micro found in comports. Retrying in 5 seconds...')
