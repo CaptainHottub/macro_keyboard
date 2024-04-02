@@ -641,11 +641,11 @@ def chromeAudioControlTest(action):
     logger.debug("got media_controls")
 
     actions = {
-        'Previous Track': 1,
+        'PrevTrack': 1,
         'SeekBackward': 2,
         'PlayPause': 3,
         'SeekForward': 4,
-        'Next Track': 5}
+        'NextTrack': 5}
     
     num = actions[action]
 
