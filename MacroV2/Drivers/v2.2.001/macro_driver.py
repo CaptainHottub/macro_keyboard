@@ -258,6 +258,10 @@ class MacroDriver:
                 tools.spotifyControlTest("Like")
                 #tools.mediaTimerV1("Chrome")
 
+            case [_, 2, mode, [3, 4]]: # any app, any more and btn 1 as layer
+                logger.debug("Moves Spotify to the current virtual Desktop")
+                tools.MoveSpotifyToCurrentDesktop()
+
             case [_, 3, mode, []]:    # move desktop left for any app
                 twrv = threading.Thread(target = tools.change_desktop, args=('left', app)).start()
 
