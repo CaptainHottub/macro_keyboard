@@ -18,13 +18,11 @@ import autoit
 
 import ctypes
 import ctypes.wintypes as wintypes
-#from ctypes.wintypes import DWORD, HWND
+from ctypes.wintypes import DWORD, HWND
 
 from pywinauto.application import Application
 import psutil
 
-HWND = wintypes.HWND
-DWORD = wintypes.DWORD
 # Ctypes Stuff
 WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
@@ -62,7 +60,7 @@ except FileNotFoundError as e:
     logger.error(f'{FileNotFoundError} {e}')
 else:
 	VDA = True
-
+logger.debug(VDA)
 
 # Setting up the speech config
 try:
@@ -182,9 +180,13 @@ def GetWindowHwndFromPid(pid):
     This code is from here: #https://stackoverflow.com/questions/60879235/python-windows-10-launching-an-application-on-a-specific-virtual-desktop-envir
     I can sort of understand it, so I wont explain it.
     """
+      
 	current_window = 0
 	pid_local = DWORD()
 	while True:
+		# current_window = windll.User32.FindWindowExA(0, current_window, 0, 0)
+		# windll.user32.GetWindowThreadProcessId(current_window, byref(pid_local))
+
 		current_window = ctypes.WinDLL('user32').FindWindowExA(0, current_window, 0, 0)
 		ctypes.WinDLL('user32').GetWindowThreadProcessId(current_window, ctypes.byref(pid_local))
 		if pid == pid_local.value:
@@ -193,18 +195,18 @@ def GetWindowHwndFromPid(pid):
 		if current_window == 0:
 			return
 
-def GetParentFromList(windows: list) -> HWND:
-	"""
-	Returns the parent HWND of a list of HWND
-	"""
-	parent = None
-	for window in windows:
-		parent = ctypes.WinDLL('user32').GetParent(window)
-		#print(window, parent)
-		if parent != 0:
-			new_parent = parent
-		else:
-			return new_parent
+def GetParentsFromList(windows: list) -> HWND:
+    """
+    Returns the parent HWND of a list of HWND
+    """
+    parents = []
+    for window in windows:
+        parent = ctypes.WinDLL('user32').GetParent(window)
+        #print(window, parent)
+        if parent != 0:
+            parents.append(parent)
+
+    return parents
 
 def IsWindowOnDesktop(hwnd: HWND) -> bool:
     """
@@ -213,12 +215,12 @@ def IsWindowOnDesktop(hwnd: HWND) -> bool:
     return  bool(virtual_desktop_accessor.IsWindowOnCurrentVirtualDesktop(hwnd))
 
 def MoveAppToCurrentDesktop(hwnd: HWND):
-    current_window = virtual_desktop_accessor.GetCurrentDesktopNumber()
+    current_window = CurrentDesktopNumber()
 
     if not IsWindowOnDesktop(hwnd): # that app is not on current desktop
-        return virtual_desktop_accessor.MoveWindowToDesktopNumber(hwnd, current_window)
-    else:
-        return -1
+        virtual_desktop_accessor.MoveWindowToDesktopNumber(hwnd, current_window)
+
+
 
 def perform_hotkey(hotkey):
     #logger.debug(f"perform_hotkey {hotkey = }")
@@ -400,20 +402,6 @@ def ButtonMode(mode):
     Mode 3 and 4 do nothing
     """
     pyautogui.alert(ButtonDescriptions, "Button Mode")  
-
-
-# with open(r'C:\Coding\azure_speech_config.txt', 'r') as f:
-#     contents = f.read()
-#     contents = contents.split(', ')
-#     SPEECH_KEY = contents[0]
-#     SPEECH_REGION = contents[1]
-
-# # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-# speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
-# audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
-# # The language of the voice that speaks.
-# speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
-# speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
 def textToSpeech():
     logger.info("in textToSpeech")
@@ -758,21 +746,40 @@ def chromeAudioControl(action):
     media_control_button.click()
     logger.debug("Closed tab")
 
+SpotifyParentHwnd = None
 def MoveSpotifyToCurrentDesktop():
-	"""
-	This Func, moves spotify to the current virtual Desktop.
-	It Returns nothing and requires the VirtualDesktopAccessor.dll
-	https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file
-	"""
-	if VDA:
-		spotifyPID = pidGetter('Spotify') # gets the Parent PID of spotify
-		
-		windows = [HWND(window) for window in GetWindowHwndFromPid(spotifyPID)]
-		
-		parent = GetParentFromList(windows)
-		MoveAppToCurrentDesktop(parent)
-	else: 
-		msg = """VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
-You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
-		logger.warning(msg)
-
+    """
+    This Func, moves spotify to the current virtual Desktop.
+    It Returns nothing and requires the VirtualDesktopAccessor.dll
+    https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file
+    """
+    if VDA:
+        # get the current window
+        current_window = CurrentDesktopNumber()
+        global SpotifyParentHwnd
+        if SpotifyParentHwnd is None: # if SpotifyParentHwnd is not defined
+            spotifyPID = pidGetter('Spotify') # gets the Parent PID of spotify
+            
+            windows = [HWND(window) for window in GetWindowHwndFromPid(spotifyPID)]
+            
+            parents = GetParentsFromList(windows)
+        
+            # test if you work, 
+            for parent in parents:  
+                result = virtual_desktop_accessor.MoveWindowToDesktopNumber(parent, current_window)
+                # result will be 1 if it worked.
+                if result:
+                    SpotifyParentHwnd = parent
+                    break
+       
+        else:
+            result = virtual_desktop_accessor.MoveWindowToDesktopNumber(SpotifyParentHwnd, current_window)
+            
+            if result == 0: # Ie it didn't work, which would happen if the the Hwnd of spotify changed, by starting a new one.
+                SpotifyParentHwnd = None
+            
+        #MoveAppToCurrentDesktop(parent)
+    else: 
+        msg = """VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
+    You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
+        print(msg)

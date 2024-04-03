@@ -186,19 +186,19 @@ class MacroDriver:
 
             case ["Encoder1", "RL", []]:
                 logger.debug('VolumeDown')
-                tools.spotifyControlTest("VolumeDown")
+                tools.spotifyControl("VolumeDown")
             
             case ["Encoder1", "RR", []]:
                 logger.debug('VolumeUp')
-                tools.spotifyControlTest("VolumeUp")
+                tools.spotifyControl("VolumeUp")
             
             case ["Encoder1", "RLB", []]:
                 logger.debug('Back5s')
-                tools.spotifyControlTest("Back5s")
+                tools.spotifyControl("Back5s")
             
             case ["Encoder1", "RRB", []]:
                 logger.debug('Forward5s')
-                tools.spotifyControlTest("Forward5s")
+                tools.spotifyControl("Forward5s")
 
             case ["Encoder2", "RL", []]:
                 logger.debug('Encoder2 rotate left, zoming out')

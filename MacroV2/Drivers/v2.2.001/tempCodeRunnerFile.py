@@ -1,2 +1,1 @@
-
-    speech_synthesizer.speak_text(text)
+logger.debug(f"move desktop {direction}")
