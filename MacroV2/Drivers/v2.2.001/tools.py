@@ -14,7 +14,7 @@ import pytesseract
 import pyautogui
 import custom_keyboard
 from pynput import mouse, keyboard
-import autoit
+import autoit   ##### TO isntall it uses pip install pyautoit
 
 import ctypes
 import ctypes.wintypes as wintypes
