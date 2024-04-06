@@ -23,10 +23,6 @@ you need to disable it in chrome://flags/#hardware-media-key-handling
 
 WHAT I WANT TO DO:  
 Add a requirements file, use pipreqs to make it.  
-Update to python 3.12
-
-I need to remove lines 280 to 291 in tools.py
-
 Will put a settings.txt file in the future that will allow you to define multiple things. 
 Example:  
   logging==True   
