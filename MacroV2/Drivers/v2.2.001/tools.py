@@ -356,15 +356,6 @@ def Image_to_text2():
     pyperclip.copy(text)
     logger.debug("imt has finished")
 
-    # a very crude way to close the snip and skecth notification
-    current_pos = m.position
-    m.position = (1875, 941)
-    time.sleep(0.15)
-    m.press(mouse.Button.left)
-    m.release(mouse.Button.left)
-
-    m.position = current_pos
-
 def ButtonMode(mode):
     ButtonDescriptions = f"""Current mode is: {mode}
     If button is not their nothing is assigned to it.

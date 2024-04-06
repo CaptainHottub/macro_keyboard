@@ -1,12 +1,10 @@
-import neopixel
+# import neopixel
 import keypad
 import board
 import rotaryio
 import digitalio
 import supervisor
 import time
-# try both encoders, at the same time
-# currently the encoder must be pressed down and spun for it to control audio, I want that feature to be used to control spotify volume  and song scrubbing.
 
 encoder_1_button = digitalio.DigitalInOut(board.GP17)
 encoder_1_button.direction = digitalio.Direction.INPUT
@@ -24,7 +22,6 @@ encoder_2 = rotaryio.IncrementalEncoder(board.GP18, board.GP19)
 encoder_2_last_position = 0
 
 
-
 keys = keypad.KeyMatrix(
     row_pins=(board.GP2, board.GP3, board.GP4),
     column_pins=(board.GP9, board.GP8, board.GP7, board.GP6),
@@ -34,25 +31,26 @@ keys = keypad.KeyMatrix(
 
 
 #doesnt work, because I put a diode infront of  it, so current doesnt pass trhought it.
-# Birdged the connection and now it works.
+# Bridged the connection and now it works.
 ModeButton = keypad.Keys((board.GP0,), value_when_pressed=False, pull=True)
-
+Mode = 1
 
 # will need to re wire  alll the leds, looks like the schematic for the leds were all wrong, So i probably fried 15 of them.
 # put a 330 ohm resiston going into data in line for LED
 
 #Neo Pixel stuff
 #https://learn.adafruit.com/adafruit-neopixel-uberguide/python-circuitpython
-Mode = 1
-# MODELEDVALUES = [(0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 0)]
-OFF_COLOR = (0, 255, 0)
-ON_COLOR = (255, 0, 255)
-onBoardLED = neopixel.NeoPixel(board.GP25, 50, brightness=255)
+# https://learn.adafruit.com/getting-started-with-raspberry-pi-pico-circuitpython/neopixel-leds
 
-key_names = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'ModeButton']
+
+led = digitalio.DigitalInOut(board.LED)
+led.direction = digitalio.Direction.OUTPUT
+
+#key_names = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'ModeButton']
 held_keys = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 def msgContructor(event, type, encoder_button: int = 0, encoder_pos_change: int = 0 ) -> None:
+
     if type == "mode": 
         #check if it has a timestamp and if diff <(less then) 0.250:  then send: 00010000 (0001 = release 0000 = mode)
         
@@ -109,6 +107,7 @@ def msgContructor(event, type, encoder_button: int = 0, encoder_pos_change: int 
 
     # on to layers now      
     for i in held_keys:
+
         if i != 0:
             #if there is a button  that is being held
 
@@ -129,23 +128,23 @@ while True:
     encoder_1_position = encoder_1.position
     encoder_2_position = encoder_2.position
     if encoder_1_last_position is None or encoder_1_position != encoder_1_last_position:
-        onBoardLED[0] = ON_COLOR
+        led.value = True
         encoder_1_position_change = encoder_1_position - encoder_1_last_position
 
         msgContructor("Encoder1", "rotary encoder", not encoder_1_button.value, encoder_1_position_change)
         time.sleep(0.1)
-        onBoardLED[0] = OFF_COLOR
+        led.value = False
 
 
     encoder_1_last_position = encoder_1_position
 
     if encoder_2_last_position is None or encoder_2_position != encoder_2_last_position:
-        onBoardLED[0] = ON_COLOR
+        led.value = True
         encoder_2_position_change = encoder_2_position -  encoder_2_last_position
 
         msgContructor("Encoder2", "rotary encoder", not encoder_2_button.value, encoder_2_position_change)
         time.sleep(0.1)
-        onBoardLED[0] = OFF_COLOR
+        led.value = False
 
 
     encoder_2_last_position = encoder_2_position
@@ -162,21 +161,22 @@ while True:
         
         if MatrixEvent.pressed:
             # when the button is pressed, all I want it to do is put the time stamp in he held_keys list 
-            onBoardLED[0] = ON_COLOR
+            led.value = True
             held_keys[MatrixEvent.key_number]  = MatrixEvent.timestamp
 
 
-        if MatrixEvent.released:
-            onBoardLED[0] = OFF_COLOR
-            msgContructor(MatrixEvent, 'button')
 
+        if MatrixEvent.released:
+            led.value = False
+            msgContructor(MatrixEvent, 'button')
 
     if ModeEvent := ModeButton.events.get():
         # this is the mode buttons
         if ModeEvent.pressed:
-            onBoardLED[0] = ON_COLOR
+            led.value = True
             held_keys[-1]  = ModeEvent.timestamp
 
         if ModeEvent.released:
-            onBoardLED[0] = OFF_COLOR
+            led.value = False
             msgContructor(ModeEvent, "mode")
+        
