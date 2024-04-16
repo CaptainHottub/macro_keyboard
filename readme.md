@@ -7,6 +7,7 @@ It receives text from the microcontroller over USB serial and it executes macros
 I'm doing this instead of using QMK or having the microcontroller send keystrokes because it allows me to do some more complex things.
 One of these macros uses the Tesseract OCR module in Python. I press the button it's assigned to on the macro and it takes a screenshot and outputs the text in it to my clipboard, so I can paste it immediately.
 Another one uses Microsoft Azures Text To Speech API to read the text I highlight.
+I have one macro that moves Spotify to the current desktop.
 
 This is a work in progress.
 
