@@ -1,6 +1,6 @@
 06/04/24:
-I just ordered a  new revision of the PCB so, the LEDS and mode button should work
-I hav also been steadily improving th  driver code.
+I just ordered a new revision of the PCB so, the LEDS and mode button should work
+I hav also been steadily improving the driver code.
  
 01/04/24:
 On a recent commit I seem to have replaced the old macro driver, and I don't know how to fix it, so I will be using the newest version as my daily driver.

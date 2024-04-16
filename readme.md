@@ -10,39 +10,22 @@ Another one uses Microsoft Azures Text To Speech API to read the text I highligh
 
 This is a work in progress.
 
-V1 through V3 is using Ryan Bates Macro Keyboard Ver2.0 design.  
+Everything in MacroV1 uses Ryan Bates Macro Keyboard Ver2.0 PCB.
 http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/  
-I am planning on making my own varient of it, that will use Kailh Hot-Swap PCB sockets:   
-https://www.amazon.ca/Hot-swap-CPG151101S11-Mechanical-Keyboard-Accessories/dp/B0BVH3SVHW   
 
-I have macro that will play/pause, next song and previous song for spotify. It works by just pressing the media key.    
-There is an issue with this approach and it is that Google Chrome and possibly other chromium based browsers interact with media keys too.  
-So pressing the PlayPause media key will playPause spotify and whatever video you may have open in a webbrowser. To stop Google Chromes interaction with media keys 
-you need to disable it in chrome://flags/#hardware-media-key-handling
+Everything in MacroV2 is my own design.  
+As I'm writing this(2024-04-16), I am currenntly using the V2.0.004 PCB as my daily driver.
+I have to go get my latest PCBs at the post office, which i'll do tomorow.
 
-WHAT I WANT TO DO:  
-Add a requirements file, use pipreqs to make it.  
-Will put a settings.txt file in the future that will allow you to define multiple things. 
-Example:  
-  logging==True   
-  log_folder_path=="C:\User\Desktop"  
-  system_tray_icon==True  
-  system_tray_icon_image_path=="C:\Users\User\Desktop\macro_keyboard-master\MacroV3\v3.1\pythonIcon.ico"  
+I  have one button that works like the button on the old wired headpphones from Apple.
+1 press will play/ pause, 2 press with got to the next song, and 3 presses with got to previous song.
 
-  connected_notification==True  
-  access_denied_notification==True  
-  disconnected_notification==True 
+previous versions of it would use the playpause virtual key, and a downside of that is Google Chrome and possibly other chromium based browsers interact with it too. To stop Google Chromes interaction with media keys you need to disable a flag: chrome://flags/#hardware-media-key-handling
+But on the current version, I use a different method to interact with spotify that doesn't use the playpause virtual key.
 
-Make ReadMe Proper
+With MacroV2 I have added rotatry encoders to the PCB and the possibility for using layers.
+Buttons that I hold down for long enough act like layers, they work similarly to the shift key, and how you get 3 without it and # with it.
+Or like the fn key on laptops.
 
+The way I wrote the microcontroller code is that any key can be a layer and the only limit to how many you can have presses is the number of buttons connected to the microcontroller.
 
-Use the command below to install the needed packages.   
-pip install -r requirements.txt
-
-If you want to use the Text To Speech Macro you will need to setup a Azure Speech resource.   
-Quickstart guide: https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python   
-I will need to figure out a better way to store and get the speech_key and speech_region for it.    
-Currently you needd to put that in a file and put the file path in line 45 and 280 in tools.py    
-
-You also need to put a path for a log folder at line 12 in logger.py    
-This needs to be made better. 
