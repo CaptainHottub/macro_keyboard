@@ -25,14 +25,14 @@ def sysIcon():
 
 
 def main():
-    threading.Thread(target = sysIcon, daemon=True).start()
+    twrv = threading.Thread(target = sysIcon, daemon=True).start()
 
     global macro_driver
     # Create a new macro driver
     macro_driver = MacroDriver()
 
     # Start the macro driver
-    macro_driver.start()
+    macro_driver.Driver()
 
 if __name__ == '__main__':
     main()

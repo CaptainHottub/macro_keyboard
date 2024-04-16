@@ -43,8 +43,9 @@ ctypes.WinDLL('user32').GetWindowThreadProcessId.argtypes = (
 
 GetForegroundWindow = ctypes.WinDLL('user32').GetForegroundWindow
 
-r"""
+"""
 VirtualDesktopAccessor.dll is used to move apps between virtual desktops
+
 This is a safety feature, if VirtualDesktopAccessor.dll isn't in "C:\Windows\System32" it will disable any func that uses it.
 """
 try:
@@ -66,7 +67,8 @@ try:
     with open(r'C:\Coding\azure_speech_config.txt', 'r') as f:
         contents = f.read()
         contents = contents.split(', ')
-        SPEECH_KEY, SPEECH_REGION = contents
+        SPEECH_KEY = contents[0]
+        SPEECH_REGION = contents[1]
 
     # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
     speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
@@ -167,7 +169,7 @@ def pidGetter(name: str)-> int:
     for p in psutil.process_iter(['name']):
         if name in p.info['name']:
             parent = p.parent()
-            if parent is not None:
+            if parent != None:
                 PID = parent.pid
                 break
     return PID
@@ -329,7 +331,7 @@ def Image_to_text2():
                         'button': str(event.button),
                         'pressed': event.pressed}
                     mouse_clicks.append(text)
-                    if not event.pressed:
+                    if event.pressed == False:
                         break
     
     pressed =  keyboard_listener.is_alive()
@@ -769,6 +771,6 @@ def MoveSpotifyToCurrentDesktop():
             
         #MoveAppToCurrentDesktop(parent)
     else: 
-        msg = r"""VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
-        You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
+        msg = """VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
+    You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
         print(msg)

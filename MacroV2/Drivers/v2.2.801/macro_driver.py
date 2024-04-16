@@ -3,6 +3,7 @@ import tools
 import serial.tools.list_ports
 import threading
 import time
+import easylogger
 
 class MacroDriver:
     def __init__(self, baud_rate = 19200, mode = 1):
@@ -13,10 +14,28 @@ class MacroDriver:
         self.pause_state = False
         self.button = 0
         self.event_type = ''
+        
         self.layers = []
-
+        
+        self.btn_names = {
+            0: "Mode",
+            14: "Encoder1",
+            15: "Encoder2"}
+        
+        self.event_names = {
+            "0000": "btnPress",
+            "0001": "btnRelease",
+            "0010": "RL",   #rotary left w/o button
+            "0011": "RR",   #rotary right w/o button
+            "0110": "RLB",  #rotary left w/ button
+            "0111": "RRB"   #rotary right w/ button
+            }
+        
+        self.held_keys_timestamp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        
     # add a mode function to this
     # when called it increases the mode by 1 then at 3 it resets to 1
+
     def update_mode(self):
         self.mode += 1
         if self.mode == 3:
@@ -32,152 +51,209 @@ class MacroDriver:
         self.pause_state = not self.pause_state
         logger.info(f'Pause is set to: {self.pause_state}')
 
-
     def stop(self):
         self.run = False 
         if self.serial_port:
             self.serial_port.close()
 
-    def msgparser(self, msg):
+    def connect(self, deviceName: str):
+        """
+        This tries to "connect" to the device with the specified name.  
         
-        def btn_renamer(btn):
-            if btn in {0, 14, 15}:
-                btn_names = {
-                    0: "Mode",
-                    14: "Encoder1",
-                    15: "Encoder2"}
-                btn = btn_names[btn]
-            return btn
-
-        events = {
-            "0000": "btnPress",
-            "0001": "btnRelease",
-            "0010": "RL",   #rotary left w/o button
-            "0011": "RR",   #rotary right w/o button
-            "0110": "RLB",  #rotary left w/ button
-            "0111": "RRB"   #rotary right w/ button
-        }
-
-        #print(msg)
-        # splits the string every 4th character
-        x = [msg[i:i+4] for i in range(0, len(msg), 4)]
-        x.reverse()
-
-        btn_num = int(x[0],2)  # converst the binary string into and integer
-
-        # renames buttons 0, 14 and 15 to Mode, Encoder1 and Encoder2    
-        btn_num = btn_renamer(btn_num)
-
-        event_type = events[x[1]]
-
-        # layers = [ btn_renamer(int(i,2))  for i in x[2:]  if len(x) > 2 ]
+        Pass the name of the device you want to connect to as a arg.
         
-        layers = []
-        if len(x) > 2:
-            for i in x[2:] :
-                layers.append(btn_renamer(int(i,2)))
+        Will return True if successfull, will return False if not, and will stop the program if something is already connected to it.
 
-        #print(btn_num, event_type, layers)
-        return btn_num, event_type, layers
-    
+        When return is True, you can use self.serial_port to interact with the device
+        """
+        logger.debug("in connect")
 
-    # I want to rewrite this so it looks better
-    def start(self):
-        while self.run:
-            if not self.serial_port:    # If the serial port is not connected/not defined
-                # Look for the device
+        # returns the comport of the device with the name/FriendlyName of 'Pi Pico Macro Driver'
+        ## I used this video to change the name of my Pi Pico from USB Serial Device to 'Pi Pico Macro Driver':  https://youtu.be/KZ3Gw_u-Rl0?si=Xwfqxc1omLGeiCem&t=120
+        port = [p.device for p in serial.tools.list_ports.comports()
+                if deviceName in p.description]
+  
+        try:
+            self.com_port = port[0]
 
-                arduino_ports = [
-                    p.device for p in serial.tools.list_ports.comports()
-                    #if 'Arduino Micro' in p.description
-                    if 'Pi Pico Macro Driver' in p.description
-                ]
+            self.serial_port = serial.Serial(self.com_port, self.baud_rate)
+            logger.info(f'Connected to serial port {self.com_port} at {self.baud_rate} baud')
+            toaster.show_toast("Connected","Connected to Pi Pico succesfully!", duration=2, threaded=True)
 
-                #arduino_ports=["COM3"]
+        except serial.serialutil.SerialException:
+            logger.critical('Pi Pico is already connected to something, shutingdown')
+            toaster.show_toast("Access is denied","Pi Pico is already connected to something", duration=2, threaded=True)
+            self.stop()
+        except IndexError as e:
+            logger.error(f'IndexError: {e}')
+            logger.error('Will wait for 2 sec then try again.')
+            time.sleep(2)
+
+        except Exception as e:
+            logger.error(f'Error connecting to serial port {self.com_port}: {e}')
+            return False
+
+        else:
+            return True
+
+    def timestamper(self, event_num, event_type):
+        
+        ### timstamp stuff
+        if event_type == 'btnPress':  #  if the event_type is a button press
+            self.held_keys_timestamp[event_num] = time.time_ns()
             
-                if not arduino_ports:
-                    logger.info('No Arduino Micro found in comports. Retrying in 5 seconds...')
-                    time.sleep(5)
-                    continue
-               
-                # Connect to the first available device
-                self.com_port = arduino_ports[0]
+            #logger.debug('Event was a press')
+            
+            return False
 
-                try:
-                    self.serial_port = serial.Serial(self.com_port, self.baud_rate)
-                    logger.info(f'Connected to serial port {self.com_port} at {self.baud_rate} baud')
-                    toaster.show_toast("Connected","Connected to Arduino succesfully!", duration=2, threaded=True)
+        elif event_type == 'btnRelease':
+            timestamp = self.held_keys_timestamp[event_num]
+            diff_ns = time.time_ns() - timestamp
+            diff_ms = diff_ns /1000000
+            
+            #logger.debug(f'time held for {event_num=} is {diff_ms=}')
+            
+            self.held_keys_timestamp[event_num] = 0
+            if diff_ms > 150:    
+                #logger.debug('button was held for more then 150 ms, returning')
+                return False
+        
+        return True
+       
+    def msg_parser(self, msg):
+        #logger.debug(f'{msg=}')
 
-                except serial.serialutil.SerialException:
-                    logger.critical('Arduino is already connected to something, shutingdown')
-                    toaster.show_toast("Access is denied","Arduino is already connected to something", duration=2, threaded=True)
-                    self.stop()
+       # splits the string every 4th character
+        split_msg = [msg[i:i+4] for i in range(0, len(msg), 4)]
+        event_type_bits, event_name_bits = split_msg
+        #logger.debug(f'{event_type_bits=}, {event_name_bits=}')
 
-                except Exception as e:
-                    logger.error(f'Error connecting to serial port {self.com_port}: {e}')
-                    continue
+        event_type = self.event_names[event_type_bits]
+        #logger.debug(f'{event_type=}')
 
+        # converts the binary string into and integer
+        event_num = int(event_name_bits,2) 
+        
+        result = self.timestamper(event_num, event_type)
+        #logger.debug(f'{result=}')
+  
+        if result:
+            event_name = self.btn_names[event_num] if event_num in [0, 14, 15] else event_num
+            return event_name, event_type
+        else:
+            return False
+
+    def count_layers(self) -> list:
+        layers = []
+
+        if self.held_keys_timestamp.count(0) < len(self.held_keys_timestamp):#
+            
+            logger.debug("there should be layers")
+            
+            for index, value in enumerate(self.held_keys_timestamp, 0):
+                if value != 0:
+                    diff_ns = time.time_ns() - value
+                    diff_ms = diff_ns /1000000
+
+                    if diff_ms > 150:
+                        
+                        logger.debug(f'time held for {index=} is {diff_ms=}')
+                        
+                        if index == 0:
+                            layers.append('Mode')
+                        else:    
+                            layers.append(index)
+        
+        return layers
+            
+    def Event_Parser(self, msg):
+        """
+        self.button = event_name
+
+        self.event_type = event_type
+
+        self.layers = layers
+        
+        """
+        logger.debug('in eventHandler')
+    
+        event = self.msg_parser(msg)
+        if not event:
+            logger.debug('Event as a button press, or was held for too long.')
+            return False
+        
+        logger.debug('Event is a button release')
+        event_name, event_type = event
+
+        layers = self.count_layers()
+
+        #logger.info(f'{event_name=}, {event_type=}, {temp_layers=}')
+
+        self.button = event_name
+        self.event_type = event_type
+        self.layers = layers
+        return True
+    
+    def Driver(self):
+        while self.run:
+            if not self.serial_port:
+                #### there is no serial port, so  we are not connected
+                self.connect('Pi Pico Macro Driver')
+                # IDK what to make it do if it returns 0
             else:
-
-
-                # will have to re write this
+                #logger.debug("in else")
+                #time.sleep(0.2)
+                
                 try:
-                    button_string = str(self.serial_port.readline(), 'utf-8').strip()
+                    received_string = str(self.serial_port.readline(), 'utf-8').strip()
 
-                    self.button, self.event_type, self.layers = self.msgparser(button_string)
+                    if self.Event_Parser(received_string):
+                        #print(received_string)
+                        if self.button == "Mode":
+                            self.update_mode()
+                            continue
+                        
+                        # if pause_state is True, buttons will be ignored, except for B, it toggles pause_state
+                        if self.pause_state == False: # Buttons wont be ignored
+                            #self.Button_handlerV3(btn, event_type, layers)
+                            #self.Event_handler(btn, event_type, layers)
 
+                            if self.button in ['Encoder1', 'Encoder2']:
+                                self.Encoder_handler()
+                            else:
+                                self.Button_handlerV3()
 
-                    if self.button == "Mode":
-                        self.update_mode()
-                        continue
-                    
-                    # if pause_state is True, buttons will be ignored, except for B, it toggles pause_state
-                    if not self.pause_state: # Buttons wont be ignored
-                        #self.Button_handlerV3(btn, event_type, layers)
-                        #self.Event_handler(btn, event_type, layers)
-                        self.Event_handler()
+                        elif self.button == 12:
+                            logger.debug('button 12 was pressed and pause state is true')
+                            self.change_pause_state()
+                        else:
+                            logger.info('pause_state was set to True, ignoring button press')
 
-
-                    elif self.button == 12:
-                        logger.debug('button 12 was pressed and pause state is true')
-                        self.change_pause_state()
-                    else:
-                        logger.info('pause_state was set to True, ignoring button press')
-
-                    # if 'mode button was pressed' in button_string:
-                    #     logger.info(button_string)
-                    #     continue
-
-                    # #logger.debug(f'Received button event: {button_string}')
-                    # button_string = button_string[-3:]
-                    # button, macro_mode = button_string.split(".")
-
-                    # # Call Button_handler() with button_string as an argument
-                    # #self.Button_handler(button, macro_mode)
-                    # self.Button_handlerV2(button, macro_mode)
 
                 except serial.serialutil.SerialException:
-                    logger.error(f'Arduino Micro disconnected from {self.com_port}. Looking for device...')
-                    
+                    logger.error(f'Pi Pico disconnected from {self.com_port}. Looking for device...')
+
                     toaster.show_toast("Arduino Micro disconnected", 
                                        f'Arduino Micro disconnected from {self.com_port}. Looking for device...', 
                                        duration=2, 
                                        threaded=True)
-                    
+
                     self.serial_port = None
                     # this is here so it doesn't throw 5 FileNotFoundError exception
                     time.sleep(0.2) 
                     continue
 
-                except ValueError:
-                    logger.error('ValueError, stop() has been called, goodbye...')
+                except ValueError as  e:
+                    logger.error(f'ValueError: {e}')
+
+                    #logger.error('ValueError, stop() has been called, goodbye...')
 
                 except Exception as exception:
                     logger.warning(f'Exception raised: {exception = }')
                     #logger.error('ValueError, stop() has been called, goodbye...')
 
-        logger.error('PROGRAM is shutting down')
-    
+        logger.critical('PROGRAM is shutting down')
+
 
     def Encoder_handler(self):
         #print(self.button, self.event_type, self.layers)
@@ -208,11 +284,6 @@ class MacroDriver:
             case ["Encoder2", "RR", []]:
                 logger.debug('Encoder2 rotate right, zoming in')
                 tools.perform_hotkey(['ctrl', '='])  
-                """
-                I did 'ctrl' + '=', because the + symbol requires the Shift key
-                so what happens is 'ctrl' + 'shift' + '=' to get 'ctrl' + '+'
-                and in adobe acrobat pdf extension, 'ctrl' + 'shift' + '=' rotates the page.
-                """
 
             case ["Encoder2", "RR", ["Mode"]]:
                 logger.debug('Encoder2 rotate right with mode, reseting zoom')
@@ -224,7 +295,7 @@ class MacroDriver:
 
             case ["Encoder2", "RRB", []]:
                 logger.debug('Encoder2 rotate right w/ button, right arrow')
-                tools.perform_press('right')  
+                tools.perform_press('right')   
 
     def Button_handlerV3(self):
         #logger.debug("Button_handlerV2")
@@ -244,12 +315,12 @@ class MacroDriver:
             #case [AppName, "ButtonNumber", "MacroMode"]:
             # Leave AppName _ for any app
             # MacroMode as mode for any mode
-            # Layers is a list of layers where "Mode" will be the last one
+            # Layers is a list of layers, where mode will be first and they will be in order
             
             # Any app and Any Mode    And that are prioritives 
             case [_, 1, mode, []]:    # Shows what each button is defined as
                 logger.debug("ButtonMode")
-                threading.Thread(target = tools.ButtonMode, args=(mode, )).start()   
+                twrv = threading.Thread(target = tools.ButtonMode, args=(mode, )).start()   
 
             case [_, 2, mode, []]: # any app, any more and no layers
                 logger.debug("Btn 2, no layers")
@@ -261,7 +332,7 @@ class MacroDriver:
             
             case [_, 2, mode, ['Mode']]: # any app, any more and btn 1 as layer
                 logger.debug("Like")
-                tools.spotifyControl("Like")
+                tools.spotifyControlTest("Like")
                 #tools.mediaTimerV1("Chrome")
 
             case [_, 2, mode, [3, 4]]: # any app, any more and btn 1 as layer
@@ -269,10 +340,10 @@ class MacroDriver:
                 tools.MoveSpotifyToCurrentDesktop()
 
             case [_, 3, mode, []]:    # move desktop left for any app
-                threading.Thread(target = tools.change_desktop, args=('left', app)).start()
+                twrv = threading.Thread(target = tools.change_desktop, args=('left', app)).start()
 
             case [_, 4, mode, []]:     # move desktop right for any app   
-                threading.Thread(target = tools.change_desktop, args=('right', app)).start()
+                twrv = threading.Thread(target = tools.change_desktop, args=('right', app)).start()
             
 
 
@@ -328,15 +399,13 @@ class MacroDriver:
 
             # Macros that are last priority.     
             case [_, 5, mode, []]:   # Text to speech
-                logger.debug("Text to speech")
-                tools.textToSpeech()
+                #logger.debug("Text to speech")
                 #custom_keyboard.hotkey('ctrl', 'c')
-                #threading.Thread(target = tools.Image_to_text2).start()
-                
+                twrv = threading.Thread(target = tools.textToSpeech, args=()).start()
+
             case [_, 6, mode, []]:   # Stop Speech
-                logger.debug("Stop Speech")
-                tools.stopSpeech()
-                #threading.Thread(target = tools.Image_to_text2).start()
+                #logger.debug("Stop Speech")
+                twrv = threading.Thread(target = tools.stopSpeech, args=()).start()
 
             case [_, 7, mode, []]:   # Copy
                 #logger.debug("Copy")
@@ -357,7 +426,7 @@ class MacroDriver:
 
             case [_, 11, mode, []]:   #image to text             is button 11
                 logger.debug("Image to text")
-                threading.Thread(target = tools.Image_to_text2).start()
+                twrv = threading.Thread(target = tools.Image_to_text2).start()
         
     def Event_handler(self):
         logger.info(f"{self.button, self.event_type, self.layers}")
