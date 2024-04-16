@@ -75,11 +75,11 @@ class MacroDriver:
         # gets the event type
         event_type: str = events_names[event_int]
         
-        if len(layers_int) > 0 and not layers_int[0]:
-            layers_int[0] = "Mode"
+        layers = layers_int[::-1]
+        if len(layers) > 0 and not layers[-1]:
+            layers[-1] = "Mode"
 
-        return button_name, event_type, layers_int
-
+        return button_name, event_type, layers
 
     # I want to rewrite this so it looks better
     def start(self):
@@ -122,7 +122,6 @@ class MacroDriver:
                     button_string = str(self.serial_port.readline(), 'utf-8').strip()
 
                     self.button, self.event_type, self.layers = self.msgparser(button_string)
-
 
                     if self.button == "Mode":
                         self.update_mode()
