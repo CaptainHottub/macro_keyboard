@@ -39,47 +39,47 @@ class MacroDriver:
             self.serial_port.close()
 
     def msgparser(self, msg):
+        """
+        This parses the message sent by the microcontroller to something useable
+
+        Args:
+            msg (str): A string of Binary
+
+        Returns:
+            button_name: Name of the button, str if Mode, or encoders, int for the rest
+            event_type: What type of event it is as a str
+            layers_int: List of layers
+        """
+        # defines button names
+        button_names = {
+            0: "Mode",
+            14: "Encoder1",
+            15: "Encoder2"}
         
-        def btn_renamer(btn):
-            if btn in {0, 14, 15}:
-                btn_names = {
-                    0: "Mode",
-                    14: "Encoder1",
-                    15: "Encoder2"}
-                btn = btn_names[btn]
-            return btn
+        # defines event names
+        events_names = {
+            0: "btnPress",     # 0000, 1
+            1: "btnRelease",   # 0001, 2
+            2: "RL",           # 0010, 3      rotary left w/o button
+            3: "RR",           # 0011, 4      rotary right w/o button
+            6: "RLB",          # 0110, 6      rotary left w/ button
+            7: "RRB"           # 0111, 7      rotary right w/ button
+            }
 
-        events = {
-            "0000": "btnPress",
-            "0001": "btnRelease",
-            "0010": "RL",   #rotary left w/o button
-            "0011": "RR",   #rotary right w/o button
-            "0110": "RLB",  #rotary left w/ button
-            "0111": "RRB"   #rotary right w/ button
-        }
-
-        #print(msg)
         # splits the string every 4th character
-        x = [msg[i:i+4] for i in range(0, len(msg), 4)]
-        x.reverse()
-
-        btn_num = int(x[0],2)  # converst the binary string into and integer
-
-        # renames buttons 0, 14 and 15 to Mode, Encoder1 and Encoder2    
-        btn_num = btn_renamer(btn_num)
-
-        event_type = events[x[1]]
-
-        # layers = [ btn_renamer(int(i,2))  for i in x[2:]  if len(x) > 2 ]
-        
-        layers = []
-        if len(x) > 2:
-            for i in x[2:] :
-                layers.append(btn_renamer(int(i,2)))
-
-        #print(btn_num, event_type, layers)
-        return btn_num, event_type, layers
+        *layers_int, event_int, button_int = [int(msg[i:i+4], 2) for i in range(0, len(msg), 4)]
     
+        # renames the buttons if the key is valid 
+        button_name: str | int = button_names.get(button_int, button_int)
+        
+        # gets the event type
+        event_type: str = events_names[event_int]
+        
+        if len(layers_int) > 0 and not layers_int[0]:
+            layers_int[0] = "Mode"
+
+        return button_name, event_type, layers_int
+
 
     # I want to rewrite this so it looks better
     def start(self):
@@ -89,14 +89,11 @@ class MacroDriver:
 
                 arduino_ports = [
                     p.device for p in serial.tools.list_ports.comports()
-                    #if 'Arduino Micro' in p.description
                     if 'Pi Pico Macro Driver' in p.description
                 ]
-
-                #arduino_ports=["COM3"]
             
                 if not arduino_ports:
-                    logger.info('No Arduino Micro found in comports. Retrying in 5 seconds...')
+                    logger.info('No Pi Pico found in comports. Retrying in 5 seconds...')
                     time.sleep(5)
                     continue
                
@@ -169,8 +166,8 @@ class MacroDriver:
                     time.sleep(0.2) 
                     continue
 
-                except ValueError:
-                    logger.error('ValueError, stop() has been called, goodbye...')
+                except ValueError as e:
+                    logger.error(e)
 
                 except Exception as exception:
                     logger.warning(f'Exception raised: {exception = }')
