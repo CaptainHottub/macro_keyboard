@@ -1,5 +1,7 @@
 This is my macro keyboard project. It uses a Python script that acts as a driver.
 
+![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+
 Hi UBCV, if you were wondering, this is one of Taylor McLaughlin's git hub repositories.
 
 It receives text from the microcontroller over USB serial and it executes macros and some more complex stuff.
