@@ -20,6 +20,8 @@ Everything in MacroV2 is my own design.
 As I'm writing this(2024-04-16), I am currenntly using the V2.0.004 PCB as my daily driver.
 I have to go get my latest PCBs at the post office, which i'll do tomorow.
 
+![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/pcb.jpg?raw=true)
+
 I  have one button that works like the button on the old wired headpphones from Apple.
 1 press will play/ pause, 2 press with got to the next song, and 3 presses with got to previous song.
 
