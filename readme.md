@@ -1,6 +1,6 @@
 This is my macro keyboard project. It uses a Python script that acts as a driver.
 
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/macro_keyboard.jpg?raw=true)
 
 Hi UBCV, if you were wondering, this is one of Taylor McLaughlin's git hub repositories.
 
