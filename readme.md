@@ -17,18 +17,15 @@ Everything in MacroV1 uses Ryan Bates Macro Keyboard Ver2.0 PCB.
 http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/  
 
 Everything in MacroV2 is my own design.  
-As I'm writing this(2024-04-16), I am currenntly using the V2.0.004 PCB as my daily driver.
-I have to go get my latest PCBs at the post office, which i'll do tomorow.
-
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/pcb.jpg?raw=true)
 
-I  have one button that works like the button on the old wired headpphones from Apple.
-1 press will play/ pause, 2 press with got to the next song, and 3 presses with got to previous song.
+I  have one button that works like the button on the old wired headphones from Apple.
+1 press will play/ pause, 2 presses will go to the next song, and 3 presses will got to the previous song.
 
-previous versions of it would use the playpause virtual key, and a downside of that is Google Chrome and possibly other chromium based browsers interact with it too. To stop Google Chromes interaction with media keys you need to disable a flag: chrome://flags/#hardware-media-key-handling
-But on the current version, I use a different method to interact with spotify that doesn't use the playpause virtual key.
+previous versions of it would use the play pause virtual key, and a downside is Google Chrome and possibly other chromium-based browsers interact with it too. To stop Google Chromes interaction with media keys you need to disable a flag: chrome://flags/#hardware-media-key-handling
+But on the current version, I use a different method to interact with Spotify that doesn't use the play pause virtual key.
 
-With MacroV2 I have added rotatry encoders to the PCB and the possibility for using layers.
+With MacroV2 I have added rotary encoders to the PCB and the possibility of using layers.
 Buttons that I hold down for long enough act like layers, they work similarly to the shift key, and how you get 3 without it and # with it.
 Or like the fn key on laptops.
 
