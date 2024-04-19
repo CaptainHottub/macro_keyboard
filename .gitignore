@@ -159,9 +159,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-
-
+# This is a folder containning old versions.
 old_versions/
+
+# I don't want this stuff on the repo
 .vscode/
 workspace.code-workspace
 
