@@ -1,1 +1,0 @@
-logger.debug(f"move desktop {direction}")
