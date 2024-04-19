@@ -161,8 +161,8 @@ cython_debug/
 
 
 
-.macro_keyboard/old_versions
-.macro_keyboard/.vscode
-.macro_keyboard/workspace.code-workspace
+macro_keyboard/old_versions
+macro_keyboard/.vscode
+macro_keyboard/workspace.code-workspace
 
 
