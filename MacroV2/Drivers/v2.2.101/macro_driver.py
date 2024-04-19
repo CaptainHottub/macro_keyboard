@@ -249,19 +249,19 @@ class MacroDriver:
 
             case [_, 1, mode, [3]]:
                 logger.debug("Moves currently foccused to the virtual Desktop on the left")
-                #tools.MoveSpotifyToCurrentDesktop()
-            
+                tools.moveAppAccrossDesktops(app, 'Left')
+                
             case [_, 1, mode, [4]]: 
                 logger.debug("Moves currently foccused to the virtual Desktop on the right")
-                #tools.MoveSpotifyToCurrentDesktop()    
+                tools.moveAppAccrossDesktops(app, 'Right')    
                     
             case [_, 2, mode, []]: # any app, any more and no layers
                 logger.debug("Btn 2, no layers")
-                tools.mediaTimerV1("Spotify")
+                tools.mediaTimerV2("Spotify")
 
             case [_, 2, mode, [1]]: # any app, any more and btn 1 as layer
                 logger.debug("Btn 2, btn 1 as layer")
-                tools.mediaTimerV1("Chrome")
+                tools.mediaTimerV2("Chrome")
             
             case [_, 2, mode, ['Mode']]: # any app, any more and btn 1 as layer
                 logger.debug("Like")
@@ -270,15 +270,15 @@ class MacroDriver:
 
             case [_, 2, mode, [3, 4]]: # any app, any more and btn 1 as layer
                 logger.debug("Moves Spotify to the current virtual Desktop")
-                tools.MoveSpotifyToCurrentDesktop()
+                tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Current')
                     
             case [_, 2, mode, [3]]:
                 logger.debug("Moves Spotify to the virtual Desktop on the left")
-                #tools.MoveSpotifyToCurrentDesktop()
+                tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Left')
             
             case [_, 2, mode, [4]]: 
                 logger.debug("Moves Spotify to the virtual Desktop on the right")
-                #tools.MoveSpotifyToCurrentDesktop()    
+                tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Right')
             
             case [_, 3, mode, []]:    # move desktop left for any app
                 threading.Thread(target = tools.change_desktop, args=('left', app)).start()

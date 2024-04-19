@@ -20,8 +20,9 @@ import ctypes
 import ctypes.wintypes as wintypes
 from ctypes.wintypes import DWORD, HWND
 
-from pywinauto.application import Application
+from pywinauto.application import Application, ProcessNotFoundError
 import psutil
+import os
 
 # Ctypes Stuff
 WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
@@ -43,20 +44,23 @@ ctypes.WinDLL('user32').GetWindowThreadProcessId.argtypes = (
 
 GetForegroundWindow = ctypes.WinDLL('user32').GetForegroundWindow
 
+
 r"""
-VirtualDesktopAccessor.dll is used to move apps between virtual desktops
+VirtualDesktopAccessor.dll is used to move apps between virtual desktops:  https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file
 This is a safety feature, if VirtualDesktopAccessor.dll isn't in "C:\Windows\System32" it will disable any func that uses it.
 """
 try:
     virtual_desktop_accessor = ctypes.WinDLL("VirtualDesktopAccessor.dll")
-
     CurrentDesktopNumber = virtual_desktop_accessor.GetCurrentDesktopNumber
-    DesktopCount = virtual_desktop_accessor.GetDesktopCount
+    #DesktopCount = virtual_desktop_accessor.GetDesktopCount
     GoToDesktop = virtual_desktop_accessor.GoToDesktopNumber
-      
+    MoveAppToDesktop = virtual_desktop_accessor.MoveWindowToDesktopNumber # requires (hwnd, desktop_num)
+    #IsWindowOnDesktopNumber = virtual_desktop_accessor.IsWindowOnDesktopNumber #hwnd: HWND, desktop_number: i32
+    GetWindowDesktopNumber = virtual_desktop_accessor.GetWindowDesktopNumber          # (hwnd: HWND)
+    
 except FileNotFoundError as e:
+    print(e)
     VDA = False
-    logger.error(f'{FileNotFoundError} {e}')
 else:
 	VDA = True
 logger.debug(VDA)
@@ -83,7 +87,7 @@ except Exception as e:
 A bunch of utillity functions
 """
 
-
+#############################################     These are tools    #############################################
 # timer function
 def get_time(func):
     """Times any function\n
@@ -116,36 +120,38 @@ def get_time(func):
 #             if process_to_find.lower() in proc['Title'].lower()
 #             ]
 
-# def get_processes(sort = False):
-#     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
-#     leave empty if you want the whole list
-#     Put True in if you want the list sorted by title
-#     """
+def perform_hotkey(hotkey):
+    #logger.debug(f"perform_hotkey {hotkey = }")
+    custom_keyboard.hotkey(*hotkey)
 
-#     @WNDENUMPROC
-#     def py_callback( hwnd, lparam ):
-#         pid = wintypes.DWORD()
-#         tid = GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-#         if IsWindow(hwnd):
-#             length = GetWindowTextLength(hwnd)
-#             buff = ctypes.create_unicode_buffer(length + 1)
-#             GetWindowText(hwnd, buff, length + 1) 
+def perform_press(key):
+    #logger.debug(f"perform_press {key = }")
+    custom_keyboard.press(key)
 
-#             if buff.value and buff.value not in ['Default IME', 'MSCTFIME UI']:
-#                 results.append({"Title": buff.value,
-#                                 "PID": tid,
-#                                 "HWND": hwnd})
-#         return True
+def get_processes():
+    """Returns list of dictionarys of all apps, their PIDS and hwnd\n
+    """
 
-#     results = []
-#     EnumWindows(py_callback,0)
+    @WNDENUMPROC
+    def py_callback( hwnd, lparam ):
+        pid = wintypes.DWORD()
+        tid = GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        if IsWindow(hwnd):
+            length = GetWindowTextLength(hwnd)
+            buff = ctypes.create_unicode_buffer(length + 1)
+            GetWindowText(hwnd, buff, length + 1) 
 
-#     if sort:
-#         logger.debug("sorting")
-#         resultslist = sorted(results, key=lambda d: d['Title'])
-#         return resultslist
+            if buff.value and buff.value not in ['Default IME', 'MSCTFIME UI']:
+                results.append({"Title": buff.value,
+                                "TID": tid,
+                                "HWND": hwnd,
+                                "PID": pid.value})
+        return True
 
-#     return results
+    results = []
+    EnumWindows(py_callback,0)
+
+    return results
 
 def get_focused():
     hwnd = GetForegroundWindow()
@@ -172,61 +178,83 @@ def pidGetter(name: str)-> int:
                 break
     return PID
 
+def hwndGetter(app_name: str) -> HWND:
+    """Returns the hwnd of the app you specified
+    This returns the  first valid one, so it might not work for chrome
+    Returns None if there is nothing.
+
+    Args:
+        app_name (str): The name of the app.
+
+    Returns:
+        HWND: the HWND of the app.
+    """
+    processes = get_processes()
+    for process in processes:
+        if app_name in process['Title']:
+            return process['HWND']
+
+def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
+    #logger.debug(name_or_path,timeout)
+    try:
+        os.startfile(name_or_path)
+    except Exception as e:
+        logger.warning(e)
+    time.sleep(timeout)
+
 #############################################     These use VirtualDesktopAccessor.dll    #############################################
-def GetWindowHwndFromPid(pid):
-	"""
-    This code is from here: #https://stackoverflow.com/questions/60879235/python-windows-10-launching-an-application-on-a-specific-virtual-desktop-envir
-    I can sort of understand it, so I wont explain it.
-    """
-      
-	current_window = 0
-	pid_local = DWORD()
-	while True:
-		# current_window = windll.User32.FindWindowExA(0, current_window, 0, 0)
-		# windll.user32.GetWindowThreadProcessId(current_window, byref(pid_local))
+# def GetWindowHwndFromPid(pid):
+#     """
+#     This code is from here: #https://stackoverflow.com/questions/60879235/python-windows-10-launching-an-application-on-a-specific-virtual-desktop-envir
+#     I can sort of understand it, so I wont explain it.
+#     """
+        
+#     current_window = 0
+#     pid_local = DWORD()
+#     while True:
+#         # current_window = windll.User32.FindWindowExA(0, current_window, 0, 0)
+#         # windll.user32.GetWindowThreadProcessId(current_window, byref(pid_local))
+#         ctypes.WinDLL('user32').GetWindowThreadProcessId(current_window, ctypes.byref(pid_local))
+#         ctypes.WinDLL('user32').FindWindowExA(0, current_window, 0, 0)
+        
 
-		current_window = ctypes.WinDLL('user32').FindWindowExA(0, current_window, 0, 0)
-		ctypes.WinDLL('user32').GetWindowThreadProcessId(current_window, ctypes.byref(pid_local))
-		if pid == pid_local.value:
-			yield current_window
+        
+#         #GetWindowThreadProcessId(current_window, ctypes.byref(pid_local))
+#         logger.debug(current_window)
+                
+#         if pid == pid_local.value:
+           
+#             yield current_window
+#             #yield current_window
 
-		if current_window == 0:
-			return
+#         if current_window == 0:
+#             return
 
-def GetParentsFromList(windows: list) -> HWND:
-    """
-    Returns the parent HWND of a list of HWND
-    """
-    parents = []
-    for window in windows:
-        parent = ctypes.WinDLL('user32').GetParent(window)
-        #print(window, parent)
-        if parent != 0:
-            parents.append(parent)
+# def GetParentsFromList(windows: list) -> HWND:
+#     """
+#     Returns the parent HWND of a list of HWND
+#     """
+#     parents = []
+#     for window in windows:
+#         parent = GetParent(window)
+#         #print(window, parent)
+#         if parent != 0:
+#             parents.append(parent)
 
-    return parents
+#     return parents
 
-def IsWindowOnDesktop(hwnd: HWND) -> bool:
-    """
-    Returns a Bool of is the HWND if on the CurrentVirtualDesktop
-    """
-    return  bool(virtual_desktop_accessor.IsWindowOnCurrentVirtualDesktop(hwnd))
+# def IsWindowOnDesktop(hwnd: HWND) -> bool:
+#     """
+#     Returns a Bool of is the HWND if on the CurrentVirtualDesktop
+#     """
+#     return  bool(virtual_desktop_accessor.IsWindowOnCurrentVirtualDesktop(hwnd))
 
-def MoveAppToCurrentDesktop(hwnd: HWND):
-    current_window = CurrentDesktopNumber()
+# def MoveAppToCurrentDesktop(hwnd: HWND):
+#     current_window = CurrentDesktopNumber()
 
-    if not IsWindowOnDesktop(hwnd): # that app is not on current desktop
-        virtual_desktop_accessor.MoveWindowToDesktopNumber(hwnd, current_window)
+#     if not IsWindowOnDesktop(hwnd): # that app is not on current desktop
+#         virtual_desktop_accessor.MoveWindowToDesktopNumber(hwnd, current_window)
 
-
-
-def perform_hotkey(hotkey):
-    #logger.debug(f"perform_hotkey {hotkey = }")
-    custom_keyboard.hotkey(*hotkey)
-
-def perform_press(key):
-    #logger.debug(f"perform_press {key = }")
-    custom_keyboard.press(key)
 
 ###############     These are all macros     ###############
 
@@ -256,28 +284,6 @@ def wellskate(): #wellskate
     perform_hotkey(['space', 'f'])
     time.sleep(0.1)
     perform_press('1')
-
-def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
-    """
-    The VDA one take on average 5 ms to complete, IT also doesn't need to alt tab some apps like task manager
-    while the other one takes 100 ms to complete
-    """
-    logger.debug(f"move desktop {direction}")
-    if VDA:
-        if direction == 'left':
-            newDesktopNum = CurrentDesktopNumber() -1
-        elif direction == 'right':
-            newDesktopNum = CurrentDesktopNumber() + 1
-        GoToDesktop(newDesktopNum)
-    else:
-        apps_to_alt_tab = ['Star Citizen']  #lis of apps to alt tab when changing desktops
-
-        if focused_app in apps_to_alt_tab: 
-            perform_hotkey(['alt', 'tab'])
-            #custom_keyboard.hotkey('alt', 'tab')
-            time.sleep(0.1)
-
-        perform_hotkey(['ctrl', 'win', direction])
 
 def Image_to_text2():
     """Presses Win Shift S to open snippet mode, waits for mouse release then does tesseract OCR
@@ -424,72 +430,6 @@ def stopSpeech():
     speech_synthesizer.stop_speaking()
     #speech_synthesizer.stop_speaking_async()
 
-# not needed
-# def spotifyV3(timeout = 0.4, count=[0]):
-#     """Plays/Pauses spotifyV3, presses next song previous song.   
-    
-#     Press 1 time in timeout seconds to Plays/Pauses.        \n
-#     Press 2 times in timeout seconds to get next song.      \n
-#     Press 3 times in timeout seconds to get previous song.  \n   
-
-#     Args:
-#       timeout (integer): Defines how much time you have to press the button for it to do something
-#       count (list): Don't touch this, it is a counter for the function
-#     Returns:
-#       None
-#     """
-#     count[0] += 1
-    
-#     logger.debug("Spotify Func Has been called")
-
-#     def spotify_timerV3():
-#         """Waits for timeout to finish then it send a keyboard input based on value of count[0]"""
-
-#         logger.debug("spotify_timer Has just begun")
-#         time.sleep(timeout)
-#         logger.debug("spotify_timer sleep has just finished")
-
-#         actions = [
-#             "playpause",
-#             "nexttrack",
-#             "prevtrack"]
-        
-#         logger.debug("Entering try")
-#         try:
-#             action = actions[count[0]-1]
-            
-#             perform_press(action)
-#             #custom_keyboard.press(action)
-              
-#             logger.debug(f'Value of {count[0] = }, executing folowing action: {action}')
-
-#         except IndexError as ind:
-#             print('\n')
-#             logger.error(f'IndexError has just happened, reason: {ind}')
-#             logger.error(f'Button was pressed to many times. You pressed it {count[0]} times.\n')
-
-#         except Exception as e:
-#             logger.error(e)
-        
-#         finally:
-#             count[0] = 0
-#             logger.debug(f"Value of {count[0] = }\n")
-
-#     """         Finds if thread I want is running, if not it starts, if it is does nothing          """
-#     # adds True to list if func hmm is running as a thread
-#     thread_running = [
-#         True
-#         for thread in threading.enumerate()
-#         if spotify_timerV3.__name__ in thread.name
-#         ]
-    
-#     if not any(thread_running):
-#         logger.debug("Thread I want is not running, starting it")
-#         spotify_thread = threading.Thread(target=spotify_timerV3, args=(),daemon=True)
-#         spotify_thread.start()
-#     else:
-#         logger.debug("thread I want is running")
-
 def search_highlighted_text():
     """Searches highlighted text in google.
     
@@ -507,6 +447,100 @@ def search_highlighted_text():
     
     perform_press('enter')
 
+def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
+    """
+    The VDA one take on average 5 ms to complete, IT also doesn't need to alt tab some apps like task manager
+    while the other one takes 100 ms to complete
+    """
+    logger.debug(f"move desktop {direction}")
+    if VDA:
+        if direction == 'left':
+            newDesktopNum = CurrentDesktopNumber() -1
+        elif direction == 'right':
+            newDesktopNum = CurrentDesktopNumber() + 1
+        GoToDesktop(newDesktopNum)
+    else:
+        apps_to_alt_tab = ['Star Citizen']  #lis of apps to alt tab when changing desktops
+
+        if focused_app in apps_to_alt_tab: 
+            perform_hotkey(['alt', 'tab'])
+            #custom_keyboard.hotkey('alt', 'tab')
+            time.sleep(0.1)
+
+        perform_hotkey(['ctrl', 'win', direction])
+
+
+def moveSpotifyAccrossDesktops(name:str, movement: str)-> None:
+    """This just gets Spotify's HWND, Spotify's title changes  to the song that is playing, so that makes it more difficult to filter it out.
+
+    Args:
+        name (str): _description_
+        movement (str): _description_
+    """
+    
+    hwnd = hwndGetter(name)
+    if hwnd is None:
+        logger.debug('either spotify is not running or a song is playing.')
+        PID = pidGetter('Spotify')
+        if PID is None:
+            logger.debug('Spotify is not running')
+            launchApp('Spotify', timeout=1)
+            moveSpotifyAccrossDesktops(name, movement)
+        
+        processes = get_processes()
+
+        for process in processes:
+            if process['PID'] == PID:
+                hwnd = process['HWND']
+                logger.debug(f"found the {hwnd=}")
+                break
+    moveAppAccrossDesktops(hwnd, movement)
+    
+def moveAppAccrossDesktops(hwnd_or_name: HWND|str, movement: str) -> int:
+    """Moves an app accross desktops.
+    This function requires the VirtualDesktopAccessor.dll, if it is not installed, the  func will return -1
+    If you input and app name, it will try and get the hwnd
+    if the app is not active, the hwnd will be None and the func will return -2
+    
+    Movements are:
+    'Left': Goes left,
+    'Right': Goes Right,
+    'Current': Moves to the current desktop
+    
+    Args:
+        hwnd_or_name (HWND | str): Either the name of the app or the HWND of the app
+        movement (str): Movement Type
+
+    Returns:
+        bool: It will return 1 if succesfull and 0 if not
+    """
+    if not VDA:
+        msg = r"""VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
+        You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
+        logger.warning(msg)
+        return -1
+    logger.debug(hwnd_or_name)
+    
+    if isinstance(hwnd_or_name,  str):
+        hwnd = hwndGetter(hwnd_or_name)
+        if hwnd is None:
+            logger.debug("hwnd is None")
+            #launchApp(hwnd_or_name)
+            return
+    else:
+        hwnd = hwnd_or_name    
+        
+    logger.debug(hwnd)
+    
+    movements = {
+        'Left': (GetWindowDesktopNumber(hwnd) -1),
+        'Right': (GetWindowDesktopNumber(hwnd) +1),
+        'Current': CurrentDesktopNumber()
+        }
+
+    destination = movements[movement]
+    return MoveAppToDesktop(hwnd, destination) 
+
 """ 
 this is a new way to controll spotify and chrome.
 The spotifyControlTest alloys me to the same stuff as before, but also contol the volume of audio coming from spotify
@@ -515,7 +549,8 @@ chromeAudioControlTest allows me to play pause yt videos.
 
 Maybe redo mediaTimerV1, for like a button timer, IDK
 """
-def mediaTimerV1(destination: str, timeout = 0.4, count=[0]):  # this is basically the same as spotifyV3
+
+def mediaTimerV2(destination: str, timeout = 0.4, count=[0]):  # this is basically the same as spotifyV3
     """Plays/Pauses media, presses next song previous song.   
     
     Press 1 time in timeout seconds to Plays/Pauses.        \n
@@ -531,37 +566,37 @@ def mediaTimerV1(destination: str, timeout = 0.4, count=[0]):  # this is basical
     count[0] += 1
     
     logger.debug("Media Func Has been called")
-
-    def timerV3():
+    
+    def timerV4():
         """Waits for timeout to finish then it send a keyboard input based on value of count[0]"""
 
         logger.debug("timer Has just begun")
         time.sleep(timeout)
         logger.debug("timer sleep has just finished")
+        runAfterTimer()
+        
 
-        actions = [
+    def runAfterTimer():
+        
+        ACTIONS = [
             "PlayPause",
             "NextTrack",
             "PrevTrack"]
         
+        DESTINATIONS = {
+            'Spotify': spotifyControl,
+            'Chrome': chromeAudioControl
+        }
+        
         logger.debug("Entering try")
         try:
-            action = actions[count[0]-1]
-            if destination == "Spotify":
-                spotifyControl(action)
-
-            elif destination == "Chrome":
-                chromeAudioControl(action)
-
-            else:
-                print("destination is invalid")
-            #perform_press(action)
-            #custom_keyboard.press(action)
-              
+            action = ACTIONS[count[0]-1]
             logger.debug(f'Value of {count[0] = }, executing folowing action: {action}')
+            functionToCall = DESTINATIONS[destination]
+            functionToCall(action)
+            
 
         except IndexError as ind:
-            print('\n')
             logger.error(f'IndexError has just happened, reason: {ind}')
             logger.error(f'Button was pressed to many times. You pressed it {count[0]} times.\n')
 
@@ -577,12 +612,12 @@ def mediaTimerV1(destination: str, timeout = 0.4, count=[0]):  # this is basical
     thread_running = [
         True
         for thread in threading.enumerate()
-        if timerV3.__name__ in thread.name
+        if timerV4.__name__ in thread.name
         ]
     
     if not any(thread_running):
         logger.debug("Thread I want is not running, starting it")
-        media_thread = threading.Thread(target=timerV3, args=(),daemon=True)
+        media_thread = threading.Thread(target=timerV4, args=(),daemon=True)
         media_thread.start()
     else:
         logger.debug("thread I want is running")
@@ -625,29 +660,44 @@ def spotifyControl(action):
     How this is currently setup, the little media player popup doesnt show up. so it I dont know what the song is.    
     That would mean I wouldnt need modern flyouts.
     """
-    # if action in ["PrevTrack", "NextTrack", "PlayPause"]:
-    #     perform_press(action)
-    #     return
-
-
-    #https://github.com/mavvos/SpotifyGlobal/blob/main/SpotifyGlobal.py#L118
     global spotify_PID
     if spotify_PID is False:
         logger.debug("spotify_PID is False")
         PID = pidGetter('Spotify')
         if PID is None:
             print('There is no app with name of "Spotify"')
-            return
+            launchApp('Spotify')
+            spotifyControl(action)
+            #return
         spotify_PID = PID
     
-    app = Application().connect(process=spotify_PID)
+    
     #print(spotify_PID)
 
-    spotify = app["Chrome_Widget_Win0"]
-    spotify.send_keystrokes(SPOTIFY_HOTKEYS[action])
-    # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
-    # spotify.send_keystrokes(SPOTIFY_HOTKEYS["Forward5s"])
-    # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
+    #https://github.com/mavvos/SpotifyGlobal/blob/main/SpotifyGlobal.py#L118
+    try:
+        app = Application().connect(process=spotify_PID)
+        
+        spotify = app["Chrome_Widget_Win0"]
+        spotify.send_keystrokes(SPOTIFY_HOTKEYS[action])
+        # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
+        # spotify.send_keystrokes(SPOTIFY_HOTKEYS["Forward5s"])
+        # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
+
+    except ProcessNotFoundError: #### Will have to modify this, so that it checks if spotify is running. 
+        logger.warning('Process was not Found')
+
+        PID = pidGetter('Spotify')
+        if PID is None:
+            logger.debug('There is no app with name of "Spotify"')
+            launchApp('Spotify', timeout=1)
+            spotify_PID = False
+            
+        else:
+            logger.debug("had the wrong PID")
+            spotify_PID = PID
+            
+        spotifyControl(action)
 
 def chromeAudioControl(action):
     """Uses pywinauto to connect and interact with chromes media controls   
@@ -672,6 +722,13 @@ def chromeAudioControl(action):
     # ### inspector C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64
     # Chrome_Parent_PID = []
 
+    """
+    I could probably switch this to hwndGetter('Chrome')
+    to stop using  pidGetter('chrome')
+    
+    """
+    
+    
     global Chrome_Parent_PID
     if Chrome_Parent_PID is False:
         logger.debug("Chrome_Parent_PID is False")
@@ -721,43 +778,3 @@ def chromeAudioControl(action):
 
     media_control_button.click()
     logger.debug("Closed tab")
-
-SpotifyParentHwnd = None
-def MoveSpotifyToCurrentDesktop():
-    """
-    This Func, moves spotify to the current virtual Desktop.
-    It Returns nothing and requires the VirtualDesktopAccessor.dll
-    https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file
-    """
-    if VDA:
-        # get the current window
-        current_window = CurrentDesktopNumber()
-        global SpotifyParentHwnd
-        if SpotifyParentHwnd is None: # if SpotifyParentHwnd is not defined
-            spotifyPID = pidGetter('Spotify') # gets the Parent PID of spotify
-            
-            windows = [
-                HWND(window) 
-                for window in GetWindowHwndFromPid(spotifyPID)]
-            
-            parents = GetParentsFromList(windows)
-        
-            # test if you work, 
-            for parent in parents:  
-                result = virtual_desktop_accessor.MoveWindowToDesktopNumber(parent, current_window)
-                # result will be 1 if it worked.
-                if result:
-                    SpotifyParentHwnd = parent
-                    break
-       
-        else:
-            result = virtual_desktop_accessor.MoveWindowToDesktopNumber(SpotifyParentHwnd, current_window)
-            
-            if result == 0: # Ie it didn't work, which would happen if the the Hwnd of spotify changed, by starting a new one.
-                SpotifyParentHwnd = None
-            
-        #MoveAppToCurrentDesktop(parent)
-    else: 
-        msg = r"""VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
-        You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
-        print(msg)
