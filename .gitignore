@@ -161,8 +161,8 @@ cython_debug/
 
 
 
-old_versions
-.vscode
+old_versions/
+.vscode/
 workspace.code-workspace
 
 
