@@ -4,6 +4,8 @@ import serial.tools.list_ports
 import threading
 import time
 
+Spotify = tools.SpotifyController()
+
 class MacroDriver:
     def __init__(self, baud_rate = 19200, mode = 1):
         self.baud_rate = baud_rate
@@ -14,7 +16,7 @@ class MacroDriver:
         self.button = 0
         self.event_type = ''
         self.layers = []
-
+        
     # add a mode function to this
     # when called it increases the mode by 1 then at 3 it resets to 1
     def update_mode(self):
@@ -31,7 +33,6 @@ class MacroDriver:
     def change_pause_state(self):
         self.pause_state = not self.pause_state
         logger.info(f'Pause is set to: {self.pause_state}')
-
 
     def stop(self):
         self.run = False 
@@ -182,19 +183,23 @@ class MacroDriver:
             ########################################    Encoder 1    ########################################
             case ["Encoder1", "RL", []]:
                 logger.debug('VolumeDown')
-                tools.spotifyControl("VolumeDown")
+                #tools.spotifyControl("VolumeDown")
+                threading.Thread(target=Spotify.event_handler, args=('VolumeDown',)).start()    
             
             case ["Encoder1", "RR", []]:
                 logger.debug('VolumeUp')
-                tools.spotifyControl("VolumeUp")
+                #tools.spotifyControl("VolumeUp")
+                threading.Thread(target=Spotify.event_handler, args=('VolumeUp',)).start()    
             
             case ["Encoder1", "RLB", []]:
                 logger.debug('Back5s')
-                tools.spotifyControl("Back5s")
+                #tools.spotifyControl("Back5s")
+                threading.Thread(target=Spotify.event_handler, args=('Back5s',)).start()    
             
             case ["Encoder1", "RRB", []]:
                 logger.debug('Forward5s')
-                tools.spotifyControl("Forward5s")
+                #tools.spotifyControl("Forward5s")
+                threading.Thread(target=Spotify.event_handler, args=('Forward5s',)).start()    
 
             ########################################    Encoder 2    ########################################
             case ["Encoder2", "RL", []]:
@@ -257,7 +262,8 @@ class MacroDriver:
                     
             case [_, 2, mode, []]: # any app, any more and no layers
                 logger.debug("Btn 2, no layers")
-                tools.mediaTimerV2("Spotify")
+                #tools.mediaTimerV2("Spotify")
+                threading.Thread(target=Spotify.press, args=()).start()    
 
             case [_, 2, mode, [1]]: # any app, any more and btn 1 as layer
                 logger.debug("Btn 2, btn 1 as layer")
@@ -265,20 +271,25 @@ class MacroDriver:
             
             case [_, 2, mode, ['Mode']]: # any app, any more and btn 1 as layer
                 logger.debug("Like")
-                tools.spotifyControl("Like")
-                #tools.mediaTimerV1("Chrome")
+                #tools.spotifyControl("Like")
+                threading.Thread(target=Spotify.event_handler, args=('Like',)).start()    
 
             case [_, 2, mode, [3, 4]]: # any app, any more and btn 1 as layer
                 logger.debug("Moves Spotify to the current virtual Desktop")
-                tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Current')
+                #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Current')
+                threading.Thread(target=Spotify.move_spotify_window, args=('Current',)).start()    
+
                     
             case [_, 2, mode, [3]]:
                 logger.debug("Moves Spotify to the virtual Desktop on the left")
-                tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Left')
+                threading.Thread(target=Spotify.move_spotify_window, args=('Left',)).start()    
+                #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Left')
             
             case [_, 2, mode, [4]]: 
                 logger.debug("Moves Spotify to the virtual Desktop on the right")
-                tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Right')
+                #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Right')
+                threading.Thread(target=Spotify.move_spotify_window, args=('Right',)).start()    
+
             
             case [_, 3, mode, []]:    # move desktop left for any app
                 threading.Thread(target = tools.change_desktop, args=('left', app)).start()

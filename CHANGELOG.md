@@ -1,9 +1,37 @@
 # Change Log
+
+My macro_keyboard project
+
 All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [v2.2.105] - 2024-04-19
  
+Changed how spotify controls work
+
+### Added
+
+- SpotifyController Class
+  All the spotify specific controlls are now in that class.
+  I haven't written any documentation for it yet.
+
+- MediaTimer is a class now
+  It works the same as before.
+  Again, haven't written documentation yet
+
+- The taskbar icon and the logger now get the version from the CHANGELOG.md file
+
+### Changed
+- Removed most of the VirtualDesktopAccessor.dll Functions.
+ 
+- Commented out spotifyControl and moveSpotifyAccrossDesktops functionns
+
+### Fixed
+- N/A
+
+
 ## [v2.2.101] - 2024-04-18
  
 First CHANGELOG commit

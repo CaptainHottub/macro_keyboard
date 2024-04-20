@@ -10,6 +10,22 @@ toaster = ToastNotifier()
 #Script directory
 script_path = os.path.dirname(os.path.abspath(__file__))
 log_folder_path = r'C:\Users\Taylor\Desktop\Macro Logs'
+def get_version():
+    try:
+        string_with_version_in_it = ''
+        with open('CHANGELOG.md','r') as file:
+            for line in file:
+                if '##' in line:
+                    string_with_version_in_it = line
+                    file.close()
+                    break    
+                
+        version = string_with_version_in_it[4:12]
+    except FileNotFoundError:
+        print('CHANGELOG.md Not Found, version will be ""')
+        version = ''
+
+    return version
 
 def log_folder(log_folder_path):
     """Returns path to log folder with version name.\n
@@ -17,10 +33,10 @@ def log_folder(log_folder_path):
     
     Define log_folder_path as the path of the log folder you want.
     """
-    version = __file__.split('\\')[-2]
-    version = version.upper()
+    # version = __file__.split('\\')[-2]
+    # version = version.upper()
         
-    log_folder = f'{log_folder_path}\{version}'
+    log_folder = f'{log_folder_path}\{get_version()}'
 
     if os.path.isdir(log_folder):
         return log_folder

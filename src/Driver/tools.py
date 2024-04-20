@@ -20,7 +20,8 @@ import ctypes
 import ctypes.wintypes as wintypes
 from ctypes.wintypes import DWORD, HWND
 
-from pywinauto.application import Application, ProcessNotFoundError
+#from pywinauto.application import Application, ProcessNotFoundError
+import pywinauto
 import psutil
 import os
 
@@ -202,60 +203,6 @@ def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
         logger.warning(e)
     time.sleep(timeout)
 
-#############################################     These use VirtualDesktopAccessor.dll    #############################################
-# def GetWindowHwndFromPid(pid):
-#     """
-#     This code is from here: #https://stackoverflow.com/questions/60879235/python-windows-10-launching-an-application-on-a-specific-virtual-desktop-envir
-#     I can sort of understand it, so I wont explain it.
-#     """
-        
-#     current_window = 0
-#     pid_local = DWORD()
-#     while True:
-#         # current_window = windll.User32.FindWindowExA(0, current_window, 0, 0)
-#         # windll.user32.GetWindowThreadProcessId(current_window, byref(pid_local))
-#         ctypes.WinDLL('user32').GetWindowThreadProcessId(current_window, ctypes.byref(pid_local))
-#         ctypes.WinDLL('user32').FindWindowExA(0, current_window, 0, 0)
-        
-
-        
-#         #GetWindowThreadProcessId(current_window, ctypes.byref(pid_local))
-#         logger.debug(current_window)
-                
-#         if pid == pid_local.value:
-           
-#             yield current_window
-#             #yield current_window
-
-#         if current_window == 0:
-#             return
-
-# def GetParentsFromList(windows: list) -> HWND:
-#     """
-#     Returns the parent HWND of a list of HWND
-#     """
-#     parents = []
-#     for window in windows:
-#         parent = GetParent(window)
-#         #print(window, parent)
-#         if parent != 0:
-#             parents.append(parent)
-
-#     return parents
-
-# def IsWindowOnDesktop(hwnd: HWND) -> bool:
-#     """
-#     Returns a Bool of is the HWND if on the CurrentVirtualDesktop
-#     """
-#     return  bool(virtual_desktop_accessor.IsWindowOnCurrentVirtualDesktop(hwnd))
-
-# def MoveAppToCurrentDesktop(hwnd: HWND):
-#     current_window = CurrentDesktopNumber()
-
-#     if not IsWindowOnDesktop(hwnd): # that app is not on current desktop
-#         virtual_desktop_accessor.MoveWindowToDesktopNumber(hwnd, current_window)
-
-
 ###############     These are all macros     ###############
 
 def sheild_focus_star_citizen(key): #macro to focus ship shields in star citizen
@@ -385,6 +332,8 @@ def ButtonMode(mode):
     """
     pyautogui.alert(ButtonDescriptions, "Button Mode")  
 
+
+# I could probably swap Azure for pyttsx3 
 def textToSpeech():
     logger.info("in textToSpeech")
     """Microsoft Azure moves to TLS 1.2 On October 31 2024
@@ -399,31 +348,6 @@ def textToSpeech():
     speech_synthesizer.speak_text(text)
 
     #speech_synthesis_result = speech_synthesizer.speak_text_async(text)
-
-    #print(repr(text))
-    #Formats the text
-
-    # text1 = text.replace("\r\n\r\n", "")
-
-    # text2 = text1.split(". ")
-
-    # text3 = [f'{i}.' for i in text2 if i != '']
-
-    # logger.debug(text3)
-    # for i in text3:
-    #     if len(i) > 1:
-    #         speech_synthesis_result = speech_synthesizer.speak_text_async(i)
-    #         time.sleep(0.2)
-
-    # #Old Formating
-    # #print(repr(good_text))
-    # cleaned_text = text.replace("\r\n", " ")    
-    # good_text = cleaned_text.split(". ")
-    # logger.debug(good_text)
-
-    # for i in good_text:
-    #     if len(i) > 1:
-    #         speech_synthesis_result = speech_synthesizer.speak_text_async(i)
 
 def stopSpeech():
     logger.info("in stopSpeech")
@@ -470,31 +394,31 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
         perform_hotkey(['ctrl', 'win', direction])
 
 
-def moveSpotifyAccrossDesktops(name:str, movement: str)-> None:
-    """This just gets Spotify's HWND, Spotify's title changes  to the song that is playing, so that makes it more difficult to filter it out.
+# def moveSpotifyAccrossDesktops(name:str, movement: str)-> None:
+#     """This just gets Spotify's HWND, Spotify's title changes  to the song that is playing, so that makes it more difficult to filter it out.
 
-    Args:
-        name (str): _description_
-        movement (str): _description_
-    """
+#     Args:
+#         name (str): _description_
+#         movement (str): _description_
+#     """
     
-    hwnd = hwndGetter(name)
-    if hwnd is None:
-        logger.debug('either spotify is not running or a song is playing.')
-        PID = pidGetter('Spotify')
-        if PID is None:
-            logger.debug('Spotify is not running')
-            launchApp('Spotify', timeout=1)
-            moveSpotifyAccrossDesktops(name, movement)
+#     hwnd = hwndGetter(name)
+#     if hwnd is None:
+#         logger.debug('either spotify is not running or a song is playing.')
+#         PID = pidGetter('Spotify')
+#         if PID is None:
+#             logger.debug('Spotify is not running')
+#             launchApp('Spotify', timeout=1)
+#             moveSpotifyAccrossDesktops(name, movement)
         
-        processes = get_processes()
+#         processes = get_processes()
 
-        for process in processes:
-            if process['PID'] == PID:
-                hwnd = process['HWND']
-                logger.debug(f"found the {hwnd=}")
-                break
-    moveAppAccrossDesktops(hwnd, movement)
+#         for process in processes:
+#             if process['PID'] == PID:
+#                 hwnd = process['HWND']
+#                 logger.debug(f"found the {hwnd=}")
+#                 break
+#     moveAppAccrossDesktops(hwnd, movement)
     
 def moveAppAccrossDesktops(hwnd_or_name: HWND|str, movement: str) -> int:
     """Moves an app accross desktops.
@@ -583,7 +507,7 @@ def mediaTimerV2(destination: str, timeout = 0.4, count=[0]):  # this is basical
             "PrevTrack"]
         
         DESTINATIONS = {
-            'Spotify': spotifyControl,
+            # 'Spotify': spotifyControl,
             'Chrome': chromeAudioControl
         }
         
@@ -621,82 +545,82 @@ def mediaTimerV2(destination: str, timeout = 0.4, count=[0]):  # this is basical
     else:
         logger.debug("thread I want is running")
 
-spotify_PID = False
+# spotify_PID = False
 Chrome_Parent_PID = False
 ##Controlls Spotify
-def spotifyControl(action):
-    """Uses pywinauto to connect and send keystrokes to Spotify.    
+# def spotifyControl(action):
+#     """Uses pywinauto to connect and send keystrokes to Spotify.    
 
-    These are the available actions:
-     - "VolumeUp"
-     - "VolumeDown"
-     - "PrevTrack"
-     - "NextTrack"
-     - "PlayPause"
-     - "Back5s"
-     - "Forward5s"
-     - "Like"
+#     These are the available actions:
+#      - "VolumeUp"
+#      - "VolumeDown"
+#      - "PrevTrack"
+#      - "NextTrack"
+#      - "PlayPause"
+#      - "Back5s"
+#      - "Forward5s"
+#      - "Like"
 
-    To use simply:
+#     To use simply:
 
-    spotifyControl("PrevTrack")
-    """
-    logger.debug("in spotifyControlTest")
+#     spotifyControl("PrevTrack")
+#     """
+#     logger.debug("in spotifyControlTest")
     
-    SPOTIFY_HOTKEYS = {
-        "VolumeUp": "^{UP}",
-        "VolumeDown": "^{DOWN}",
-        "PrevTrack": "^{LEFT}",
-        "NextTrack": "^{RIGHT}",
-        "PlayPause": "{SPACE}",
-        "Back5s": "+{LEFT}",
-        "Forward5s": "+{RIGHT}",
-        "Like": "%+{B}",
-        "Quit": "",
-    }
+#     SPOTIFY_HOTKEYS = {
+#         "VolumeUp": "^{UP}",
+#         "VolumeDown": "^{DOWN}",
+#         "PrevTrack": "^{LEFT}",
+#         "NextTrack": "^{RIGHT}",
+#         "PlayPause": "{SPACE}",
+#         "Back5s": "+{LEFT}",
+#         "Forward5s": "+{RIGHT}",
+#         "Like": "%+{B}",
+#         "Quit": "",
+#     }
 
-    """
-    How this is currently setup, the little media player popup doesnt show up. so it I dont know what the song is.    
-    That would mean I wouldnt need modern flyouts.
-    """
-    global spotify_PID
-    if spotify_PID is False:
-        logger.debug("spotify_PID is False")
-        PID = pidGetter('Spotify')
-        if PID is None:
-            print('There is no app with name of "Spotify"')
-            launchApp('Spotify')
-            spotifyControl(action)
-            #return
-        spotify_PID = PID
+#     """
+#     How this is currently setup, the little media player popup doesnt show up. so it I dont know what the song is.    
+#     That would mean I wouldnt need modern flyouts.
+#     """
+#     global spotify_PID
+#     if spotify_PID is False:
+#         logger.debug("spotify_PID is False")
+#         PID = pidGetter('Spotify')
+#         if PID is None:
+#             print('There is no app with name of "Spotify"')
+#             launchApp('Spotify')
+#             spotifyControl(action)
+#             #return
+#         spotify_PID = PID
     
     
-    #print(spotify_PID)
+#     #print(spotify_PID)
 
-    #https://github.com/mavvos/SpotifyGlobal/blob/main/SpotifyGlobal.py#L118
-    try:
-        app = Application().connect(process=spotify_PID, timeout=2)
+#     #https://github.com/mavvos/SpotifyGlobal/blob/main/SpotifyGlobal.py#L118
+#     try:
+#         app = pywinauto.application.Application().connect(process=spotify_PID, timeout=2)
         
-        spotify = app["Chrome_Widget_Win0"]
-        spotify.send_keystrokes(SPOTIFY_HOTKEYS[action])
-        # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
-        # spotify.send_keystrokes(SPOTIFY_HOTKEYS["Forward5s"])
-        # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
+#         spotify = app["Chrome_Widget_Win0"]
+#         spotify.send_keystrokes(SPOTIFY_HOTKEYS[action])
+#         # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
+#         # spotify.send_keystrokes(SPOTIFY_HOTKEYS["Forward5s"])
+#         # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
 
-    except ProcessNotFoundError: #### Will have to modify this, so that it checks if spotify is running. 
-        logger.warning('Process was not Found')
+#     except pywinauto.application.ProcessNotFoundError: #### Will have to modify this, so that it checks if spotify is running. 
+#         logger.warning('Process was not Found')
 
-        PID = pidGetter('Spotify')
-        if PID is None:
-            logger.debug('There is no app with name of "Spotify"')
-            launchApp('Spotify', timeout=1)
-            spotify_PID = False
+#         PID = pidGetter('Spotify')
+#         if PID is None:
+#             logger.debug('There is no app with name of "Spotify"')
+#             launchApp('Spotify', timeout=1)
+#             spotify_PID = False
             
-        else:
-            logger.debug("had the wrong PID")
-            spotify_PID = PID
+#         else:
+#             logger.debug("had the wrong PID")
+#             spotify_PID = PID
             
-        spotifyControl(action)
+#         spotifyControl(action)
 
 def chromeAudioControl(action):
     """Uses pywinauto to connect and interact with chromes media controls   
@@ -739,7 +663,7 @@ def chromeAudioControl(action):
 
     logger.debug("Got PID")
 
-    app = Application(backend="uia").connect(process=Chrome_Parent_PID)
+    app = pywinauto.application.Application(backend="uia").connect(process=Chrome_Parent_PID)
 
     logger.debug("Connected to Chrome")
 
@@ -777,3 +701,136 @@ def chromeAudioControl(action):
 
     media_control_button.click()
     logger.debug("Closed tab")
+
+class MediaTimer:
+    """
+    This will sometimes return None
+    """
+    def __init__(self):
+        self.timer_active = False
+        self.count = 0
+        
+        self.ACTIONS = [
+            "PlayPause",
+            "NextTrack",
+            "PrevTrack"]
+
+    def start_timer(self, duration):
+        self.timer_active = True
+        time.sleep(duration)
+        self.timer_active = False
+        return self.handle_action()
+
+    def handle_action(self):
+        try:
+        
+            action = self.ACTIONS[self.count-1]
+            self.count = 0  # Reset count after handling action
+            return action
+        except IndexError:
+            logger.warning(f'Button was pressed to many times. You pressed it {self.count} times.\n')
+            self.count = 0
+
+    def press_button(self):
+        self.count += 1     
+        
+        if not self.timer_active:
+            return self.start_timer(0.55)
+    
+class SpotifyController:
+    """A Controller Class for Spotify
+    """
+    def __init__(self):
+        self.SPOTIFY_HOTKEYS = {
+                "VolumeUp": "^{UP}",
+                "VolumeDown": "^{DOWN}",
+                "PrevTrack": "^{LEFT}",
+                "NextTrack": "^{RIGHT}",
+                "PlayPause": "{SPACE}",
+                "Back5s": "+{LEFT}",
+                "Forward5s": "+{RIGHT}",
+                "Like": "%+{B}",
+                "Quit": "",
+            }
+        
+        self.mediaTimer = MediaTimer()
+        self.spotify_app = None
+        
+        self.spotify_HWND = None
+        #self.spotify_app = self._connect()
+               
+    def _app_connect(self):
+        if PID := pidGetter('Spotify'):
+            app = pywinauto.application.Application().connect(process=PID, timeout=2)
+        else:
+            logger.debug("Couldn't find spotify")
+            launchApp('Spotify')
+            time.sleep(0.75)
+            app = pywinauto.application.Application().connect(process=pidGetter('Spotify'), timeout=2)
+        app = app["Chrome_Widget_Win0"]
+        
+        return app
+        
+    def _get_spotify_HWND(self):
+        # Put into its own function, where a param is a key you want to filter by
+        processes = get_processes()
+        sorted_processes_by_Pid= sorted(processes, key=lambda x: x['PID'])
+        
+        for index, process in enumerate(sorted_processes_by_Pid):
+            
+            if 'GDI+ Window (Spotify.exe)' in process['Title']:
+                PID = process['PID']
+                process_above_in_the_list = sorted_processes_by_Pid[index - 1]
+                
+                if process_above_in_the_list['PID'] == PID:
+                    
+                    spotify = process_above_in_the_list
+                    
+                    break
+            
+        print(spotify)   
+         
+        if not spotify:
+            logger.debug("looks like spotify is not running.")
+            
+            self.launch_spotify()
+            
+        self.spotify_HWND = spotify['HWND']
+            
+    def launch_spotify(self):
+        logger.debug("Launching Spotify")
+        
+        launchApp('Spotify')
+        time.sleep(0.75)
+        
+        self.spotify_app = self._app_connect()
+        
+    def event_handler(self, event):
+        if self.spotify_app is None:
+            self.spotify_app = self._app_connect()
+            
+        try:
+            self.spotify_app.send_keystrokes(self.SPOTIFY_HOTKEYS[event])
+        
+        except pywinauto.findbestmatch.MatchError:
+            logger.warning("Spotify Timed out, will asume its not running.")
+            self.launch_spotify()
+            self.spotify_app.send_keystrokes(self.SPOTIFY_HOTKEYS[event])
+
+    def press(self):
+        if result := self.mediaTimer.press_button():
+            logger.debug(result)
+            self.event_handler(result)
+
+    def move_spotify_window(self, direction):
+        if not self.spotify_HWND:
+            self._get_spotify_HWND()
+            
+        moveAppAccrossDesktops(self.spotify_HWND, direction)
+
+class ChromeController:
+    """A Controller Class for Chrome
+    Its not implemented yet
+    """
+    def __init__(self):
+        raise NotImplementedError
