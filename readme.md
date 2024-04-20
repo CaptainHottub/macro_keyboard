@@ -13,10 +13,11 @@ I have one macro that moves Spotify to the current desktop.
 
 This is a work in progress.
 
-Everything in MacroV1 uses Ryan Bates Macro Keyboard Ver2.0 PCB.
-http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/  
+All of this was inspired by Ryan Bates and his [Macro Keyboard Video][video-inspiration]
 
-Everything in MacroV2 is my own design.  
+[Website][retrobuilds]
+
+
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/pcb.jpg?raw=true)
 
 I  have one button that works like the button on the old wired headphones from Apple.
@@ -25,12 +26,11 @@ I  have one button that works like the button on the old wired headphones from A
 previous versions of it would use the play pause virtual key, and a downside is Google Chrome and possibly other chromium-based browsers interact with it too. To stop Google Chromes interaction with media keys you need to disable a flag: chrome://flags/#hardware-media-key-handling
 But on the current version, I use a different method to interact with Spotify that doesn't use the play pause virtual key.
 
-With MacroV2 I have added rotary encoders to the PCB and the possibility of using layers.
+I have added rotary encoders to the PCB and the possibility of using layers.
 Buttons that I hold down for long enough act like layers, they work similarly to the shift key, and how you get 3 without it and # with it.
 Or like the fn key on laptops.
 
 The way I wrote the microcontroller code is that any key can be a layer and the only limit to how many you can have presses is the number of buttons connected to the microcontroller.
-
 
 
 
@@ -39,5 +39,9 @@ This work is licensed under a
 
 [![CC BY-NC 4.0][cc-by-nc-image]][cc-by-nc]
 
+
 [cc-by-nc]: https://creativecommons.org/licenses/by-nc/4.0/
 [cc-by-nc-image]: https://licensebuttons.net/l/by-nc/4.0/88x31.png
+
+[retrobuilds]: http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/ 
+[video-inspiration]: https://www.youtube.com/watch?v=IDlcxLQ1SbY
