@@ -13,6 +13,20 @@ Changed how spotify controls work
 
 ### Added
 
+- Added a zoomin and zoomout macro for LibreOffice Draw
+
+### Changed
+- N/A
+
+### Fixed
+- N/A
+
+## [v2.2.105] - 2024-04-19
+ 
+Changed how spotify controls work
+
+### Added
+
 - SpotifyController Class
   All the spotify specific controlls are now in that class.
   I haven't written any documentation for it yet.

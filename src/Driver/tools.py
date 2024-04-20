@@ -129,6 +129,17 @@ def perform_press(key):
     #logger.debug(f"perform_press {key = }")
     custom_keyboard.press(key)
 
+
+def libreOffice_zoomin():
+    custom_keyboard.keyDown('ctrl')
+    pyautogui.hscroll(10)
+    custom_keyboard.keyUp('ctrl')
+
+def libreOffice_zoomout():
+    custom_keyboard.keyDown('ctrl')
+    pyautogui.hscroll(-10)
+    custom_keyboard.keyUp('ctrl')
+
 def get_processes():
     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
     """

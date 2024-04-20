@@ -179,34 +179,42 @@ class MacroDriver:
     def Encoder_handler(self):
         #print(self.button, self.event_type, self.layers)
 
-        match [self.button, self.event_type, self.layers]:
+        match [self.app, self.button, self.event_type, self.layers]:
             ########################################    Encoder 1    ########################################
-            case ["Encoder1", "RL", []]:
+            case [_, "Encoder1", "RL", []]:
                 logger.debug('VolumeDown')
                 #tools.spotifyControl("VolumeDown")
                 threading.Thread(target=Spotify.event_handler, args=('VolumeDown',)).start()    
             
-            case ["Encoder1", "RR", []]:
+            case [_, "Encoder1", "RR", []]:
                 logger.debug('VolumeUp')
                 #tools.spotifyControl("VolumeUp")
                 threading.Thread(target=Spotify.event_handler, args=('VolumeUp',)).start()    
             
-            case ["Encoder1", "RLB", []]:
+            case [_, "Encoder1", "RLB", []]:
                 logger.debug('Back5s')
                 #tools.spotifyControl("Back5s")
                 threading.Thread(target=Spotify.event_handler, args=('Back5s',)).start()    
             
-            case ["Encoder1", "RRB", []]:
+            case [_, "Encoder1", "RRB", []]:
                 logger.debug('Forward5s')
                 #tools.spotifyControl("Forward5s")
                 threading.Thread(target=Spotify.event_handler, args=('Forward5s',)).start()    
 
             ########################################    Encoder 2    ########################################
-            case ["Encoder2", "RL", []]:
+            case ['LibreOffice Draw', "Encoder2", "RL", []]:
+                logger.debug('Encoder2 rotate left, zoming out')
+                tools.libreOffice_zoomout()
+        
+            case ['LibreOffice Draw', "Encoder2", "RR", []]:
+                logger.debug('Encoder2 rotate right, zoming in')
+                tools.libreOffice_zoomin()
+            
+            case [_, "Encoder2", "RL", []]:
                 logger.debug('Encoder2 rotate left, zoming out')
                 tools.perform_hotkey(['ctrl', '-'])
         
-            case ["Encoder2", "RR", []]:
+            case [_, "Encoder2", "RR", []]:
                 logger.debug('Encoder2 rotate right, zoming in')
                 tools.perform_hotkey(['ctrl', '='])  
                 """
@@ -215,11 +223,11 @@ class MacroDriver:
                 and in adobe acrobat pdf extension, 'ctrl' + 'shift' + '=' rotates the page.
                 """
 
-            case ["Encoder2", "RR", ["Mode"]]:
+            case [_, "Encoder2", "RR", ["Mode"]]:
                 logger.debug('Encoder2 rotate right with mode, reseting zoom')
                 tools.perform_hotkey(['ctrl', '0'])  
 
-            case ["Encoder2", "RLB", []]:
+            case [_, "Encoder2", "RLB", []]:
                 logger.debug('Encoder2 rotate left w/ button, left arrow')
                 tools.perform_press('left')
 
@@ -230,17 +238,17 @@ class MacroDriver:
     def Button_handlerV3(self):
         #logger.debug("Button_handlerV2")
 
-        focused_window = tools.get_focused()
+        # focused_window = tools.get_focused()
 
-        if focused_window is None:
-            app = 'Desktop'
-        else:
-            split_focused_window = focused_window.split(" - ")
-            split_focused_window.reverse()
-            app = split_focused_window[0]
+        # if focused_window is None:
+        #     app = 'Desktop'
+        # else:
+        #     split_focused_window = focused_window.split(" - ")
+        #     split_focused_window.reverse()
+        #     app = split_focused_window[0]
 
 
-        match [app, self.button, self.mode, self.layers]:
+        match [self.app, self.button, self.mode, self.layers]:
             #Format: 
             #case [AppName, "ButtonNumber", "MacroMode"]:
             # Leave AppName _ for any app
@@ -254,11 +262,11 @@ class MacroDriver:
 
             case [_, 1, mode, [3]]:
                 logger.debug("Moves currently foccused to the virtual Desktop on the left")
-                tools.moveAppAccrossDesktops(app, 'Left')
+                tools.moveAppAccrossDesktops(self.app, 'Left')
                 
             case [_, 1, mode, [4]]: 
                 logger.debug("Moves currently foccused to the virtual Desktop on the right")
-                tools.moveAppAccrossDesktops(app, 'Right')    
+                tools.moveAppAccrossDesktops(self.app, 'Right')    
                     
             case [_, 2, mode, []]: # any app, any more and no layers
                 logger.debug("Btn 2, no layers")
@@ -292,10 +300,10 @@ class MacroDriver:
 
             
             case [_, 3, mode, []]:    # move desktop left for any app
-                threading.Thread(target = tools.change_desktop, args=('left', app)).start()
+                threading.Thread(target = tools.change_desktop, args=('left', self.app)).start()
 
             case [_, 4, mode, []]:     # move desktop right for any app   
-                threading.Thread(target = tools.change_desktop, args=('right', app)).start()
+                threading.Thread(target = tools.change_desktop, args=('right', self.app)).start()
             
 
 
@@ -384,6 +392,17 @@ class MacroDriver:
         
     def Event_handler(self):
         logger.info(f"{self.button, self.event_type, self.layers}")
+
+        focused_window = tools.get_focused()
+
+        if focused_window is None:
+            app = 'Desktop'
+        else:
+            split_focused_window = focused_window.split(" - ")
+            split_focused_window.reverse()
+            app = split_focused_window[0]
+        
+        self.app = app
 
         if self.button in ["Encoder1", "Encoder2"]:
             self.Encoder_handler()
