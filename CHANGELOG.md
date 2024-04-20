@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [v2.2.105] - 2024-04-19
+## [v2.2.107] - 2024-04-19
  
 Changed how spotify controls work
 
