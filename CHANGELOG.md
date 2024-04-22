@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.108] - 2024-04-22
+ 
+chromeAudioControl is more reliable
+
+### Changed
+- I believe I made chromeAudioControl more reliable
+
 ## [v2.2.107] - 2024-04-19
  
 Changed how spotify controls work

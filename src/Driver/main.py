@@ -10,7 +10,7 @@ import threading
 def get_version():
     try:
         string_with_version_in_it = ''
-        with open('CHANGELOG.md','r') as file:
+        with open(r'C:\Coding\macro_keyboard\CHANGELOG.md','r') as file:
             for line in file:
                 if '##' in line:
                     string_with_version_in_it = line

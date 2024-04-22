@@ -140,6 +140,7 @@ def libreOffice_zoomout():
     pyautogui.hscroll(-10)
     custom_keyboard.keyUp('ctrl')
 
+
 def get_processes():
     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
     """
@@ -635,6 +636,8 @@ Chrome_Parent_PID = False
 
 def chromeAudioControl(action):
     """Uses pywinauto to connect and interact with chromes media controls   
+    
+    The media controls is a little symbol that shows up at the top right of chrome, next to your account profile picture
 
     These are the available actions:
      - "PrevTrack"
@@ -695,19 +698,41 @@ def chromeAudioControl(action):
 
     logger.debug("got media_controls")
 
+    """
+    The media_controls list will be 6 items long normaly.
+    There are 2 things that can change to lenght of that list.
+    1: if your mouse if hovering over it when python clicks on it
+        it will add a : uia_controls.ButtonWrapper - 'Dismiss', Button to the list
+    2: if the video is in a playlist, it will add the following to the list
+        uia_controls.ButtonWrapper - 'Previous Track', Button
+        uia_controls.ButtonWrapper - 'Next Track', Button
+        
+    the structure of media_controls will be:
+        Dismiss
+        Video Title
+        Video Creator
+        Previous Track
+        Seek Backward
+        Play / Pause
+        Seek Forward
+        Next Track
+        Enter picture-in-picture
+        
+    """
+
     actions = {
-        'PrevTrack': 1,
-        'SeekBackward': 2,
-        'PlayPause': 3,
-        'SeekForward': 4,
-        'NextTrack': 5}
+        'PrevTrack': 'Previous Track',
+        'SeekBackward': 'Seek Backward',
+        'PlayPause': 'Play Pause',
+        'SeekForward': 'Seek Forward',
+        'NextTrack': 'Next Track'}
     
-    num = actions[action]
-
-    if len(media_controls) == 9:
-        num += 1
-    media_controls[num].click()
-
+    new_action = actions[action]
+    for index, controls in enumerate(media_controls):
+        if controls.window_text() in new_action:
+            logger.debug("I found the button")
+            media_controls[index].click()
+            break
     logger.debug(f"pressed media_controls {actions[action]}")
 
     media_control_button.click()
