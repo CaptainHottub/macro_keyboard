@@ -5,6 +5,9 @@ import threading
 import time
 
 Spotify = tools.SpotifyController()
+YTMusic = tools.YTMusicController()
+Chrome = tools.ChromeController()
+
 
 class MacroDriver:
     def __init__(self, baud_rate = 19200, mode = 1):
@@ -16,6 +19,7 @@ class MacroDriver:
         self.button = 0
         self.event_type = ''
         self.layers = []
+        self.focused_window_hwnd = None
         
     # add a mode function to this
     # when called it increases the mode by 1 then at 3 it resets to 1
@@ -248,67 +252,217 @@ class MacroDriver:
         #     app = split_focused_window[0]
 
 
-        match [self.app, self.button, self.mode, self.layers]:
+        # match [self.app, self.button, self.mode, self.layers]:
+        #     #Format: 
+        #     #case [AppName, "ButtonNumber", "MacroMode"]:
+        #     # Leave AppName _ for any app
+        #     # MacroMode as mode for any mode
+        #     # Layers is a list of layers where "Mode" will be the last one
+            
+        #     # Any app and Any Mode    And that are prioritives 
+        #     case [_, 1, mode, []]:    # Shows what each button is defined as
+        #         logger.debug("ButtonMode")
+        #         threading.Thread(target = tools.ButtonMode, args=(mode, )).start()   
+
+        #     case [_, 1, mode, [3]]:
+        #         logger.debug("Moves currently foccused to the virtual Desktop on the left")
+        #         tools.moveAppAccrossDesktops(self.app, 'Left')
+                
+        #     case [_, 1, mode, [4]]: 
+        #         logger.debug("Moves currently foccused to the virtual Desktop on the right")
+        #         tools.moveAppAccrossDesktops(self.app, 'Right')    
+                    
+        #     case [_, 2, mode, []]: # any app, any more and no layers
+        #         logger.debug("Btn 2, no layers")
+        #         #tools.mediaTimerV2("Spotify")
+        #         threading.Thread(target=Spotify.press, args=()).start()    
+        #         #threading.Thread(target=YTMusic.press, args=()).start()    
+
+        #     case [_, 2, mode, [1]]: # any app, any more and btn 1 as layer
+        #         logger.debug("Btn 2, btn 1 as layer")
+        #         #tools.mediaTimerV2("Chrome")
+        #         threading.Thread(target=YTMusic.press, args=()).start() 
+            
+        #     case [_, 2, mode, ['Mode']]: # any app, any more and btn 1 as layer
+        #         logger.debug("Like")
+        #         #tools.spotifyControl("Like")
+        #         threading.Thread(target=Spotify.event_handler, args=('Like',)).start()    
+
+        #     case [_, 2, mode, [3, 4]]: # any app, any more and btn 1 as layer
+        #         logger.debug("Moves Spotify to the current virtual Desktop")
+        #         #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Current')
+        #         threading.Thread(target=Spotify.move_spotify_window, args=('Current',)).start()    
+
+                    
+        #     case [_, 2, mode, [3]]:
+        #         logger.debug("Moves Spotify to the virtual Desktop on the left")
+        #         threading.Thread(target=Spotify.move_spotify_window, args=('Left',)).start()    
+        #         #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Left')
+            
+        #     case [_, 2, mode, [4]]: 
+        #         logger.debug("Moves Spotify to the virtual Desktop on the right")
+        #         #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Right')
+        #         threading.Thread(target=Spotify.move_spotify_window, args=('Right',)).start()    
+
+            
+        #     case [_, 3, mode, []]:    # move desktop left for any app
+        #         threading.Thread(target = tools.change_desktop, args=('left', self.app)).start()
+
+        #     case [_, 4, mode, []]:     # move desktop right for any app   
+        #         threading.Thread(target = tools.change_desktop, args=('right', self.app)).start()
+            
+
+
+
+        #     case [_, 12, mode, []]:     # Pause button press
+        #         logger.debug("Pause button press")
+        #         self.change_pause_state()
+
+        #         #main.on_clicked(None, lambda item: True)
+
+            
+
+        #     # TEST
+        #     case ["Destiny 2", 5, mode, []]: # Rocket Flying Test
+        #         #left clicks, then presses q, then moves mouse down 15 pixels
+        #         logger.debug("Rocket Flying Test")
+        #         tools.rocket_flying()
+
+        #     case ["Destiny 2", 6, mode, []]: # Wellskate Test
+        #         tools.wellskate()
+
+
+        #     # Specific app and Any Mode
+        #     # VS Code Layer
+        #     case ["Visual Studio Code", 5, mode, []]: # run code in Vs code
+        #         logger.debug("run code in Vs code")
+        #         tools.perform_hotkey(['ctrl', 'alt', 'n'])
+
+        #     # Star Citizen Layer
+        #     case ["Star Citizen", 5, mode, []]: # focus front shields
+        #         tools.sheild_focus_star_citizen("1")
+
+        #     case ["Star Citizen", 6, mode, []]: # focus back shields
+        #         tools.sheild_focus_star_citizen("2")
+
+        #     case ["Star Citizen", 7, mode, []]: # Reset shields
+        #         tools.sheild_focus_star_citizen("3")
+
+
+        #     # # Any App, Specific Mode
+        #     # case [_, 5, "2"]:     # Cut (Ctrl + x)
+        #     #     logger.debug("Audacity Cut (Ctrl + x)")
+        #     #     tools.perform_hotkey(['ctrl', 'x'])
+
+        #     # case [_, 6, "2"]:     # Audacity Split Ctrl + i 
+        #     #     logger.debug("Audacity Split (ctrl + i)")
+        #     #     tools.perform_hotkey(['ctrl', 'i'])       
+
+        #     # case [_, 9, "2"]:     # Backspace
+        #     #     logger.debug("Backspace")               
+        #     #     tools.perform_press(['backspace'])
+
+
+        #     # Macros that are last priority.     
+        #     case [_, 5, mode, []]:   # Text to speech
+        #         logger.debug("Text to speech")
+        #         tools.textToSpeech()
+        #         #custom_keyboard.hotkey('ctrl', 'c')
+        #         #threading.Thread(target = tools.Image_to_text2).start()
+                
+        #     case [_, 6, mode, []]:   # Stop Speech
+        #         logger.debug("Stop Speech")
+        #         tools.stopSpeech()
+        #         #threading.Thread(target = tools.Image_to_text2).start()
+
+        #     case [_, 7, mode, []]:   # Copy
+        #         #logger.debug("Copy")
+        #         #NOTE : this can cause a keyboard interupt if used in terminal
+        #         tools.perform_hotkey(['ctrl', 'c'])             
+
+        #     case [_, 8, mode, []]:   # Paste 
+        #         #logger.debug("Paste")
+        #         tools.perform_hotkey(['ctrl', 'v'])
+
+        #     case [_, 9, mode, []]:   # Search highlighted text
+        #         #logger.debug("Search highlighted text")
+        #         tools.search_highlighted_text()
+
+        #     case [_, 10, mode, []]:     # runs Task Manager      is button 10
+        #         logger.debug("Starting Task manager")
+        #         tools.perform_hotkey(['ctrl', 'shift', 'esc'])
+
+        #     case [_, 11, mode, []]:   #image to text             is button 11
+        #         logger.debug("Image to text")
+        #         threading.Thread(target = tools.Image_to_text2).start()
+        
+        match [self.app, self.mode, self.button, self.layers]:
             #Format: 
-            #case [AppName, "ButtonNumber", "MacroMode"]:
+            #case [AppName, "MacroMode", "ButtonNumber"]:
             # Leave AppName _ for any app
             # MacroMode as mode for any mode
             # Layers is a list of layers where "Mode" will be the last one
             
             # Any app and Any Mode    And that are prioritives 
-            case [_, 1, mode, []]:    # Shows what each button is defined as
+            case [_, mode, 1, []]:    # Shows what each button is defined as
                 logger.debug("ButtonMode")
                 threading.Thread(target = tools.ButtonMode, args=(mode, )).start()   
 
-            case [_, 1, mode, [3]]:
+            case [_, mode, 1, [3]]:
                 logger.debug("Moves currently foccused to the virtual Desktop on the left")
-                tools.moveAppAccrossDesktops(self.app, 'Left')
+                tools.moveAppAccrossDesktops(self.focused_window_hwnd, 'Left')
                 
-            case [_, 1, mode, [4]]: 
+            case [_, mode, 1, [4]]: 
                 logger.debug("Moves currently foccused to the virtual Desktop on the right")
-                tools.moveAppAccrossDesktops(self.app, 'Right')    
+                tools.moveAppAccrossDesktops(self.focused_window_hwnd, 'Right')    
                     
-            case [_, 2, mode, []]: # any app, any more and no layers
+            case [_, mode, 2, []]: # any app, any mode and no layers
                 logger.debug("Btn 2, no layers")
                 #tools.mediaTimerV2("Spotify")
                 threading.Thread(target=Spotify.press, args=()).start()    
+                #threading.Thread(target=YTMusic.press, args=()).start()    
 
-            case [_, 2, mode, [1]]: # any app, any more and btn 1 as layer
+            case [_, mode, 2, [1]]: # any app, any mode and btn 1 as layer
                 logger.debug("Btn 2, btn 1 as layer")
-                tools.mediaTimerV2("Chrome")
+                #tools.mediaTimerV2("Chrome")
+                threading.Thread(target=YTMusic.press, args=()).start() 
             
-            case [_, 2, mode, ['Mode']]: # any app, any more and btn 1 as layer
-                logger.debug("Like")
-                #tools.spotifyControl("Like")
-                threading.Thread(target=Spotify.event_handler, args=('Like',)).start()    
-
-            case [_, 2, mode, [3, 4]]: # any app, any more and btn 1 as layer
+            case [_, mode, 2, [1, 'Mode']]: # any app, any mode and 'Mode' and btn 1 as layer
+                logger.debug("Btn 2, btn 1 as layer")
+                #tools.mediaTimerV2("Chrome")
+                threading.Thread(target=Chrome.press, args=()).start() 
+            
+            # case [_, mode, 2, ['Mode']]: # any app, any mode and Mode as layer
+            #     logger.debug("Like")
+            #     #tools.spotifyControl("Like")
+            #     threading.Thread(target=Spotify.event_handler, args=('Like',)).start()    
+            #Spotify
+            case [_, mode, 2, [3, 4]]: # any app, any mode and btn 3, 4 as layer
                 logger.debug("Moves Spotify to the current virtual Desktop")
                 #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Current')
                 threading.Thread(target=Spotify.move_spotify_window, args=('Current',)).start()    
 
-                    
-            case [_, 2, mode, [3]]:
+            case [_, mode, 2, [3]]:
                 logger.debug("Moves Spotify to the virtual Desktop on the left")
                 threading.Thread(target=Spotify.move_spotify_window, args=('Left',)).start()    
                 #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Left')
             
-            case [_, 2, mode, [4]]: 
+            case [_, mode, 2, [4]]: 
                 logger.debug("Moves Spotify to the virtual Desktop on the right")
                 #tools.moveSpotifyAccrossDesktops('Spotify Premium',  'Right')
                 threading.Thread(target=Spotify.move_spotify_window, args=('Right',)).start()    
 
             
-            case [_, 3, mode, []]:    # move desktop left for any app
+            case [_, mode, 3, []]:    # move desktop left for any app
                 threading.Thread(target = tools.change_desktop, args=('left', self.app)).start()
 
-            case [_, 4, mode, []]:     # move desktop right for any app   
+            case [_, mode, 4, []]:     # move desktop right for any app   
                 threading.Thread(target = tools.change_desktop, args=('right', self.app)).start()
             
 
 
 
-            case [_, 12, mode, []]:     # Pause button press
+            case [_, mode, 12, []]:     # Pause button press
                 logger.debug("Pause button press")
                 self.change_pause_state()
 
@@ -317,88 +471,89 @@ class MacroDriver:
             
 
             # TEST
-            case ["Destiny 2", 5, mode, []]: # Rocket Flying Test
+            case ["Destiny 2", mode, 5, []]: # Rocket Flying Test
                 #left clicks, then presses q, then moves mouse down 15 pixels
                 logger.debug("Rocket Flying Test")
                 tools.rocket_flying()
 
-            case ["Destiny 2", 6, mode, []]: # Wellskate Test
+            case ["Destiny 2", mode, 6, []]: # Wellskate Test
                 tools.wellskate()
 
 
             # Specific app and Any Mode
             # VS Code Layer
-            case ["Visual Studio Code", 5, mode, []]: # run code in Vs code
+            case ["Visual Studio Code", mode, 5, []]: # run code in Vs code
                 logger.debug("run code in Vs code")
                 tools.perform_hotkey(['ctrl', 'alt', 'n'])
 
             # Star Citizen Layer
-            case ["Star Citizen", 5, mode, []]: # focus front shields
+            case ["Star Citizen", mode, 5, []]: # focus front shields
                 tools.sheild_focus_star_citizen("1")
 
-            case ["Star Citizen", 6, mode, []]: # focus back shields
+            case ["Star Citizen", mode, 6, []]: # focus back shields
                 tools.sheild_focus_star_citizen("2")
 
-            case ["Star Citizen", 7, mode, []]: # Reset shields
+            case ["Star Citizen", mode, 7, []]: # Reset shields
                 tools.sheild_focus_star_citizen("3")
 
 
             # # Any App, Specific Mode
-            # case [_, 5, "2"]:     # Cut (Ctrl + x)
+            # case [_, "2", 5]:     # Cut (Ctrl + x)
             #     logger.debug("Audacity Cut (Ctrl + x)")
             #     tools.perform_hotkey(['ctrl', 'x'])
 
-            # case [_, 6, "2"]:     # Audacity Split Ctrl + i 
+            # case [_, "2", 6]:     # Audacity Split Ctrl + i 
             #     logger.debug("Audacity Split (ctrl + i)")
             #     tools.perform_hotkey(['ctrl', 'i'])       
 
-            # case [_, 9, "2"]:     # Backspace
+            # case [_, "2", 9]:     # Backspace
             #     logger.debug("Backspace")               
             #     tools.perform_press(['backspace'])
 
 
             # Macros that are last priority.     
-            case [_, 5, mode, []]:   # Text to speech
+            case [_, mode, 5, []]:   # Text to speech
                 logger.debug("Text to speech")
                 tools.textToSpeech()
                 #custom_keyboard.hotkey('ctrl', 'c')
                 #threading.Thread(target = tools.Image_to_text2).start()
                 
-            case [_, 6, mode, []]:   # Stop Speech
+            case [_, mode, 6, []]:   # Stop Speech
                 logger.debug("Stop Speech")
                 tools.stopSpeech()
                 #threading.Thread(target = tools.Image_to_text2).start()
 
-            case [_, 7, mode, []]:   # Copy
+            case [_, mode, 7, []]:   # Copy
                 #logger.debug("Copy")
                 #NOTE : this can cause a keyboard interupt if used in terminal
                 tools.perform_hotkey(['ctrl', 'c'])             
 
-            case [_, 8, mode, []]:   # Paste 
+            case [_, mode, 8, []]:   # Paste 
                 #logger.debug("Paste")
                 tools.perform_hotkey(['ctrl', 'v'])
 
-            case [_, 9, mode, []]:   # Search highlighted text
+            case [_, mode, 9, []]:   # Search highlighted text
                 #logger.debug("Search highlighted text")
                 tools.search_highlighted_text()
 
-            case [_, 10, mode, []]:     # runs Task Manager      is button 10
+            case [_, mode, 10, []]:     # runs Task Manager      is button 10
                 logger.debug("Starting Task manager")
                 tools.perform_hotkey(['ctrl', 'shift', 'esc'])
 
-            case [_, 11, mode, []]:   #image to text             is button 11
+            case [_, mode, 11, []]:   #image to text             is button 11
                 logger.debug("Image to text")
                 threading.Thread(target = tools.Image_to_text2).start()
+        
         
     def Event_handler(self):
         logger.info(f"{self.button, self.event_type, self.layers}")
 
-        focused_window = tools.get_focused()
+        focused_window_title, self.focused_window_hwnd = tools.get_focused()
 
-        if focused_window is None:
+        if focused_window_title is None:
             app = 'Desktop'
         else:
-            split_focused_window = focused_window.split(" - ")
+            split_focused_window = focused_window_title.split(" - ")
             split_focused_window.reverse()
             app = split_focused_window[0]
         

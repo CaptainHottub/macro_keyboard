@@ -16,34 +16,39 @@ import custom_keyboard
 from pynput import mouse, keyboard
 import autoit   ##### TO isntall it uses pip install pyautoit
 
-import ctypes
-import ctypes.wintypes as wintypes
-from ctypes.wintypes import DWORD, HWND
-
 #from pywinauto.application import Application, ProcessNotFoundError
 import pywinauto
 import psutil
 import os
 
-# Ctypes Stuff
-WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+# move the Ctypes stuff to win32gui 
 
-EnumWindows = ctypes.WinDLL('user32').EnumWindows
-EnumWindows.argtypes = WNDENUMPROC, wintypes.LPARAM  # LPARAM not INT
-EnumWindows.restype = wintypes.BOOL
+import win32gui
+import win32process
 
-GetWindowText = ctypes.WinDLL('user32').GetWindowTextW
-GetWindowTextLength = ctypes.WinDLL('user32').GetWindowTextLengthW
+import ctypes
+# import ctypes.wintypes as wintypes
+# from ctypes.wintypes import DWORD, HWND
 
-IsWindow = ctypes.WinDLL('user32').IsWindow
+# # Ctypes Stuff
+# WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
-GetWindowThreadProcessId = ctypes.WinDLL('user32').GetWindowThreadProcessId
-ctypes.WinDLL('user32').GetWindowThreadProcessId.restype = wintypes.DWORD
-ctypes.WinDLL('user32').GetWindowThreadProcessId.argtypes = (
-        wintypes.HWND,     # _In_      hWnd
-        wintypes.LPDWORD,) # _Out_opt_ lpdwProcessId
+# EnumWindows = ctypes.WinDLL('user32').EnumWindows
+# EnumWindows.argtypes = WNDENUMPROC, wintypes.LPARAM  # LPARAM not INT
+# EnumWindows.restype = wintypes.BOOL
 
-GetForegroundWindow = ctypes.WinDLL('user32').GetForegroundWindow
+# GetWindowText = ctypes.WinDLL('user32').GetWindowTextW
+# GetWindowTextLength = ctypes.WinDLL('user32').GetWindowTextLengthW
+
+# IsWindow = ctypes.WinDLL('user32').IsWindow
+
+# GetWindowThreadProcessId = ctypes.WinDLL('user32').GetWindowThreadProcessId
+# ctypes.WinDLL('user32').GetWindowThreadProcessId.restype = wintypes.DWORD
+# ctypes.WinDLL('user32').GetWindowThreadProcessId.argtypes = (
+#         wintypes.HWND,     # _In_      hWnd
+#         wintypes.LPDWORD,) # _Out_opt_ lpdwProcessId
+
+# GetForegroundWindow = ctypes.WinDLL('user32').GetForegroundWindow
 
 
 r"""
@@ -141,38 +146,79 @@ def libreOffice_zoomout():
     custom_keyboard.keyUp('ctrl')
 
 
-def get_processes():
+# def get_processes():
+#     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
+#     """
+
+#     @WNDENUMPROC
+#     def py_callback( hwnd, lparam ):
+#         pid = wintypes.DWORD()
+#         tid = GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+#         if IsWindow(hwnd):
+#             length = GetWindowTextLength(hwnd)
+#             buff = ctypes.create_unicode_buffer(length + 1)
+#             GetWindowText(hwnd, buff, length + 1) 
+
+#             if buff.value and buff.value not in ['Default IME', 'MSCTFIME UI']:
+#                 results.append({"Title": buff.value,
+#                                 "TID": tid,
+#                                 "HWND": hwnd,
+#                                 "PID": pid.value})
+#         return True
+
+#     results = []
+#     EnumWindows(py_callback,0)
+
+#     return results
+
+def get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
+    
+    by default it will remove any blank handle, and any handle with any name defined in filter.
+    by default it will sort the list by title, but you can specify it for any key in the returned list
+    
+    returns: 
+        [{"Title": windowtitle,
+        "TID": threadid,
+        "HWND": hwnd,
+        "PID": pid}]
     """
 
-    @WNDENUMPROC
+    #@WNDENUMPROC
     def py_callback( hwnd, lparam ):
-        pid = wintypes.DWORD()
-        tid = GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-        if IsWindow(hwnd):
-            length = GetWindowTextLength(hwnd)
-            buff = ctypes.create_unicode_buffer(length + 1)
-            GetWindowText(hwnd, buff, length + 1) 
-
-            if buff.value and buff.value not in ['Default IME', 'MSCTFIME UI']:
-                results.append({"Title": buff.value,
-                                "TID": tid,
-                                "HWND": hwnd,
-                                "PID": pid.value})
+        threadid, pid = win32process.GetWindowThreadProcessId(hwnd)
+                
+        if win32gui.IsWindow(hwnd):
+            windowtitle = win32gui.GetWindowText(hwnd)
+            
+            if windowtitle and windowtitle not in filter:
+                results.append({"Title": windowtitle,
+                            "TID": threadid,
+                            "HWND": hwnd,
+                            "PID": pid})
+    
         return True
 
     results = []
-    EnumWindows(py_callback,0)
-
+    win32gui.EnumWindows(py_callback,0)
+    
+    if sortby:
+        results = sorted(results, key=lambda d: d[sortby])
+    
     return results
 
-def get_focused():
-    hwnd = GetForegroundWindow()
-    length = GetWindowTextLength(hwnd)
-    buff = ctypes.create_unicode_buffer(length + 1)
-    GetWindowText(hwnd, buff, length + 1)
+# def get_focused():
+#     hwnd = GetForegroundWindow()
+#     length = GetWindowTextLength(hwnd)
+#     buff = ctypes.create_unicode_buffer(length + 1)
+#     GetWindowText(hwnd, buff, length + 1)
 
-    return buff.value or None
+#     return buff.value or None
+
+def get_focused():
+    hwnd = win32gui.GetForegroundWindow()
+    return win32gui.GetWindowText(hwnd), hwnd
+
 
 def pidGetter(name: str)-> int: 
     """
@@ -191,21 +237,21 @@ def pidGetter(name: str)-> int:
                 break
     return PID
 
-def hwndGetter(app_name: str) -> HWND:
-    """Returns the hwnd of the app you specified
-    This returns the  first valid one, so it might not work for chrome
-    Returns None if there is nothing.
+# def hwndGetter(app_name: str) -> HWND:
+#     """Returns the hwnd of the app you specified
+#     This returns the  first valid one, so it might not work for chrome
+#     Returns None if there is nothing.
 
-    Args:
-        app_name (str): The name of the app.
+#     Args:
+#         app_name (str): The name of the app.
 
-    Returns:
-        HWND: the HWND of the app.
-    """
-    processes = get_processes()
-    for process in processes:
-        if app_name in process['Title']:
-            return process['HWND']
+#     Returns:
+#         HWND: the HWND of the app.
+#     """
+#     processes = get_processes()
+#     for process in processes:
+#         if app_name in process['Title']:
+#             return process['HWND']
 
 def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
     #logger.debug(name_or_path,timeout)
@@ -214,6 +260,14 @@ def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
     except Exception as e:
         logger.warning(e)
     time.sleep(timeout)
+
+def get_app_info(app_name: str) -> list:
+    """Returns a list of information of an specified app.
+    """
+    processes = get_processes()
+    for process in processes:
+        if app_name in process['Title']:
+            return process
 
 ###############     These are all macros     ###############
 
@@ -383,6 +437,14 @@ def search_highlighted_text():
     
     perform_press('enter')
 
+def set_focus_to_desktop():
+    processes = get_processes()
+    for process in processes:
+        if process['Title'] == 'Program Manager':
+            win32gui.SetForegroundWindow(process['HWND'])
+            return 0
+    return 1
+
 def change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
     """
     The VDA one take on average 5 ms to complete, IT also doesn't need to alt tab some apps like task manager
@@ -394,7 +456,11 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
             newDesktopNum = CurrentDesktopNumber() -1
         elif direction == 'right':
             newDesktopNum = CurrentDesktopNumber() + 1
+        
+        set_focus_to_desktop()
+        
         GoToDesktop(newDesktopNum)
+    
     else:
         apps_to_alt_tab = ['Star Citizen']  #lis of apps to alt tab when changing desktops
 
@@ -432,11 +498,11 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
 #                 break
 #     moveAppAccrossDesktops(hwnd, movement)
     
-def moveAppAccrossDesktops(hwnd_or_name: HWND|str, movement: str) -> int:
+def moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
     """Moves an app accross desktops.
-    This function requires the VirtualDesktopAccessor.dll, if it is not installed, the  func will return -1
-    If you input and app name, it will try and get the hwnd
-    if the app is not active, the hwnd will be None and the func will return -2
+    This function requires the VirtualDesktopAccessor.dll, if it is not installed, the  func will return 1
+    If you input an app name, it will try and get the hwnd
+    if the app is not active, the hwnd will be None and the func will return 0
     
     Movements are:
     'Left': Goes left,
@@ -444,7 +510,7 @@ def moveAppAccrossDesktops(hwnd_or_name: HWND|str, movement: str) -> int:
     'Current': Moves to the current desktop
     
     Args:
-        hwnd_or_name (HWND | str): Either the name of the app or the HWND of the app
+        hwnd (HWND): The HWND(handle) of the app
         movement (str): Movement Type
 
     Returns:
@@ -454,18 +520,13 @@ def moveAppAccrossDesktops(hwnd_or_name: HWND|str, movement: str) -> int:
         msg = r"""VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
         You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
         logger.warning(msg)
-        return -1
-    #logger.debug(hwnd_or_name)
+        return 1
+    #logger.debug(hwnd)
     
-    if isinstance(hwnd_or_name,  str):
-        hwnd = hwndGetter(hwnd_or_name)
-        if hwnd is None:
-            logger.debug("hwnd is None")
-            #launchApp(hwnd_or_name)
-            return
-    else:
-        hwnd = hwnd_or_name    
-        
+    if hwnd is None:
+        logger.debug("hwnd is None")
+        #launchApp(hwnd)
+        return 0
     
     movements = {
         'Left': (GetWindowDesktopNumber(hwnd) -1),
@@ -866,7 +927,119 @@ class SpotifyController:
 
 class ChromeController:
     """A Controller Class for Chrome
-    Its not implemented yet
     """
     def __init__(self):
-        raise NotImplementedError
+        self.actions = {
+                'PrevTrack': 'Previous Track',
+                'SeekBackward': 'Seek Backward',
+                'PlayPause': 'Play Pause',
+                'SeekForward': 'Seek Forward',
+                'NextTrack': 'Next Track'
+                }
+        
+        self.mediaTimer = MediaTimer()
+        self.Chrome_Parent_PID = None
+        self.Chrome_app = None
+ 
+        
+    def _app_connect(self):
+        if self.Chrome_Parent_PID is None:
+            #logger.debug("Chrome_Parent_PID is False")
+            PID = pidGetter('chrome')
+            if PID is None:
+                logger.debug('There is no app with name of "chrome"')
+                return
+            self.Chrome_Parent_PID = PID
+        
+        app = pywinauto.application.Application(backend="uia").connect(process=self.Chrome_Parent_PID)
+        return app
+    
+    def event_handler(self, event):
+        if self.Chrome_app is None:
+            print("in self.Chrome_app is None")
+            self.Chrome_app = self._app_connect()
+        
+        logger.debug("Connected to Chrome")
+
+        media_control_button = self.Chrome_app.window().child_window(title="Control your music, videos, and more", control_type="Button")
+        
+        logger.debug("got media_control_button")
+        try:
+            media_control_button.click()
+        except Exception as e:
+            print(e)
+            print("There is nothing in the Global Media Controls")
+            return 
+
+        #time.sleep(0.1)
+
+        ### this skips right to it
+        last_video_media_control = self.Chrome_app.window().child_window(title="Back to tab", control_type="Button", found_index=0)
+        media_controls = last_video_media_control.children()
+        
+        
+        action_todo =  self.actions[event]
+        for index, controls in enumerate(media_controls):
+            if controls.window_text() in action_todo:
+                #logger.debug("I found the button")
+                media_controls[index].click()
+                break
+        logger.debug(f"pressed media_controls { self.actions[event]}")
+
+        media_control_button.click()
+        
+
+    def press(self):
+        if result := self.mediaTimer.press_button():
+            logger.debug(result)
+            self.event_handler(result)
+
+class YTMusicController:
+    """A Controller Class for Youtube Music app on windows 10
+    """
+    def __init__(self):
+        self.YTMUSIC_HOTKEYS = {
+                "VolumeUp": "=",
+                "VolumeDown": "-",
+                "PrevTrack": "k",
+                "NextTrack": "j",
+                "PlayPause": ";",#"{SPACE}"
+                "Back5s": "+{LEFT}",
+                "Forward5s": "+{RIGHT}",
+            }
+                
+        self.mediaTimer = MediaTimer()
+        # self.ytmusic_app = None
+        # self.is_playing_music = False
+        # self.ytmusic_PID = None
+        
+    def launch_ytmusic(self):
+        #logger.debug("Launching Spotify")
+        
+        launchApp(r'C:\Users\Taylor\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\YouTube Music')
+        time.sleep(0.75)
+
+    def event_handler(self, event):
+        #ytmusic = get_app_info('YouTube Music')
+    
+        if ytmusic_info := get_app_info('YouTube Music'):
+            try:
+                app = pywinauto.application.Application().connect(process=ytmusic_info['PID'], timeout=2)
+            
+                yt_music_app = app.window(title=ytmusic_info['Title'])
+                
+                yt_music_app.send_keystrokes(self.YTMUSIC_HOTKEYS[event])
+        
+
+            except pywinauto.findbestmatch.MatchError:
+                #logger.warning("ytmusic Timed out, will asume its not running.")
+                self.launch_ytmusic()
+
+        else:
+            self.launch_ytmusic()
+            
+    def press(self):
+        if result := self.mediaTimer.press_button():
+            #logger.debug(result)
+            print(result)
+            self.event_handler(result)

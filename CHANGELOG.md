@@ -7,6 +7,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.110] - 2024-06-07
+ 
+Brainstorming in TODO
+Minor changes
+
+### Added
+
+- Youtube Music Controller Class
+- New function that sets the desktop as focused
+
+### Changed
+- Changed the match case statment variable positions in Button_handlerV3
+- get_focused() returns the handle of that window.
+
+- chromeAudioControl has been updated to a ChromeController class
+- moveAppAccrossDesktops() only accepts window handles.
+- Removed the unecisary Ctypes stuff in tools. (except for the VDA stuff)
+- Modified get_processes()
+- Removed hwndGetter().
+
 ## [v2.2.108] - 2024-04-22
  
 chromeAudioControl is more reliable
