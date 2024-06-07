@@ -1,55 +1,21 @@
 import contextlib
 from functools import wraps
 from logger import logger, toaster
-
-import threading
+import custom_keyboard
 import time
-
 import pyperclip
 import azure.cognitiveservices.speech as speechsdk
-
 from PIL import ImageGrab
 import pytesseract
-
 import pyautogui
-import custom_keyboard
 from pynput import mouse, keyboard
 import autoit   ##### TO isntall it uses pip install pyautoit
-
-#from pywinauto.application import Application, ProcessNotFoundError
 import pywinauto
 import psutil
 import os
-
-# move the Ctypes stuff to win32gui 
-
 import win32gui
 import win32process
-
 import ctypes
-# import ctypes.wintypes as wintypes
-# from ctypes.wintypes import DWORD, HWND
-
-# # Ctypes Stuff
-# WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
-
-# EnumWindows = ctypes.WinDLL('user32').EnumWindows
-# EnumWindows.argtypes = WNDENUMPROC, wintypes.LPARAM  # LPARAM not INT
-# EnumWindows.restype = wintypes.BOOL
-
-# GetWindowText = ctypes.WinDLL('user32').GetWindowTextW
-# GetWindowTextLength = ctypes.WinDLL('user32').GetWindowTextLengthW
-
-# IsWindow = ctypes.WinDLL('user32').IsWindow
-
-# GetWindowThreadProcessId = ctypes.WinDLL('user32').GetWindowThreadProcessId
-# ctypes.WinDLL('user32').GetWindowThreadProcessId.restype = wintypes.DWORD
-# ctypes.WinDLL('user32').GetWindowThreadProcessId.argtypes = (
-#         wintypes.HWND,     # _In_      hWnd
-#         wintypes.LPDWORD,) # _Out_opt_ lpdwProcessId
-
-# GetForegroundWindow = ctypes.WinDLL('user32').GetForegroundWindow
-
 
 r"""
 VirtualDesktopAccessor.dll is used to move apps between virtual desktops:  https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file
@@ -93,7 +59,7 @@ except Exception as e:
 A bunch of utillity functions
 """
 
-#############################################     These are tools    #############################################
+#############################################     These are tools  IDK WHY ITS CALLED THIS   #############################################
 # timer function
 def get_time(func):
     """Times any function\n
@@ -114,18 +80,6 @@ def get_time(func):
     
     return timer
 
-# def filter_process_list(process_to_find: str, process_list):
-#     """         loops thru the list to find processes with name you want        \n
-#     Returns list of dictionarys containing processes with process_to_find in name \n
-#     Returns empty list if there are none
-#     """
-#     logger.debug("filter_process_list")
-#     return [
-#             proc 
-#             for proc in process_list
-#             if process_to_find.lower() in proc['Title'].lower()
-#             ]
-
 def perform_hotkey(hotkey):
     #logger.debug(f"perform_hotkey {hotkey = }")
     custom_keyboard.hotkey(*hotkey)
@@ -133,7 +87,6 @@ def perform_hotkey(hotkey):
 def perform_press(key):
     #logger.debug(f"perform_press {key = }")
     custom_keyboard.press(key)
-
 
 def libreOffice_zoomin():
     custom_keyboard.keyDown('ctrl')
@@ -144,32 +97,6 @@ def libreOffice_zoomout():
     custom_keyboard.keyDown('ctrl')
     pyautogui.hscroll(-10)
     custom_keyboard.keyUp('ctrl')
-
-
-# def get_processes():
-#     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
-#     """
-
-#     @WNDENUMPROC
-#     def py_callback( hwnd, lparam ):
-#         pid = wintypes.DWORD()
-#         tid = GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-#         if IsWindow(hwnd):
-#             length = GetWindowTextLength(hwnd)
-#             buff = ctypes.create_unicode_buffer(length + 1)
-#             GetWindowText(hwnd, buff, length + 1) 
-
-#             if buff.value and buff.value not in ['Default IME', 'MSCTFIME UI']:
-#                 results.append({"Title": buff.value,
-#                                 "TID": tid,
-#                                 "HWND": hwnd,
-#                                 "PID": pid.value})
-#         return True
-
-#     results = []
-#     EnumWindows(py_callback,0)
-
-#     return results
 
 def get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
@@ -183,9 +110,7 @@ def get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[
         "HWND": hwnd,
         "PID": pid}]
     """
-
-    #@WNDENUMPROC
-    def py_callback( hwnd, lparam ):
+    def py_callback(hwnd, lparam):
         threadid, pid = win32process.GetWindowThreadProcessId(hwnd)
                 
         if win32gui.IsWindow(hwnd):
@@ -207,18 +132,9 @@ def get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[
     
     return results
 
-# def get_focused():
-#     hwnd = GetForegroundWindow()
-#     length = GetWindowTextLength(hwnd)
-#     buff = ctypes.create_unicode_buffer(length + 1)
-#     GetWindowText(hwnd, buff, length + 1)
-
-#     return buff.value or None
-
 def get_focused():
     hwnd = win32gui.GetForegroundWindow()
     return win32gui.GetWindowText(hwnd), hwnd
-
 
 def pidGetter(name: str)-> int: 
     """
@@ -237,22 +153,6 @@ def pidGetter(name: str)-> int:
                 break
     return PID
 
-# def hwndGetter(app_name: str) -> HWND:
-#     """Returns the hwnd of the app you specified
-#     This returns the  first valid one, so it might not work for chrome
-#     Returns None if there is nothing.
-
-#     Args:
-#         app_name (str): The name of the app.
-
-#     Returns:
-#         HWND: the HWND of the app.
-#     """
-#     processes = get_processes()
-#     for process in processes:
-#         if app_name in process['Title']:
-#             return process['HWND']
-
 def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
     #logger.debug(name_or_path,timeout)
     try:
@@ -261,13 +161,6 @@ def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
         logger.warning(e)
     time.sleep(timeout)
 
-def get_app_info(app_name: str) -> list:
-    """Returns a list of information of an specified app.
-    """
-    processes = get_processes()
-    for process in processes:
-        if app_name in process['Title']:
-            return process
 
 ###############     These are all macros     ###############
 
@@ -470,34 +363,7 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
             time.sleep(0.1)
 
         perform_hotkey(['ctrl', 'win', direction])
-
-
-# def moveSpotifyAccrossDesktops(name:str, movement: str)-> None:
-#     """This just gets Spotify's HWND, Spotify's title changes  to the song that is playing, so that makes it more difficult to filter it out.
-
-#     Args:
-#         name (str): _description_
-#         movement (str): _description_
-#     """
-    
-#     hwnd = hwndGetter(name)
-#     if hwnd is None:
-#         logger.debug('either spotify is not running or a song is playing.')
-#         PID = pidGetter('Spotify')
-#         if PID is None:
-#             logger.debug('Spotify is not running')
-#             launchApp('Spotify', timeout=1)
-#             moveSpotifyAccrossDesktops(name, movement)
-        
-#         processes = get_processes()
-
-#         for process in processes:
-#             if process['PID'] == PID:
-#                 hwnd = process['HWND']
-#                 logger.debug(f"found the {hwnd=}")
-#                 break
-#     moveAppAccrossDesktops(hwnd, movement)
-    
+  
 def moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
     """Moves an app accross desktops.
     This function requires the VirtualDesktopAccessor.dll, if it is not installed, the  func will return 1
@@ -536,268 +402,6 @@ def moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
 
     destination = movements[movement]
     return MoveAppToDesktop(hwnd, destination) 
-
-""" 
-this is a new way to controll spotify and chrome.
-The spotifyControlTest alloys me to the same stuff as before, but also contol the volume of audio coming from spotify
-
-chromeAudioControlTest allows me to play pause yt videos.
-
-Maybe redo mediaTimerV1, for like a button timer, IDK
-"""
-
-def mediaTimerV2(destination: str, timeout = 0.4, count=[0]):  # this is basically the same as spotifyV3
-    """Plays/Pauses media, presses next song previous song.   
-    
-    Press 1 time in timeout seconds to Plays/Pauses.        \n
-    Press 2 times in timeout seconds to get next song.      \n
-    Press 3 times in timeout seconds to get previous song.  \n   
-
-    Args:
-      timeout (integer): Defines how much time you have to press the button for it to do something
-      count (list): Don't touch this, it is a counter for the function
-    Returns:
-      None
-    """
-    count[0] += 1
-    
-    logger.debug("Media Func Has been called")
-    
-    def timerV4():
-        """Waits for timeout to finish then it send a keyboard input based on value of count[0]"""
-
-        logger.debug("timer Has just begun")
-        time.sleep(timeout)
-        logger.debug("timer sleep has just finished")
-        runAfterTimer()
-        
-
-    def runAfterTimer():
-        
-        ACTIONS = [
-            "PlayPause",
-            "NextTrack",
-            "PrevTrack"]
-        
-        DESTINATIONS = {
-            # 'Spotify': spotifyControl,
-            'Chrome': chromeAudioControl
-        }
-        
-        logger.debug("Entering try")
-        try:
-            action = ACTIONS[count[0]-1]
-            logger.debug(f'Value of {count[0] = }, executing folowing action: {action}')
-            functionToCall = DESTINATIONS[destination]
-            functionToCall(action)
-            
-
-        except IndexError as ind:
-            logger.error(f'IndexError has just happened, reason: {ind}')
-            logger.error(f'Button was pressed to many times. You pressed it {count[0]} times.\n')
-
-        except Exception as e:
-            logger.error(e)
-        
-        finally:
-            count[0] = 0
-            logger.debug(f"Value of {count[0] = }\n")
-
-    """         Finds if thread I want is running, if not it starts, if it is does nothing          """
-    # adds True to list if func hmm is running as a thread
-    thread_running = [
-        True
-        for thread in threading.enumerate()
-        if timerV4.__name__ in thread.name
-        ]
-    
-    if not any(thread_running):
-        logger.debug("Thread I want is not running, starting it")
-        media_thread = threading.Thread(target=timerV4, args=(),daemon=True)
-        media_thread.start()
-    else:
-        logger.debug("thread I want is running")
-
-# spotify_PID = False
-Chrome_Parent_PID = False
-##Controlls Spotify
-# def spotifyControl(action):
-#     """Uses pywinauto to connect and send keystrokes to Spotify.    
-
-#     These are the available actions:
-#      - "VolumeUp"
-#      - "VolumeDown"
-#      - "PrevTrack"
-#      - "NextTrack"
-#      - "PlayPause"
-#      - "Back5s"
-#      - "Forward5s"
-#      - "Like"
-
-#     To use simply:
-
-#     spotifyControl("PrevTrack")
-#     """
-#     logger.debug("in spotifyControlTest")
-    
-#     SPOTIFY_HOTKEYS = {
-#         "VolumeUp": "^{UP}",
-#         "VolumeDown": "^{DOWN}",
-#         "PrevTrack": "^{LEFT}",
-#         "NextTrack": "^{RIGHT}",
-#         "PlayPause": "{SPACE}",
-#         "Back5s": "+{LEFT}",
-#         "Forward5s": "+{RIGHT}",
-#         "Like": "%+{B}",
-#         "Quit": "",
-#     }
-
-#     """
-#     How this is currently setup, the little media player popup doesnt show up. so it I dont know what the song is.    
-#     That would mean I wouldnt need modern flyouts.
-#     """
-#     global spotify_PID
-#     if spotify_PID is False:
-#         logger.debug("spotify_PID is False")
-#         PID = pidGetter('Spotify')
-#         if PID is None:
-#             print('There is no app with name of "Spotify"')
-#             launchApp('Spotify')
-#             spotifyControl(action)
-#             #return
-#         spotify_PID = PID
-    
-    
-#     #print(spotify_PID)
-
-#     #https://github.com/mavvos/SpotifyGlobal/blob/main/SpotifyGlobal.py#L118
-#     try:
-#         app = pywinauto.application.Application().connect(process=spotify_PID, timeout=2)
-        
-#         spotify = app["Chrome_Widget_Win0"]
-#         spotify.send_keystrokes(SPOTIFY_HOTKEYS[action])
-#         # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
-#         # spotify.send_keystrokes(SPOTIFY_HOTKEYS["Forward5s"])
-#         # spotify.send_keystrokes(SPOTIFY_HOTKEYS["PlayPause"])
-
-#     except pywinauto.application.ProcessNotFoundError: #### Will have to modify this, so that it checks if spotify is running. 
-#         logger.warning('Process was not Found')
-
-#         PID = pidGetter('Spotify')
-#         if PID is None:
-#             logger.debug('There is no app with name of "Spotify"')
-#             launchApp('Spotify', timeout=1)
-#             spotify_PID = False
-            
-#         else:
-#             logger.debug("had the wrong PID")
-#             spotify_PID = PID
-            
-#         spotifyControl(action)
-
-def chromeAudioControl(action):
-    """Uses pywinauto to connect and interact with chromes media controls   
-    
-    The media controls is a little symbol that shows up at the top right of chrome, next to your account profile picture
-
-    These are the available actions:
-     - "PrevTrack"
-     - "NextTrack"
-     - "PlayPause"
-
-    To use simply:
-
-    chromeAudioControl("PrevTrack")
-
-    This code assumes that the audio source you want to interact with was the last one you used
-    / is first in Global Media Controls.
-    
-    If there is nothing in the Global Media Controls this will do nothing.
-
-    If you click something else while it does its thing it will break.
-    """
-    logger.debug("In chromeAudioControlTest")
-    # ### inspector C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64
-    # Chrome_Parent_PID = []
-
-    """
-    I could probably switch this to hwndGetter('Chrome')
-    to stop using  pidGetter('chrome')
-    
-    """
-    
-    
-    global Chrome_Parent_PID
-    if Chrome_Parent_PID is False:
-        logger.debug("Chrome_Parent_PID is False")
-        PID = pidGetter('chrome')
-        if PID is None:
-            print('There is no app with name of "Spotify"')
-            return
-        Chrome_Parent_PID = PID
-
-    logger.debug("Got PID")
-
-    app = pywinauto.application.Application(backend="uia").connect(process=Chrome_Parent_PID)
-
-    logger.debug("Connected to Chrome")
-
-    media_control_button = app.window().child_window(title="Control your music, videos, and more", control_type="Button")
-    logger.debug("got media_control_button")
-    try:
-        media_control_button.click()
-    except Exception as e:
-        print(e)
-        print("There is nothing in the Global Media Controls")
-        return 
-
-    #time.sleep(0.1)
-
-    ### this skips right to it
-    last_video_media_control = app.window().child_window(title="Back to tab", control_type="Button", found_index=0)
-    media_controls = last_video_media_control.children()
-
-    logger.debug("got media_controls")
-
-    """
-    The media_controls list will be 6 items long normaly.
-    There are 2 things that can change to lenght of that list.
-    1: if your mouse if hovering over it when python clicks on it
-        it will add a : uia_controls.ButtonWrapper - 'Dismiss', Button to the list
-    2: if the video is in a playlist, it will add the following to the list
-        uia_controls.ButtonWrapper - 'Previous Track', Button
-        uia_controls.ButtonWrapper - 'Next Track', Button
-        
-    the structure of media_controls will be:
-        Dismiss
-        Video Title
-        Video Creator
-        Previous Track
-        Seek Backward
-        Play / Pause
-        Seek Forward
-        Next Track
-        Enter picture-in-picture
-        
-    """
-
-    actions = {
-        'PrevTrack': 'Previous Track',
-        'SeekBackward': 'Seek Backward',
-        'PlayPause': 'Play Pause',
-        'SeekForward': 'Seek Forward',
-        'NextTrack': 'Next Track'}
-    
-    new_action = actions[action]
-    for index, controls in enumerate(media_controls):
-        if controls.window_text() in new_action:
-            logger.debug("I found the button")
-            media_controls[index].click()
-            break
-    logger.debug(f"pressed media_controls {actions[action]}")
-
-    media_control_button.click()
-    logger.debug("Closed tab")
 
 class MediaTimer:
     """
@@ -1019,10 +623,19 @@ class YTMusicController:
         launchApp(r'C:\Users\Taylor\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\YouTube Music')
         time.sleep(0.75)
 
+    def get_app_info(self, app_name: str) -> list:
+        """Returns a list of information of an specified app.
+        """
+        processes = get_processes()
+        for process in processes:
+            if app_name in process['Title']:
+                return process
+
+    
     def event_handler(self, event):
         #ytmusic = get_app_info('YouTube Music')
     
-        if ytmusic_info := get_app_info('YouTube Music'):
+        if ytmusic_info := self.get_app_info('YouTube Music'):
             try:
                 app = pywinauto.application.Application().connect(process=ytmusic_info['PID'], timeout=2)
             

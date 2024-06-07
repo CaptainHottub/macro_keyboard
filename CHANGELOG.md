@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.111] - 2024-06-07
+
+Removed unessisary comments
+
+### Changed
+- Removed unessisary comments
+- chromeAudioControl and mediaTimerV2
+
 ## [v2.2.110] - 2024-06-07
  
 Brainstorming in TODO
