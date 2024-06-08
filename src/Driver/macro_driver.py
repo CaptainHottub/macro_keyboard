@@ -92,6 +92,7 @@ class MacroDriver:
             if not self.serial_port:    # If the serial port is not connected/not defined
                 # Look for the device
 
+                logger.warning("This could possibly be a problem")
                 arduino_ports = [
                     p.device for p in serial.tools.list_ports.comports()
                     if 'Pi Pico Macro Driver' in p.description

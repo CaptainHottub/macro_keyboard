@@ -6,11 +6,22 @@ import os
 from PIL import Image
 import threading
 
+"""
+This should work with linux, havent tried it yet
+"""
 
-def get_version():
+
+def get_version(file_dir)-> str:
+    """Looks through the CHANGELOG.md file for the version number
+
+    Returns:
+        str: The version number
+    """
+    changelog_path = file_dir+'/CHANGELOG.md'
+    
     try:
         string_with_version_in_it = ''
-        with open(r'C:\Coding\macro_keyboard\CHANGELOG.md','r') as file:
+        with open(changelog_path,'r') as file:
             for line in file:
                 if '##' in line:
                     string_with_version_in_it = line
@@ -24,20 +35,26 @@ def get_version():
 
     return version
 
-script_path = os.path.dirname(__file__)
-
-#it is the folder the script is in, will need to change if parent folder is different
-#version = __file__.split('\\')[-2]
-
-# Gets the path of icon image
-icon_path = fr"{script_path}\pythonIcon.ico"
-image = Image.open(icon_path)    # Opens the Icon 
-#https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
 
 def sysIcon():
-    systray = pystray.Icon(name="Python Macro", icon=image, title=f"Python Macro {get_version()}", menu=pystray.Menu(
+    """
+    The icon for the widget will live in # '/macro_keyboard/Images/pythonIcon.ico'
+    
+    """ 
+    script_path = os.path.dirname(__file__)
+    file_directory_temp = script_path.split('\\')[0:-2]
+    
+    file_dir = '/'.join(file_directory_temp)
+    
+    icon_path = fr"{file_dir}/Images/pythonIcon.ico"
+    image = Image.open(icon_path)
+
+    version = get_version(file_dir)
+    
+    systray = pystray.Icon(name="Python Macro", icon=image, title=f"Python Macro {version}", menu=pystray.Menu(
         pystray.MenuItem("Quit", lambda: macro_driver.stop())
     ))
+    
     systray.run()
 
 
