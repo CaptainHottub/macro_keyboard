@@ -1,10 +1,7 @@
-Move all the ctypes stuff over to pywin, win32gui and that stuff
-
 I want to move over to Linux From Windows, so I will have to re write a bunch of stuff to be compatible with it.
+
 It looks like PyWinCtl does what I need for. It has Ctypes stuff for linux      :https://pywinctl.readthedocs.io/en/latest/?badge=latest#window-features
 Pyautogui works in linux, so does pynput
-
-So It doesn't look like I can use pywinauto to connect to an app and send keystrokes to it.
 
 
 
