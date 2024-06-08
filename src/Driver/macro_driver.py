@@ -408,7 +408,6 @@ def sysIcon():
     
     systray.run()
 
-
 def main():
     if config['system_tray_icon']:
         threading.Thread(target = sysIcon, daemon=True).start()
