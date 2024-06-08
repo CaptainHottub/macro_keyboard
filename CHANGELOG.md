@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.123.b] - 2024-06-08
+
+It now works on linux and windows.
+There are still some bugs, like the Azure speech stuff doesnt work
+
+
 ## [v2.2.121.b] - 2024-06-08
 
 First port to linux

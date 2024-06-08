@@ -521,9 +521,9 @@ class _YTMusicController_linux:
 if sys.platform == 'win32':
     SpotifyController = _SpotifyController_win32
     ChromeController = _ChromeController_win32
-    YTMusicController= _YTMusicController_win32
+    YTMusicController = _YTMusicController_win32
     get_focused = _get_focused
 elif sys.platform == 'linux':
     SpotifyController = _SpotifyController_linux
     ChromeController = _ChromeController_linux
-    YTMusicController= _YTMusicController_linux
+    YTMusicController = _YTMusicController_linux

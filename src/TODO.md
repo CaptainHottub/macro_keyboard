@@ -3,35 +3,49 @@ I want to move over to Linux From Windows, so I will have to re write a bunch of
 It looks like PyWinCtl does what I need for. It has Ctypes stuff for linux      :https://pywinctl.readthedocs.io/en/latest/?badge=latest#window-features
 Pyautogui works in linux, so does pynput
 
+Brainstorming some major structure changes:
+macro_driver.py -> driver.py
+tools.py -> macros.py
+
+Take the windows specific function from tools.py and media_controller.py and put in _utils_win32.py
+then do the same for linuxs specific fonctions and put them in _utils_posix.py
+
+then at the start of macros.py do:
+if sys.platform == 'win32':
+    from _utils_win32 import SpotifyController
+    from _utils_win32 import ChromeController
+    from _utils_win32 import YTMusicController
+    from _utils_win32 import change_desktop
+elif sys.platform == 'linux':
+    from _utils_posix import SpotifyController
+    from _utils_linux import ChromeController
+    from _utils_linux import YTMusicController
+    from _utils_linux import change_desktop
+
+ORRRR
+do like Pyautogui with platformModule   line 535 in __init__
+# The platformModule is where we reference the platform-specific functions.
+if sys.platform == "win32":
+    from . import _utils_win32 as platformModule
+elif platform.system() == "Linux":
+    from . import _utils_linux as platformModule
+else:
+    raise NotImplementedError("Your platform (%s) is not supported by PyAutoGUI." % (platform.system()))
 
 
 
-Add a requirements file, use pipreqs to make it.  
-Will put a settings.txt file in the future that will allow you to define multiple things. 
-Example:  
-    logging==True   
-    logging_level==2
-    log_folder_path=="C:\User\Desktop"  
-    system_tray_icon==True  
-    system_tray_icon_image_path=="C:\Users\User\Desktop\macro_keyboard-master\MacroV3\v3.1\pythonIcon.ico"  
 
-    connected_notification==True  
-    access_denied_notification==True  
-    disconnected_notification==True
-    notofication_time== 2
+fix the azure stuff.
+
 
 
 
 Make ReadMe Proper
 
-
+Add a requirements file, use pipreqs to make it.  
 Use the command below to install the needed packages.   
 pip install -r requirements.txt
 
 If you want to use the Text To Speech Macro you will need to setup a Azure Speech resource.   
 Quickstart guide: https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python   
-I will need to figure out a better way to store and get the speech_key and speech_region for it.    
-Currently you needd to put that in a file and put the file path in line 45 and 280 in tools.py    
 
-You also need to put a path for a log folder at line 12 in logger.py    
-This needs to be made better. 
