@@ -1,9 +1,9 @@
 logging: True   
 logging_level: DEBUG
-log_folder: False
+log_folder: True
 
 # The direct path
-log_folder_path: ""  
+log_folder_path: "" # "C:/Coding/macro_keyboard/logs"  
 # relative from /macro_keyboard/
 log_folder_path_relative: "/logs"
 

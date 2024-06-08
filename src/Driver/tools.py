@@ -13,7 +13,7 @@ import os
 import sys
 
 from media_controllers import _moveAppAccrossDesktops as moveAppAccrossDesktops
-
+#from media_controllers import get_focused
 plat = sys.platform
 
 if sys.platform == 'win32':
@@ -43,46 +43,46 @@ if sys.platform == 'win32':
         VDA = True
     logger.debug(VDA)
 
-    # # def _get_processes_win32(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
-    #     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
+    def _get_processes_win32(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
+        """Returns list of dictionarys of all apps, their PIDS and hwnd\n
         
-    #     by default it will remove any blank handle, and any handle with any name defined in filter.
-    #     by default it will sort the list by title, but you can specify it for any key in the returned list
+        by default it will remove any blank handle, and any handle with any name defined in filter.
+        by default it will sort the list by title, but you can specify it for any key in the returned list
         
-    #     returns: 
-    #         [{"Title": windowtitle,
-    #         "TID": threadid,
-    #         "HWND": hwnd,
-    #         "PID": pid}]
-    #     """
-    #     def py_callback(hwnd, lparam):
-    #         threadid, pid = win32process.GetWindowThreadProcessId(hwnd)
+        returns: 
+            [{"Title": windowtitle,
+            "TID": threadid,
+            "HWND": hwnd,
+            "PID": pid}]
+        """
+        def py_callback(hwnd, lparam):
+            threadid, pid = win32process.GetWindowThreadProcessId(hwnd)
                     
-    #         if win32gui.IsWindow(hwnd):
-    #             windowtitle = win32gui.GetWindowText(hwnd)
+            if win32gui.IsWindow(hwnd):
+                windowtitle = win32gui.GetWindowText(hwnd)
                 
-    #             if windowtitle and windowtitle not in filter:
-    #                 results.append({"Title": windowtitle,
-    #                             "TID": threadid,
-    #                             "HWND": hwnd,
-    #                             "PID": pid})
+                if windowtitle and windowtitle not in filter:
+                    results.append({"Title": windowtitle,
+                                "TID": threadid,
+                                "HWND": hwnd,
+                                "PID": pid})
         
-    #         return True
+            return True
 
-    #     results = []
-    #     win32gui.EnumWindows(py_callback,0)
+        results = []
+        win32gui.EnumWindows(py_callback,0)
         
-    #     if sortby:
-    #         results = sorted(results, key=lambda d: d[sortby])
+        if sortby:
+            results = sorted(results, key=lambda d: d[sortby])
         
-    #     return results
+        return results
 
-    # def _get_focused_win32():
-    #     hwnd = win32gui.GetForegroundWindow()
-    #     return win32gui.GetWindowText(hwnd), hwnd
+    def _get_focused_win32():
+        hwnd = win32gui.GetForegroundWindow()
+        return win32gui.GetWindowText(hwnd), hwnd
 
-    get_processes = _get_processes_win32()
-    # get_focused = _get_focused_win32()
+    get_processes = _get_processes_win32
+    get_focused = _get_focused_win32
 
 elif sys.platform == 'linux':
     import pyautogui as custom_keyboard
@@ -378,7 +378,8 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
     """
     logger.debug(f"move desktop {direction}")
     if VDA and sys.platform == 'win32':
-        for process in get_processes():
+        processes = get_processes()
+        for process in processes:
             if process['Title'] == 'Program Manager':
                 win32gui.SetForegroundWindow(process['HWND'])
 
@@ -405,9 +406,9 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
         elif plat == 'linux':
             
             if direction == 'left':
-                cmd = f'xdotool set_desktop --relative -- -1'
+                cmd = 'xdotool set_desktop --relative -- -1'
             elif direction == 'right':
-                cmd = f'xdotool set_desktop --relative -- 1'
+                cmd = 'xdotool set_desktop --relative -- 1'
             os.system(cmd)
 
 

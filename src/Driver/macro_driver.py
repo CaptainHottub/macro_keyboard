@@ -1,5 +1,5 @@
 #from . import setup
-from setup import *
+from setup import logger, send_notification, file_dir, config, version
 #config = setup.config
 import tools
 import media_controllers

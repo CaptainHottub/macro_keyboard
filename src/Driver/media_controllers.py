@@ -68,7 +68,7 @@ def _get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list
     
     return results
 
-def get_focused():
+def _get_focused():
     hwnd = win32gui.GetForegroundWindow()
     return win32gui.GetWindowText(hwnd), hwnd
 
@@ -267,6 +267,134 @@ class _SpotifyController_win32:
             
         _moveAppAccrossDesktops(self.spotify_HWND, direction)
 
+class _ChromeController_win32:
+    """A Controller Class for Chrome
+    """
+    def __init__(self):
+        self.actions = {
+                'PrevTrack': 'Previous Track',
+                'SeekBackward': 'Seek Backward',
+                'PlayPause': 'Play Pause',
+                'SeekForward': 'Seek Forward',
+                'NextTrack': 'Next Track'
+                }
+        
+        self.mediaTimer = MediaTimer()
+        self.Chrome_Parent_PID = None
+        self.Chrome_app = None
+ 
+        
+    def _app_connect(self):
+        if self.Chrome_Parent_PID is None:
+            #logger.debug("Chrome_Parent_PID is False")
+            PID = _pidGetter('chrome')
+            if PID is None:
+                logger.debug('There is no app with name of "chrome"')
+                return
+            self.Chrome_Parent_PID = PID
+        
+        app = pywinauto.application.Application(backend="uia").connect(process=self.Chrome_Parent_PID)
+        return app
+    
+    def event_handler(self, event):
+        if self.Chrome_app is None:
+            print("in self.Chrome_app is None")
+            self.Chrome_app = self._app_connect()
+        
+        logger.debug("Connected to Chrome")
+
+        media_control_button = self.Chrome_app.window().child_window(title="Control your music, videos, and more", control_type="Button")
+        
+        logger.debug("got media_control_button")
+        try:
+            media_control_button.click()
+        except Exception as e:
+            print(e)
+            print("There is nothing in the Global Media Controls")
+            return 
+
+        #time.sleep(0.1)
+
+        ### this skips right to it
+        last_video_media_control = self.Chrome_app.window().child_window(title="Back to tab", control_type="Button", found_index=0)
+        media_controls = last_video_media_control.children()
+        
+        
+        action_todo =  self.actions[event]
+        for index, controls in enumerate(media_controls):
+            if controls.window_text() in action_todo:
+                #logger.debug("I found the button")
+                media_controls[index].click()
+                break
+        logger.debug(f"pressed media_controls { self.actions[event]}")
+
+        media_control_button.click()
+        
+
+    def press(self):
+        if result := self.mediaTimer.press_button():
+            logger.debug(result)
+            self.event_handler(result)
+
+class _YTMusicController_win32:
+    """A Controller Class for Youtube Music app on windows 10
+    """
+    def __init__(self):
+        self.YTMUSIC_HOTKEYS = {
+                "VolumeUp": "=",
+                "VolumeDown": "-",
+                "PrevTrack": "k",
+                "NextTrack": "j",
+                "PlayPause": ";",#"{SPACE}"
+                "Back5s": "+{LEFT}",
+                "Forward5s": "+{RIGHT}",
+            }
+                
+        self.mediaTimer = MediaTimer()
+        # self.ytmusic_app = None
+        # self.is_playing_music = False
+        # self.ytmusic_PID = None
+        
+    def launch_ytmusic(self):
+        #logger.debug("Launching Spotify")
+        
+        _launchApp(r'C:\Users\Taylor\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\YouTube Music')
+        time.sleep(0.75)
+
+    def get_app_info(self, app_name: str) -> list:
+        """Returns a list of information of an specified app.
+        """
+        processes = _get_processes()
+        for process in processes:
+            if app_name in process['Title']:
+                return process
+
+    
+    def event_handler(self, event):
+        #ytmusic = get_app_info('YouTube Music')
+    
+        if ytmusic_info := self.get_app_info('YouTube Music'):
+            try:
+                app = pywinauto.application.Application().connect(process=ytmusic_info['PID'], timeout=2)
+            
+                yt_music_app = app.window(title=ytmusic_info['Title'])
+                
+                yt_music_app.send_keystrokes(self.YTMUSIC_HOTKEYS[event])
+        
+
+            except pywinauto.findbestmatch.MatchError:
+                #logger.warning("ytmusic Timed out, will asume its not running.")
+                self.launch_ytmusic()
+
+        else:
+            self.launch_ytmusic()
+            
+    def press(self):
+        if result := self.mediaTimer.press_button():
+            #logger.debug(result)
+            print(result)
+            self.event_handler(result)
+
 
 class _SpotifyController_linux:
     # https://stackoverflow.com/questions/70737550/how-to-connect-to-mediaplayer2-player-playbackstatus-signal-using-pygtk
@@ -394,6 +522,7 @@ if sys.platform == 'win32':
     SpotifyController = _SpotifyController_win32
     ChromeController = _ChromeController_win32
     YTMusicController= _YTMusicController_win32
+    get_focused = _get_focused
 elif sys.platform == 'linux':
     SpotifyController = _SpotifyController_linux
     ChromeController = _ChromeController_linux
