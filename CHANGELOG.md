@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.121.b] - 2024-06-08
+
+First port to linux
+
+### Added
+- a config file: config.yml
+- media_controller.py
+
+### Changed
+- A lot of stuff got changed.
+- main.py got merged with macro_driver.py
+- logger.py was renamed to setup.py
+- the media controllers got moved to media_controller.py
+- The Azure speech stuff will not work on linus due to a big.
+
 ## [v2.2.111] - 2024-06-07
 
 Removed unessisary comments

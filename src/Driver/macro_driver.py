@@ -1,13 +1,15 @@
-from logger import logger, toaster
+#from . import setup
+from setup import *
+#config = setup.config
 import tools
-import serial.tools.list_ports
+import media_controllers
+
+import pystray
+from PIL import Image
 import threading
+import serial.tools.list_ports
 import time
-
-Spotify = tools.SpotifyController()
-YTMusic = tools.YTMusicController()
-Chrome = tools.ChromeController()
-
+import sys
 
 class MacroDriver:
     def __init__(self, baud_rate = 19200, mode = 1):
@@ -21,8 +23,14 @@ class MacroDriver:
         self.layers = []
         self.focused_window_hwnd = None
         
-    # add a mode function to this
-    # when called it increases the mode by 1 then at 3 it resets to 1
+        #self.Spotify = tools.SpotifyController()
+        # self.YTMusic = tools.YTMusicController()
+        # self.Chrome = tools.ChromeController()
+        self.Spotify = media_controllers.SpotifyController()
+        self.YTMusic = media_controllers.YTMusicController()
+        self.Chrome = media_controllers.ChromeController()
+
+                
     def update_mode(self):
         self.mode += 1
         if self.mode == 3:
@@ -109,11 +117,13 @@ class MacroDriver:
                 try:
                     self.serial_port = serial.Serial(self.com_port, self.baud_rate)
                     logger.info(f'Connected to serial port {self.com_port} at {self.baud_rate} baud')
-                    toaster.show_toast("Connected","Connected to Arduino succesfully!", duration=2, threaded=True)
+                    #toaster.show_toast("Connected","Connected to Arduino succesfully!", duration=2, threaded=True)
+                    send_notification(title='Connected', msg='Connected to Arduino succesfully!')
 
                 except serial.serialutil.SerialException:
                     logger.critical('Arduino is already connected to something, shutingdown')
-                    toaster.show_toast("Access is denied","Arduino is already connected to something", duration=2, threaded=True)
+                    #toaster.show_toast("Access is denied","Arduino is already connected to something", duration=2, threaded=True)
+                    send_notification(title='Access is denied', msg='Access is denied! Arduino is already connected to something', urgency='critical')
                     self.stop()
 
                 except Exception as e:
@@ -147,10 +157,10 @@ class MacroDriver:
                 except serial.serialutil.SerialException:
                     logger.error(f'Arduino Micro disconnected from {self.com_port}. Looking for device...')
                     
-                    toaster.show_toast("Arduino Micro disconnected", 
-                                       f'Arduino Micro disconnected from {self.com_port}. Looking for device...', 
-                                       duration=2, 
-                                       threaded=True)
+                    #toaster.show_toast("Arduino Micro disconnected", 
+                                    #    f'Arduino Micro disconnected from {self.com_port}. Looking for device...', 
+                                    #    duration=2, 
+                                    #    threaded=True)
                     
                     self.serial_port = None
                     # this is here so it doesn't throw 5 FileNotFoundError exception
@@ -166,26 +176,25 @@ class MacroDriver:
 
         logger.error('PROGRAM is shutting down')
     
-
     def Encoder_handler(self):
 
         match [self.app, self.button, self.event_type, self.layers]:
             ########################################    Encoder 1    ########################################
             case [_, "Encoder1", "RL", []]:
                 logger.debug('VolumeDown')
-                threading.Thread(target=Spotify.event_handler, args=('VolumeDown',)).start()    
+                threading.Thread(target=self.Spotify.event_handler, args=('VolumeDown',)).start()    
             
             case [_, "Encoder1", "RR", []]:
                 logger.debug('VolumeUp')
-                threading.Thread(target=Spotify.event_handler, args=('VolumeUp',)).start()    
+                threading.Thread(target=self.Spotify.event_handler, args=('VolumeUp',)).start()    
             
             case [_, "Encoder1", "RLB", []]:
                 logger.debug('Back5s')
-                threading.Thread(target=Spotify.event_handler, args=('Back5s',)).start()    
+                threading.Thread(target=self.Spotify.event_handler, args=('Back5s',)).start()    
             
             case [_, "Encoder1", "RRB", []]:
                 logger.debug('Forward5s')
-                threading.Thread(target=Spotify.event_handler, args=('Forward5s',)).start()    
+                threading.Thread(target=self.Spotify.event_handler, args=('Forward5s',)).start()    
 
             ########################################    Encoder 2    ########################################
             case ['LibreOffice Draw', "Encoder2", "RL", []]:
@@ -246,15 +255,15 @@ class MacroDriver:
                     
             case [_, mode, 2, []]: # any app, any mode and no layers
                 logger.debug("Btn 2, no layers")
-                threading.Thread(target=Spotify.press, args=()).start()    
+                threading.Thread(target=self.Spotify.press, args=()).start()    
 
             case [_, mode, 2, [1]]: # any app, any mode and btn 1 as layer
                 logger.debug("Btn 2, btn 1 as layer")
-                threading.Thread(target=YTMusic.press, args=()).start() 
+                threading.Thread(target=self.YTMusic.press, args=()).start() 
             
             case [_, mode, 2, [1, 'Mode']]: # any app, any mode and 'Mode' and btn 1 as layer
                 logger.debug("Btn 2, btn 1 as layer")
-                threading.Thread(target=Chrome.press, args=()).start() 
+                threading.Thread(target=self.Chrome.press, args=()).start() 
             
             # case [_, mode, 2, ['Mode']]: # any app, any mode and Mode as layer
             #     logger.debug("Like")
@@ -264,15 +273,15 @@ class MacroDriver:
             #Spotify
             case [_, mode, 2, [3, 4]]: # any app, any mode and btn 3, 4 as layer
                 logger.debug("Moves Spotify to the current virtual Desktop")
-                threading.Thread(target=Spotify.move_spotify_window, args=('Current',)).start()    
+                threading.Thread(target=self.Spotify.move_spotify_window, args=('Current',)).start()    
 
             case [_, mode, 2, [3]]:
                 logger.debug("Moves Spotify to the virtual Desktop on the left")
-                threading.Thread(target=Spotify.move_spotify_window, args=('Left',)).start()    
+                threading.Thread(target=self.Spotify.move_spotify_window, args=('Left',)).start()    
             
             case [_, mode, 2, [4]]: 
                 logger.debug("Moves Spotify to the virtual Desktop on the right")
-                threading.Thread(target=Spotify.move_spotify_window, args=('Right',)).start()    
+                threading.Thread(target=self.Spotify.move_spotify_window, args=('Right',)).start()    
 
             
             case [_, mode, 3, []]:    # move desktop left for any app
@@ -289,14 +298,14 @@ class MacroDriver:
                 self.change_pause_state()
 
 
-            # TEST
-            case ["Destiny 2", mode, 5, []]: # Rocket Flying Test
-                #left clicks, then presses q, then moves mouse down 15 pixels
-                logger.debug("Rocket Flying Test")
-                tools.rocket_flying()
+            # # TEST
+            # case ["Destiny 2", mode, 5, []]: # Rocket Flying Test
+            #     #left clicks, then presses q, then moves mouse down 15 pixels
+            #     logger.debug("Rocket Flying Test")
+            #     tools.rocket_flying()
 
-            case ["Destiny 2", mode, 6, []]: # Wellskate Test
-                tools.wellskate()
+            # case ["Destiny 2", mode, 6, []]: # Wellskate Test
+            #     tools.wellskate()
 
 
             # Specific app and Any Mode
@@ -358,8 +367,7 @@ class MacroDriver:
             case [_, mode, 11, []]:   #image to text             is button 11
                 logger.debug("Image to text")
                 threading.Thread(target = tools.Image_to_text2).start()
-        
-        
+              
     def Event_handler(self):
         logger.info(f"{self.button, self.event_type, self.layers}")
 
@@ -379,3 +387,53 @@ class MacroDriver:
         
         else:
             self.Button_handlerV3()
+
+#############################################       This is for setup       ############################################# 
+
+def sysIcon():
+    """
+    The icon for the widget will live in # '/macro_keyboard/Images/pythonIcon.ico'
+    
+    """ 
+    if config['system_tray_icon_image_path_relative'] and config['system_tray_icon_image_path'] == '':
+        icon_path = fr"{file_dir}{config['system_tray_icon_image_path_relative']}"
+
+    elif config['system_tray_icon_image_path'] and config['system_tray_icon_image_path_relative'] == '':
+        icon_path = config['system_tray_icon_image_path']
+    
+    image = Image.open(icon_path)
+    systray = pystray.Icon(name="Python Macro", icon=image, title=f"Python Macro {version}", menu=pystray.Menu(
+        pystray.MenuItem("Quit", lambda: macro_driver.stop())
+    ))
+    
+    systray.run()
+
+
+def main():
+    if config['system_tray_icon']:
+        threading.Thread(target = sysIcon, daemon=True).start()
+
+
+    global macro_driver
+    # Create a new macro driver
+    macro_driver = MacroDriver()
+
+    # Start the macro driver
+    macro_driver.start()
+
+if __name__ == '__main__':
+    
+    plat = sys.platform.lower()
+    if plat[:5] == 'linux':
+        logger.warning("Some features may not work")
+        #toaster.show_toast("Warning", "Some features may not work on Linux", duration=2, threaded=True)
+        send_notification(title='Warning', msg='Some features may not work on Linux')
+
+    main()
+
+    """
+    TODO:
+        try and transition all pyautogui keyboard funtions to custom_keyboard
+        add a write function to custom_keyboard
+    """
+

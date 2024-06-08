@@ -165,5 +165,7 @@ old_versions/
 # I don't want this stuff on the repo
 .vscode/
 workspace.code-workspace
+logs/
+
 
 
