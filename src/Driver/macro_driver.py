@@ -54,6 +54,7 @@ class MacroDriver:
     def msgparser(self, msg):
         """
         This parses the message sent by the microcontroller to something useable
+        I am quite impressed on how compact this is.
 
         Args:
             msg (str): A string of Binary
@@ -79,10 +80,13 @@ class MacroDriver:
             7: "RRB"           # 0111, 7      rotary right w/ button
             }
 
-        # splits the string every 4th character
-        *layers_int, event_int, button_int = [int(msg[i:i+4], 2) for i in range(0, len(msg), 4)]
+        logger.debug("Parsing message")
     
-        # renames the buttons if the key is valid 
+        # splits the string every 4th character
+        *layers_int, event_int, button_int = [int(msg[i:i+4], 2) 
+                                              for i in range(0, len(msg), 4)]
+    
+        # renames the buttons if the key is valid, if not returns button_int
         button_name: str | int = button_names.get(button_int, button_int)
         
         # gets the event type
@@ -99,8 +103,6 @@ class MacroDriver:
         while self.run:
             if not self.serial_port:    # If the serial port is not connected/not defined
                 # Look for the device
-
-                logger.warning("This could possibly be a problem")
                 arduino_ports = [
                     p.device for p in serial.tools.list_ports.comports()
                     if 'Pi Pico Macro Driver' in p.description
@@ -129,15 +131,21 @@ class MacroDriver:
                 except Exception as e:
                     logger.error(f'Error connecting to serial port {self.com_port}: {e}')
                     continue
+                
+                finally:
+                    logger.debug("Waiting for message from microcontroller.")
 
             else:
                 # will have to re write this
                 try:
                     button_string = str(self.serial_port.readline(), 'utf-8').strip()
 
+                    logger.debug(f"Message has been received: {button_string}")                    
                     #self.button, self.event_type, self.layers = self.msgparser(button_string)
                     button, event_type, layers = self.msgparser(button_string)
 
+                    #logger.debug(f'Message was: {button=}, {event_type=}, {layers=}')
+                    
                     if button == "Mode":
                         self.update_mode()
                         continue
@@ -409,8 +417,11 @@ def sysIcon():
     ))
     
     systray.run()
+    logger.debug("System Tray Icon started Sucessfully")
 
 def main():
+    logger.debug(f"Initializing {__file__} version: {version}")
+    
     if config['system_tray_icon']:
         threading.Thread(target = sysIcon, daemon=True).start()
 

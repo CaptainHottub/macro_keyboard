@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [v2.2.125.b] - 2024-06-09
+
+### Added
+- Added some logs when certain things are initialized
+
+### Changed
+- The System Tray Icon should now show the full version.
+
 ## [v2.2.124.b] - 2024-06-09
 
 It should be easier to test macros now.

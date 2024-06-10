@@ -86,8 +86,14 @@ def get_version(file_dir)-> str:
                     string_with_version_in_it = line
                     file.close()
                     break    
-                
-        version = string_with_version_in_it[4:12]
+        
+        for index, x in enumerate(string_with_version_in_it):
+            if x =='[':
+                left_bracket_ind = index
+            elif x == ']':
+                right_bracket_ind = index
+        
+        version = string_with_version_in_it[(left_bracket_ind+1):right_bracket_ind]
     except FileNotFoundError:
         print('CHANGELOG.md Not Found, version will be ""')
         version = ''
@@ -144,7 +150,7 @@ if config['logging']:
 
     if config['log_folder']:
         now = datetime.datetime.now()
-        log_file_name = now.strftime("%Y-%B-%d_%H.%M.%S")
+        log_file_name = now.strftime("%Y-%m-%d_%H.%M.%S")
         
         if not log_folder_path.exists():
             log_folder_path.mkdir()
@@ -161,3 +167,5 @@ if config['logging']:
 
         file_handler.setFormatter(log_file_format)
         logger.addHandler(file_handler)
+
+logger.debug(f"Initializing is complete for {__file__}")

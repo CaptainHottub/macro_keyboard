@@ -28,11 +28,11 @@ if sys.platform == 'win32':
         GetWindowDesktopNumber = virtual_desktop_accessor.GetWindowDesktopNumber          # (hwnd: HWND)
         
     except FileNotFoundError as e:
-        print(e)
+        logger.warning(e)
         VDA = False
     else:
         VDA = True
-logger.debug(VDA)
+#logger.debug(VDA)
 
 def _get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
     """Returns list of dictionarys of all apps, their PIDS and hwnd\n

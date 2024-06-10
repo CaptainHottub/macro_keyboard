@@ -12,6 +12,8 @@ from pynput import mouse, keyboard
 import os
 import sys
 
+logger.debug(f'Initializing {__file__}')
+
 from media_controllers import _moveAppAccrossDesktops as moveAppAccrossDesktops
 #from media_controllers import get_focused
 plat = sys.platform
@@ -41,7 +43,7 @@ if sys.platform == 'win32':
         VDA = False
     else:
         VDA = True
-    logger.debug(VDA)
+    #logger.debug(f"{VDA=}")
 
     def _get_processes_win32(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
         """Returns list of dictionarys of all apps, their PIDS and hwnd\n
@@ -93,6 +95,9 @@ if sys.platform == 'win32':
     get_focused = _get_focused_win32
     
     forground_hwnd = _get_forground_hwnd()
+    
+    logger.debug(f'Succesfully setup {plat} specific functions')
+
 elif sys.platform == 'linux':
     import pyautogui as custom_keyboard
     logger.warning("custom_keyboard has been redirectd to Pyautogui")
@@ -121,6 +126,8 @@ elif sys.platform == 'linux':
 
     # get_processes = _get_processes_linux()
     # get_focused = _get_focused_linux()  
+    logger.debug(f'Succesfully setup {plat} specific functions')
+    
 # Setting up the speech config
 
 try:
@@ -481,3 +488,6 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
 #         You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
 #         logger.warning(msg)
 #         return 1
+
+
+logger.debug(f"Initializing is complete for {__file__}")
