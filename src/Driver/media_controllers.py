@@ -212,22 +212,21 @@ class _SpotifyController_win32:
         
     def _get_spotify_HWND(self):
         # Put into its own function, where a param is a key you want to filter by
-        processes = _get_processes()
-        sorted_processes_by_Pid= sorted(processes, key=lambda x: x['PID'])
+        processes = _get_processes(sortby='PID')
         
-        for index, process in enumerate(sorted_processes_by_Pid):
+        for index, process in enumerate(processes):
             
             if 'GDI+ Window (Spotify.exe)' in process['Title']:
                 PID = process['PID']
-                process_above_in_the_list = sorted_processes_by_Pid[index - 1]
+                process_above_in_the_list = processes[index - 1]
                 
-                if process_above_in_the_list['PID'] == PID:
+                if process_above_in_the_list['PID'] == PID and process_above_in_the_list['Title'] == 'Spotify Premium':
                     
                     spotify = process_above_in_the_list
                     
                     break
             
-        print(spotify)   
+        #print(spotify)   
          
         if not spotify:
             logger.debug("looks like spotify is not running.")

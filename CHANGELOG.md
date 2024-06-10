@@ -7,6 +7,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.124.b] - 2024-06-09
+
+It should be easier to test macros now.
+added testing.py, that will ask for an input and it will send said input to MacroDriver.Event_handler()
+
+### Added
+- testing.py
+
+### Changed
+- button, event_type, layers and app are no longer globals variables
+- tools.change_desktop() should now be faster
+
+
 ## [v2.2.123.b] - 2024-06-08
 
 It now works on linux and windows.

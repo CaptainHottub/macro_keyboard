@@ -81,9 +81,18 @@ if sys.platform == 'win32':
         hwnd = win32gui.GetForegroundWindow()
         return win32gui.GetWindowText(hwnd), hwnd
 
+    def _get_forground_hwnd():
+        processes = _get_processes_win32()
+        for process in processes:
+            if process['Title'] == 'Program Manager':
+                return process['HWND']
+        
+        return None
+    
     get_processes = _get_processes_win32
     get_focused = _get_focused_win32
-
+    
+    forground_hwnd = _get_forground_hwnd()
 elif sys.platform == 'linux':
     import pyautogui as custom_keyboard
     logger.warning("custom_keyboard has been redirectd to Pyautogui")
@@ -111,8 +120,7 @@ elif sys.platform == 'linux':
     VDA = False
 
     # get_processes = _get_processes_linux()
-    # get_focused = _get_focused_linux()
-
+    # get_focused = _get_focused_linux()  
 # Setting up the speech config
 
 try:
@@ -378,11 +386,32 @@ def change_desktop(direction, focused_app): #change desktop hotkey, where direct
     """
     logger.debug(f"move desktop {direction}")
     if VDA and sys.platform == 'win32':
-        processes = get_processes()
-        for process in processes:
-            if process['Title'] == 'Program Manager':
-                win32gui.SetForegroundWindow(process['HWND'])
+        # processes = get_processes()
+        # for process in processes:
+        #     if process['Title'] == 'Program Manager':
+        #         win32gui.SetForegroundWindow(process['HWND'])
+        # global forground_hwnd
+        
+        # if not forground_hwnd:
+        #     processes = get_processes()
+        #     for process in processes:
+        #         if process['Title'] == 'Program Manager':
+        #             forground_hwnd = process['HWND']
+        
+        # win32gui.SetForegroundWindow(forground_hwnd)
+        # this is iff for somereason it doesn't work
+        
+        #### this is so much faster!!!!
+        try: 
+            global forground_hwnd
+            win32gui.SetForegroundWindow(forground_hwnd)
+        except Exception as e:
+            print(e)
+            if isinstance(e, win32gui.error):
+                #It's not actually a win32gui error, its from pywintypes.error, and win32gui imports it as error.
+                forground_hwnd = _get_forground_hwnd()
 
+        
         if direction == 'left':
             newDesktopNum = CurrentDesktopNumber() -1
         elif direction == 'right':

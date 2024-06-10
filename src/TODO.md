@@ -9,6 +9,15 @@ tools.py -> macros.py
 
 Take the windows specific function from tools.py and media_controller.py and put in _utils_win32.py
 then do the same for linuxs specific fonctions and put them in _utils_posix.py
+then you can use platformModule, 
+ 
+in macros you can do:  # you would have to create an instance of that class when you first load macros.py
+Spotify = platformModule.SpotifyController()
+
+def Spotify_press():
+    Spotify.press()
+def Spotify_event_handler():
+    Spotify.event_handler()
 
 then at the start of macros.py do:
 if sys.platform == 'win32':
@@ -27,13 +36,34 @@ do like Pyautogui with platformModule   line 535 in __init__
 # The platformModule is where we reference the platform-specific functions.
 if sys.platform == "win32":
     from . import _utils_win32 as platformModule
-elif platform.system() == "Linux":
+elif sys.platform == "Linux":
     from . import _utils_linux as platformModule
 else:
     raise NotImplementedError("Your platform (%s) is not supported by PyAutoGUI." % (platform.system()))
 
+I like platformModule because instead of:
+_utils_linux.SpotifyController, its platformModule.SpotifyController
+
+also maybe make a main controller class like this
+class Controller():
+    def __init__(self):
+        self.mediaTimer = MediaTimer()
+    
+    
+    def event_handler(self, event):
+
+        print(event)
+        
+
+    def press(self):
+        if result := self.mediaTimer.press_button():
+            logger.debug(result)
+            self.event_handler(result)
+        
 
 
+https://stackoverflow.com/questions/43540782/python-use-different-function-depending-on-os
+https://stackoverflow.com/questions/791098/how-to-offer-platform-specific-implementations-of-a-module
 
 fix the azure stuff.
 

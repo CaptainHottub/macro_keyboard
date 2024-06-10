@@ -18,9 +18,9 @@ class MacroDriver:
         self.serial_port = None
         self.run = True
         self.pause_state = False
-        self.button = 0
-        self.event_type = ''
-        self.layers = []
+        #self.button = 0
+        #self.event_type = ''
+        #self.layers = []
         self.focused_window_hwnd = None
         
         #self.Spotify = tools.SpotifyController()
@@ -135,17 +135,20 @@ class MacroDriver:
                 try:
                     button_string = str(self.serial_port.readline(), 'utf-8').strip()
 
-                    self.button, self.event_type, self.layers = self.msgparser(button_string)
+                    #self.button, self.event_type, self.layers = self.msgparser(button_string)
+                    button, event_type, layers = self.msgparser(button_string)
 
-                    if self.button == "Mode":
+                    if button == "Mode":
                         self.update_mode()
                         continue
                     
                     # if pause_state is True, buttons will be ignored, except for B, it toggles pause_state
                     if not self.pause_state: # Buttons wont be ignored
-                        self.Event_handler()
+                        #self.Event_handler()
+                        self.Event_handler(button, event_type, layers)
 
-                    elif self.button == 12:
+
+                    elif button == 12:
                         logger.debug('button 12 was pressed and pause state is true')
                         self.change_pause_state()
                     else:
@@ -176,9 +179,9 @@ class MacroDriver:
 
         logger.error('PROGRAM is shutting down')
     
-    def Encoder_handler(self):
+    def Encoder_handler(self, app, button, event_type, layers):
 
-        match [self.app, self.button, self.event_type, self.layers]:
+        match [app, button, event_type, layers]:
             ########################################    Encoder 1    ########################################
             case [_, "Encoder1", "RL", []]:
                 logger.debug('VolumeDown')
@@ -230,10 +233,10 @@ class MacroDriver:
                 logger.debug('Encoder2 rotate right w/ button, right arrow')
                 tools.perform_press('right')  
 
-    def Button_handlerV3(self):
+    def Button_handlerV3(self, app, button, layers):
         #logger.debug("Button_handlerV2")
         
-        match [self.app, self.mode, self.button, self.layers]:
+        match [app, self.mode, button, layers]:
             #Format: 
             #case [AppName, "MacroMode", "ButtonNumber"]:
             # Leave AppName _ for any app
@@ -285,10 +288,10 @@ class MacroDriver:
 
             
             case [_, mode, 3, []]:    # move desktop left for any app
-                threading.Thread(target = tools.change_desktop, args=('left', self.app)).start()
+                threading.Thread(target = tools.change_desktop, args=('left', app)).start()
 
             case [_, mode, 4, []]:     # move desktop right for any app   
-                threading.Thread(target = tools.change_desktop, args=('right', self.app)).start()
+                threading.Thread(target = tools.change_desktop, args=('right', app)).start()
             
 
 
@@ -367,26 +370,25 @@ class MacroDriver:
             case [_, mode, 11, []]:   #image to text             is button 11
                 logger.debug("Image to text")
                 threading.Thread(target = tools.Image_to_text2).start()
-              
-    def Event_handler(self):
-        logger.info(f"{self.button, self.event_type, self.layers}")
+                
+    def Event_handler(self, button, event_type, layers):
+            #logger.info(f"{self.button, self.event_type, self.layers}")
+            logger.info(f"{button, event_type, layers}")
+            focused_window_title, self.focused_window_hwnd = tools.get_focused()
 
-        focused_window_title, self.focused_window_hwnd = tools.get_focused()
+            if focused_window_title is None:
+                app = 'Desktop'
+            else:
+                split_focused_window = focused_window_title.split(" - ")
+                split_focused_window.reverse()
+                app = split_focused_window[0]
 
-        if focused_window_title is None:
-            app = 'Desktop'
-        else:
-            split_focused_window = focused_window_title.split(" - ")
-            split_focused_window.reverse()
-            app = split_focused_window[0]
-        
-        self.app = app
+            if button in ["Encoder1", "Encoder2"]:
+                self.Encoder_handler(app, button, event_type, layers)
+            
+            else:
+                self.Button_handlerV3(app, button, layers)
 
-        if self.button in ["Encoder1", "Encoder2"]:
-            self.Encoder_handler()
-        
-        else:
-            self.Button_handlerV3()
 
 #############################################       This is for setup       ############################################# 
 
