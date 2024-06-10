@@ -2,8 +2,6 @@ This is my macro keyboard project. It uses a Python script that acts as a driver
 
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/macro_keyboard.jpg?raw=true)
 
-Hi UBCV, if you were wondering, this is one of Taylor McLaughlin's git hub repositories.
-
 It receives text from the microcontroller over USB serial and it executes macros and some more complex stuff.
 
 I'm doing this instead of using QMK or having the microcontroller send keystrokes because it allows me to do some more complex things.
@@ -15,7 +13,7 @@ This is a work in progress.
 
 All of this was inspired by Ryan Bates and his [Macro Keyboard Video][video-inspiration]
 
-[Website][retrobuilds]
+[Website][retrobuilds2]
 
 
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/pcb.jpg?raw=true)
@@ -44,4 +42,5 @@ This work is licensed under a
 [cc-by-nc-image]: https://licensebuttons.net/l/by-nc/4.0/88x31.png
 
 [retrobuilds]: http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/ 
+[retrobuilds2]: https://github.com/retrobuiltRyan/MacroKeyboardV2
 [video-inspiration]: https://www.youtube.com/watch?v=IDlcxLQ1SbY
