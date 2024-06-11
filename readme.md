@@ -18,6 +18,9 @@ All of this was inspired by Ryan Bates and his [Macro Keyboard Video][video-insp
 
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/pcb.jpg?raw=true)
 
+![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/PCB_screenshot.png?raw=true)
+
+
 I  have one button that works like the button on the old wired headphones from Apple.
 1 press will play/ pause, 2 presses will go to the next song, and 3 presses will got to the previous song.
 

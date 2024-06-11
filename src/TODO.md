@@ -44,7 +44,7 @@ else:
 I like platformModule because instead of:
 _utils_linux.SpotifyController, its platformModule.SpotifyController
 
-also maybe make a main controller class like this
+also maybe make a main controller class like this, IDK ill have to look at class inheritence
 class Controller():
     def __init__(self):
         self.mediaTimer = MediaTimer()
@@ -66,8 +66,9 @@ https://stackoverflow.com/questions/43540782/python-use-different-function-depen
 https://stackoverflow.com/questions/791098/how-to-offer-platform-specific-implementations-of-a-module
 
 fix the azure stuff.
+Make a class for that.
 
-
+Take custom_keyboard and make it windows specific, and have functions for SendInput() and keybd_event(). Some apps respond to one and not the other.
 
 
 Make ReadMe Proper

@@ -1,40 +1,49 @@
+"""
+All the windows specific stuff will be moved here
+"""
+import contextlib
 from setup import logger
-
 import time
 import pywinauto
 import psutil
 import os
-import sys
-
-
 import ctypes
-import subprocess
-VDA = False
-if sys.platform == 'win32':
-    import win32gui
-    import win32process
+import custom_keyboard
 
-    r"""
-    VirtualDesktopAccessor.dll is used to move apps between virtual desktops:  https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file
-    This is a safety feature, if VirtualDesktopAccessor.dll isn't in "C:\Windows\System32" it will disable any func that uses it.
-    """
-    try:
-        virtual_desktop_accessor = ctypes.WinDLL("VirtualDesktopAccessor.dll")
-        CurrentDesktopNumber = virtual_desktop_accessor.GetCurrentDesktopNumber
-        #DesktopCount = virtual_desktop_accessor.GetDesktopCount
-        GoToDesktop = virtual_desktop_accessor.GoToDesktopNumber
-        MoveAppToDesktop = virtual_desktop_accessor.MoveWindowToDesktopNumber # requires (hwnd, desktop_num)
-        #IsWindowOnDesktopNumber = virtual_desktop_accessor.IsWindowOnDesktopNumber #hwnd: HWND, desktop_number: i32
-        GetWindowDesktopNumber = virtual_desktop_accessor.GetWindowDesktopNumber          # (hwnd: HWND)
-        
-    except FileNotFoundError as e:
-        logger.warning(e)
-        VDA = False
-    else:
-        VDA = True
+import pyperclip
+from PIL import ImageGrab
+import pytesseract
+from pynput import mouse, keyboard
+import win32gui
+import win32process
+
+
+logger.debug(f'Initializing {__file__}')
+
+VDA = False
+
+
+r"""
+VirtualDesktopAccessor.dll is used to move apps between virtual desktops:  https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file
+This is a safety feature, if VirtualDesktopAccessor.dll isn't in "C:\Windows\System32" it will disable any func that uses it.
+"""
+try:
+    virtual_desktop_accessor = ctypes.WinDLL("VirtualDesktopAccessor.dll")
+    CurrentDesktopNumber = virtual_desktop_accessor.GetCurrentDesktopNumber
+    #DesktopCount = virtual_desktop_accessor.GetDesktopCount
+    GoToDesktop = virtual_desktop_accessor.GoToDesktopNumber
+    MoveAppToDesktop = virtual_desktop_accessor.MoveWindowToDesktopNumber # requires (hwnd, desktop_num)
+    #IsWindowOnDesktopNumber = virtual_desktop_accessor.IsWindowOnDesktopNumber #hwnd: HWND, desktop_number: i32
+    GetWindowDesktopNumber = virtual_desktop_accessor.GetWindowDesktopNumber          # (hwnd: HWND)
+    
+except FileNotFoundError as e:
+    logger.warning(e)
+    VDA = False
+else:
+    VDA = True
 #logger.debug(VDA)
 
-def _get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
+def get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list[dict]:
     """Returns list of dictionarys of all apps, their PIDS and hwnd\n
     
     by default it will remove any blank handle, and any handle with any name defined in filter.
@@ -68,12 +77,7 @@ def _get_processes(filter=['Default IME', 'MSCTFIME UI'], sortby='Title')-> list
     
     return results
 
-def _get_focused():
-    hwnd = win32gui.GetForegroundWindow()
-    return win32gui.GetWindowText(hwnd), hwnd
-
-
-def _pidGetter(name: str)-> int: 
+def pidGetter(name: str)-> int: 
     """
     Returns the PID of the parent Process you want.
 
@@ -90,7 +94,19 @@ def _pidGetter(name: str)-> int:
                 break
     return PID
 
-def _launchApp(name_or_path:str, timeout:int = 0.5) -> None:
+def get_focused():
+    hwnd = win32gui.GetForegroundWindow()
+    return win32gui.GetWindowText(hwnd), hwnd
+
+def get_forground_hwnd():
+    processes = get_processes()
+    for process in processes:
+        if process['Title'] == 'Program Manager':
+            return process['HWND']
+    
+    return None
+    
+def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
     #logger.debug(name_or_path,timeout)
     try:
         os.startfile(name_or_path)
@@ -98,48 +114,7 @@ def _launchApp(name_or_path:str, timeout:int = 0.5) -> None:
         logger.warning(e)
     time.sleep(timeout)
 
-def _moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
-    """Moves an app accross desktops.
-    This function requires the VirtualDesktopAccessor.dll, if it is not installed, the  func will return 1
-    If you input an app name, it will try and get the hwnd
-    if the app is not active, the hwnd will be None and the func will return 0
-    
-    Movements are:
-    'Left': Goes left,
-    'Right': Goes Right,
-    'Current': Moves to the current desktop
-    
-    Args:
-        hwnd (HWND): The HWND(handle) of the app
-        movement (str): Movement Type
 
-    Returns:
-        bool: It will return 1 if succesfull and 0 if not
-    """
-    if VDA and sys.platform == 'win32':
-        #logger.debug(hwnd)
-        
-        if hwnd is None:
-            logger.debug("hwnd is None")
-            #launchApp(hwnd)
-            return 0
-        
-        movements = {
-            'Left': (GetWindowDesktopNumber(hwnd) -1),
-            'Right': (GetWindowDesktopNumber(hwnd) +1),
-            'Current': CurrentDesktopNumber()
-            }
-
-        destination = movements[movement]
-        return MoveAppToDesktop(hwnd, destination) 
-    
-    else:
-        msg = r"""VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
-        You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
-        logger.warning(msg)
-        return 1
-    
-    
 class MediaTimer:
     """
     This will sometimes return None
@@ -175,21 +150,9 @@ class MediaTimer:
         if not self.timer_active:
             return self.start_timer(0.55)
 
-"""
-On Windows, I have 3 methods I can controll spotify:
-PyAutoGui, and send the media keys                      (requires the app to be focused and on the same desktop.)
-Pywinauto, to connect to spotify and send keystrokes    (currently in use, can't be minimized)
-The Spotify API/spotipy :https://github.com/spotipy-dev/spotipy
 
-Then on linux, i have 3 methods too:
-Use 'dbus-send --dest=org.mpris'                        (currently in use, IDK the limitations.)
-PyAutoGui, and send the media keys              (requires the app to be focused and on the same desktop.)
-The Spotify API/spotipy :https://github.com/spotipy-dev/spotipy
-
-its not worth it to make an api call to play/pause, or change track on the spotify app on your computer.
-
-"""
-class _SpotifyController_win32:
+#############################################     Macros that can be called     #############################################
+class _SpotifyController:
     """A Controller Class for Spotify
     """
     def __init__(self):
@@ -212,20 +175,20 @@ class _SpotifyController_win32:
         #self.spotify_app = self._connect()
                
     def _app_connect(self):
-        if PID := _pidGetter('Spotify'):
+        if PID := pidGetter('Spotify'):
             app = pywinauto.application.Application().connect(process=PID, timeout=2)
         else:
             logger.debug("Couldn't find spotify")
-            _launchApp('Spotify')
+            launchApp('Spotify')
             time.sleep(0.75)
-            app = pywinauto.application.Application().connect(process=_pidGetter('Spotify'), timeout=2)
+            app = pywinauto.application.Application().connect(process=pidGetter('Spotify'), timeout=2)
         app = app["Chrome_Widget_Win0"]
         
         return app
         
     def _get_spotify_HWND(self):
         # Put into its own function, where a param is a key you want to filter by
-        processes = _get_processes(sortby='PID')
+        processes = get_processes(sortby='PID')
         
         for index, process in enumerate(processes):
             
@@ -251,7 +214,7 @@ class _SpotifyController_win32:
     def launch_spotify(self):
         logger.debug("Launching Spotify")
         
-        _launchApp('Spotify')
+        launchApp('Spotify')
         time.sleep(0.75)
         
         self.spotify_app = self._app_connect()
@@ -279,7 +242,7 @@ class _SpotifyController_win32:
             
         _moveAppAccrossDesktops(self.spotify_HWND, direction)
 
-class _ChromeController_win32:
+class _ChromeController:
     """A Controller Class for Chrome
     """
     def __init__(self):
@@ -299,7 +262,7 @@ class _ChromeController_win32:
     def _app_connect(self):
         if self.Chrome_Parent_PID is None:
             #logger.debug("Chrome_Parent_PID is False")
-            PID = _pidGetter('chrome')
+            PID = pidGetter('chrome')
             if PID is None:
                 logger.debug('There is no app with name of "chrome"')
                 return
@@ -348,7 +311,7 @@ class _ChromeController_win32:
             logger.debug(result)
             self.event_handler(result)
 
-class _YTMusicController_win32:
+class _YTMusicController:
     """A Controller Class for Youtube Music app on windows 10
     """
     def __init__(self):
@@ -370,13 +333,13 @@ class _YTMusicController_win32:
     def launch_ytmusic(self):
         #logger.debug("Launching Spotify")
         
-        _launchApp(r'C:\Users\Taylor\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\YouTube Music')
+        launchApp(r'C:\Users\Taylor\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\YouTube Music')
         time.sleep(0.75)
 
     def get_app_info(self, app_name: str) -> list:
         """Returns a list of information of an specified app.
         """
-        processes = _get_processes()
+        processes = get_processes()
         for process in processes:
             if app_name in process['Title']:
                 return process
@@ -407,135 +370,150 @@ class _YTMusicController_win32:
             print(result)
             self.event_handler(result)
 
+def _perform_hotkey(hotkey):
+    #logger.debug(f"perform_hotkey {hotkey = }")
+    custom_keyboard.hotkey(*hotkey)
 
-class _SpotifyController_linux:
-    # https://stackoverflow.com/questions/70737550/how-to-connect-to-mediaplayer2-player-playbackstatus-signal-using-pygtk
-    # https://www.reddit.com/r/linuxquestions/comments/mv9z12/how_does_linux_handle_playpause_from_function_keys/
-    def __init__(self):
-        self.main_msg = [
-            'dbus-send', 
-            '--print-reply', 
-            '--session',
-            '--dest=org.mpris.MediaPlayer2.spotify', 
-            '/org/mpris/MediaPlayer2']
-        self.event_translation_layer = {
-            "PlayPause": "PlayPause", 
-            "PrevTrack":"Previous", 
-            "NextTrack":"Next"}
-        
-        self.mediaTimer = MediaTimer()
+def _perform_press(key):
+    #logger.debug(f"perform_press {key = }")
+    custom_keyboard.press(key)
 
-    def sendCommand(self, cmd):
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        return proc.communicate()
-
-    # use this: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html
-    #https://github.com/DeaDBeeF-Player/deadbeef/issues/1785
-    def event_handler(self, event):
-
-        if event in ["PlayPause", "PrevTrack", "NextTrack"]:
-            final_msg = self.main_msg + [f'org.mpris.MediaPlayer2.Player.{self.event_translation_layer[event]}']
-
-        elif event in ['VolumeUp', 'VolumeDown']:
-            #https://github.com/DeaDBeeF-Player/deadbeef/issues/1785
-            get_volume_msg = self.main_msg+['org.freedesktop.DBus.Properties.Get', 
-                                'string:org.mpris.MediaPlayer2.Player', 
-                                'string:Volume']
-
-            outputmsg = self.sendCommand(get_volume_msg)
-
-            intermidiate = outputmsg[0].split("double ")
-            volume = intermidiate[-1][0:-1]
-
-            volume = float(volume)
-
-            if event == 'VolumeUp':
-                new_volume = volume + 0.05
-            else:
-                new_volume = volume - 0.05
-
-            if new_volume > 1.0:
-                logger.debug("vol is greater then 1")
-                return
-
-            get_volume_msg[5] = 'org.freedesktop.DBus.Properties.Set'
-            get_volume_msg.append(f'variant:double:{new_volume:.2f}')
-            final_msg = get_volume_msg
-            
-        
-        elif event in ["Back5s", "Forward5s"]: # https://gitlab.gnome.org/World/podcasts/-/issues/238
-
-            if event == "Forward5s":
-                #seek is in microseconds
-                seek_by = 5000000
-            else:
-                seek_by = -5000000
-            final_msg = self.main_msg + ['org.mpris.MediaPlayer2.Player.Seek', f'int64:{seek_by}']
-
-            #print(sendCommand(seek_msg))
-        self.sendCommand(final_msg)
-
-    def press(self):
-        if result := self.mediaTimer.press_button():
-            logger.debug(result)
-            self.event_handler(result)
-        
-class _ChromeController_linux:
-    """A Controller Class for Chrome  IT is currently broken
-    """
-    def __init__(self):
-        logger.warning(""" pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
-                       I'm going to fix it one day, but Idk when.""")
-        self.actions = {
-                'PrevTrack': 'Previous Track',
-                'SeekBackward': 'Seek Backward',
-                'PlayPause': 'Play Pause',
-                'SeekForward': 'Seek Forward',
-                'NextTrack': 'Next Track'
-                }
-    def broken(self):
-        logger.warning(""" pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
-                       I'm going to fix it one day, but Idk when.""")
-        return 
-
-    def event_handler(self, event):
-        self.broken()
-    def press(self):
-        self.broken()
-      
-class _YTMusicController_linux:
-    """A Controller Class for Youtube Music app, I might be able to use the same methoda as the spotify controller, but not right now.
-    I navent event used YT music after setting up the controller.
-    """
-    def __init__(self):
-        self.YTMUSIC_HOTKEYS = {
-                "VolumeUp": "=",
-                "VolumeDown": "-",
-                "PrevTrack": "k",
-                "NextTrack": "j",
-                "PlayPause": ";",#"{SPACE}"
-                "Back5s": "+{LEFT}",
-                "Forward5s": "+{RIGHT}",
-            }
-                
-    def broken(self):
-        # logger.warning("""pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
-                    #    IDK if im going to fix this""")
-        raise PendingDeprecationWarning("""pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
-                       IDK if im going to fix this""")
+def _moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
+    """Moves an app accross desktops.
+    This function requires the VirtualDesktopAccessor.dll, if it is not installed, the  func will return 1
+    If you input an app name, it will try and get the hwnd
+    if the app is not active, the hwnd will be None and the func will return 0
     
-    def event_handler(self, event):
-        self.broken()
+    Movements are:
+    'Left': Goes left,
+    'Right': Goes Right,
+    'Current': Moves to the current desktop
+    
+    Args:
+        hwnd (HWND): The HWND(handle) of the app
+        movement (str): Movement Type
 
-    def press(self):
-        self.broken()
+    Returns:
+        bool: It will return 1 if succesfull and 0 if not
+    """
+    if VDA:
+        #logger.debug(hwnd)
+        
+        if hwnd is None:
+            logger.debug("hwnd is None")
+            #launchApp(hwnd)
+            return 0
+        
+        movements = {
+            'Left': (GetWindowDesktopNumber(hwnd) -1),
+            'Right': (GetWindowDesktopNumber(hwnd) +1),
+            'Current': CurrentDesktopNumber()
+            }
 
-if sys.platform == 'win32':
-    SpotifyController = _SpotifyController_win32
-    ChromeController = _ChromeController_win32
-    YTMusicController = _YTMusicController_win32
-    get_focused = _get_focused
-elif sys.platform == 'linux':
-    SpotifyController = _SpotifyController_linux
-    ChromeController = _ChromeController_linux
-    YTMusicController = _YTMusicController_linux
+        destination = movements[movement]
+        return MoveAppToDesktop(hwnd, destination) 
+    
+    else:
+        msg = r"""VirtualDesktopAccessor.dll Cannot be found. This function will not work without it
+        You can find it here: https://github.com/Ciantic/VirtualDesktopAccessor?tab=readme-ov-file, make sure you download the correct version for your operating system. \nPut it in "C:\Windows\System32" """
+        logger.warning(msg)
+        return 1
+
+def _change_desktop(direction, focused_app): #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
+    """
+    The VDA one take on average 5 ms to complete, IT also doesn't need to alt tab some apps like task manager
+    while the other one takes 100 ms to complete
+    """
+    logger.debug(f"move desktop {direction}")
+    if VDA:
+        #### this is so much faster!!!!
+        try: 
+            global forground_hwnd
+            win32gui.SetForegroundWindow(forground_hwnd)
+        except Exception as e:
+            print(e)
+            if isinstance(e, win32gui.error):
+                #It's not actually a win32gui error, its from pywintypes.error, and win32gui imports it as error.
+                forground_hwnd = get_forground_hwnd()
+
+        if direction == 'left':
+            newDesktopNum = CurrentDesktopNumber() -1
+        elif direction == 'right':
+            newDesktopNum = CurrentDesktopNumber() + 1
+    
+        GoToDesktop(newDesktopNum)
+    
+    else:
+
+        apps_to_alt_tab = ['Star Citizen']  #lis of apps to alt tab when changing desktops
+
+        if focused_app in apps_to_alt_tab: 
+            _perform_hotkey(['alt', 'tab'])
+            #custom_keyboard.hotkey('alt', 'tab')
+            time.sleep(0.1)
+    
+        _perform_hotkey(['ctrl', 'win', direction])
+
+def _Image_to_text2():
+    """Presses Win Shift S to open snippet mode, waits for mouse release then does tesseract OCR
+    Press Ctrl V to paste text
+    """
+
+    logger.debug("imt has just started")
+
+    m = mouse.Controller()
+
+    def on_release(key):
+        if key == keyboard.Key.esc:
+            logger.debug('esc pressed and released')
+            # Stop listener and the func
+            m.click(mouse.Button.left,1)
+            return False
+
+    keyboard_listener = keyboard.Listener(
+        on_release=on_release)
+    
+    _perform_hotkey(['winleft', 'shift', 's'])
+    #custom_keyboard.hotkey('winleft', 'shift', 's')
+    time.sleep(0.2)
+
+    keyboard_listener.start()
+
+    mouse_clicks = []   
+                
+    with mouse.Events() as events:
+        for event in events:
+            with contextlib.suppress(Exception):
+                if event.button == mouse.Button.left:
+                    text = {
+                        'x': event.x,
+                        'y': event.y,
+                        'button': str(event.button),
+                        'pressed': event.pressed}
+                    mouse_clicks.append(text)
+                    if not event.pressed:
+                        break
+    
+    pressed =  keyboard_listener.is_alive()
+    if not pressed:
+        print("keyboard_listener is not running")
+        return False
+    
+    #checks if the mouse moved
+    click1, click2 = mouse_clicks
+    dx = click1['x'] - click2['x']
+    dy = click1['y'] - click2['y']
+    if dx == 0 and dy == 0:
+        print("mouse didnt move")
+        return False
+    
+    time.sleep(0.1)
+    
+    # grabs the image from clipboard and converts the image to text.
+    img = ImageGrab.grabclipboard()
+    text = pytesseract.image_to_string(img)
+    text = text.replace('\x0c', '')
+    pyperclip.copy(text)
+    logger.debug("imt has finished")
+
+logger.debug(f"Initializing is complete for {__file__}")
