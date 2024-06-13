@@ -1,8 +1,7 @@
 #from . import setup
 from setup import logger, send_notification, file_dir, config, version
 #config = setup.config
-import tools
-import media_controllers
+import macros
 
 import pystray
 from PIL import Image
@@ -10,7 +9,9 @@ import threading
 import serial.tools.list_ports
 import time
 import sys
+import traceback
 
+Spotify = macros.SpotifyController()
 class MacroDriver:
     def __init__(self, baud_rate = 19200, mode = 1):
         self.baud_rate = baud_rate
@@ -26,9 +27,6 @@ class MacroDriver:
         #self.Spotify = tools.SpotifyController()
         # self.YTMusic = tools.YTMusicController()
         # self.Chrome = tools.ChromeController()
-        self.Spotify = media_controllers.SpotifyController()
-        self.YTMusic = media_controllers.YTMusicController()
-        self.Chrome = media_controllers.ChromeController()
 
                 
     def update_mode(self):
@@ -81,6 +79,10 @@ class MacroDriver:
             }
 
         logger.debug("Parsing message")
+        
+        # for somereason, in linux, on the first readline the value is something like: "\x1b]0;🐍code.py | 8.2.9\x1b\\ +msg"
+        # this one line fixes that
+        msg = msg.split('\\')[-1]
     
         # splits the string every 4th character
         *layers_int, event_int, button_int = [int(msg[i:i+4], 2) 
@@ -105,7 +107,7 @@ class MacroDriver:
                 # Look for the device
                 arduino_ports = [
                     p.device for p in serial.tools.list_ports.comports()
-                    if 'Pi Pico Macro Driver' in p.description
+                    if 'Pico - CircuitPython' in p.description
                 ]
             
                 if not arduino_ports:
@@ -138,12 +140,18 @@ class MacroDriver:
             else:
                 # will have to re write this
                 try:
+                    # invalid literal for int() with base 10: ''
                     button_string = str(self.serial_port.readline(), 'utf-8').strip()
+
+                    #print(repr(button_string))
 
                     logger.debug(f"Message has been received: {button_string}")                    
                     #self.button, self.event_type, self.layers = self.msgparser(button_string)
                     button, event_type, layers = self.msgparser(button_string)
 
+                    #print(repr(button),repr(event_type),repr(layers))
+                    
+                    
                     #logger.debug(f'Message was: {button=}, {event_type=}, {layers=}')
                     
                     if button == "Mode":
@@ -180,6 +188,7 @@ class MacroDriver:
 
                 except ValueError as e:
                     logger.error(e)
+                    logger.error(traceback.format_exc())
 
                 except Exception as exception:
                     logger.warning(f'Exception raised: {exception = }')
@@ -193,36 +202,36 @@ class MacroDriver:
             ########################################    Encoder 1    ########################################
             case [_, "Encoder1", "RL", []]:
                 logger.debug('VolumeDown')
-                threading.Thread(target=self.Spotify.event_handler, args=('VolumeDown',)).start()    
+                threading.Thread(target=Spotify.event_handler, args=('VolumeDown',)).start()    
             
             case [_, "Encoder1", "RR", []]:
                 logger.debug('VolumeUp')
-                threading.Thread(target=self.Spotify.event_handler, args=('VolumeUp',)).start()    
+                threading.Thread(target=Spotify.event_handler, args=('VolumeUp',)).start()    
             
             case [_, "Encoder1", "RLB", []]:
                 logger.debug('Back5s')
-                threading.Thread(target=self.Spotify.event_handler, args=('Back5s',)).start()    
+                threading.Thread(target=Spotify.event_handler, args=('Back5s',)).start()    
             
             case [_, "Encoder1", "RRB", []]:
                 logger.debug('Forward5s')
-                threading.Thread(target=self.Spotify.event_handler, args=('Forward5s',)).start()    
+                threading.Thread(target=Spotify.event_handler, args=('Forward5s',)).start()    
 
             ########################################    Encoder 2    ########################################
             case ['LibreOffice Draw', "Encoder2", "RL", []]:
                 logger.debug('Encoder2 rotate left, zoming out')
-                tools.libreOffice_zoomout()
+                macros.libreOffice_zoomout()
         
             case ['LibreOffice Draw', "Encoder2", "RR", []]:
                 logger.debug('Encoder2 rotate right, zoming in')
-                tools.libreOffice_zoomin()
+                macros.libreOffice_zoomin()
             
             case [_, "Encoder2", "RL", []]:
                 logger.debug('Encoder2 rotate left, zoming out')
-                tools.perform_hotkey(['ctrl', '-'])
+                macros.perform_hotkey(['ctrl', '-'])
         
             case [_, "Encoder2", "RR", []]:
                 logger.debug('Encoder2 rotate right, zoming in')
-                tools.perform_hotkey(['ctrl', '='])  
+                macros.perform_hotkey(['ctrl', '='])  
                 """
                 I did 'ctrl' + '=', because the + symbol requires the Shift key
                 so what happens is 'ctrl' + 'shift' + '=' to get 'ctrl' + '+'
@@ -231,15 +240,15 @@ class MacroDriver:
 
             case [_, "Encoder2", "RR", ["Mode"]]:
                 logger.debug('Encoder2 rotate right with mode, reseting zoom')
-                tools.perform_hotkey(['ctrl', '0'])  
+                macros.perform_hotkey(['ctrl', '0'])  
 
             case [_, "Encoder2", "RLB", []]:
                 logger.debug('Encoder2 rotate left w/ button, left arrow')
-                tools.perform_press('left')
+                macros.perform_press('left')
 
             case ["Encoder2", "RRB", []]:
                 logger.debug('Encoder2 rotate right w/ button, right arrow')
-                tools.perform_press('right')  
+                macros.perform_press('right')  
 
     def Button_handlerV3(self, app, button, layers):
         #logger.debug("Button_handlerV2")
@@ -254,52 +263,52 @@ class MacroDriver:
             # Any app and Any Mode    And that are prioritives 
             case [_, mode, 1, []]:    # Shows what each button is defined as
                 logger.debug("ButtonMode")
-                threading.Thread(target = tools.ButtonMode, args=(mode, )).start()   
+                threading.Thread(target = macros.ButtonMode, args=(mode, )).start()   
 
             case [_, mode, 1, [3]]:
                 logger.debug("Moves currently foccused to the virtual Desktop on the left")
-                tools.moveAppAccrossDesktops(self.focused_window_hwnd, 'Left')
+                macros.moveAppAccrossDesktops(self.focused_window_hwnd, 'Left')
                 
             case [_, mode, 1, [4]]: 
                 logger.debug("Moves currently foccused to the virtual Desktop on the right")
-                tools.moveAppAccrossDesktops(self.focused_window_hwnd, 'Right')    
+                macros.moveAppAccrossDesktops(self.focused_window_hwnd, 'Right')    
                     
             case [_, mode, 2, []]: # any app, any mode and no layers
                 logger.debug("Btn 2, no layers")
-                threading.Thread(target=self.Spotify.press, args=()).start()    
+                threading.Thread(target=Spotify.press, args=()).start()    
 
-            case [_, mode, 2, [1]]: # any app, any mode and btn 1 as layer
-                logger.debug("Btn 2, btn 1 as layer")
-                threading.Thread(target=self.YTMusic.press, args=()).start() 
+            # case [_, mode, 2, [1]]: # any app, any mode and btn 1 as layer
+            #     logger.debug("Btn 2, btn 1 as layer")
+            #     threading.Thread(target=YTMusic.press, args=()).start() 
             
-            case [_, mode, 2, [1, 'Mode']]: # any app, any mode and 'Mode' and btn 1 as layer
-                logger.debug("Btn 2, btn 1 as layer")
-                threading.Thread(target=self.Chrome.press, args=()).start() 
+            # case [_, mode, 2, [1, 'Mode']]: # any app, any mode and 'Mode' and btn 1 as layer
+            #     logger.debug("Btn 2, btn 1 as layer")
+            #     threading.Thread(target=Chrome.press, args=()).start() 
             
             # case [_, mode, 2, ['Mode']]: # any app, any mode and Mode as layer
             #     logger.debug("Like")
-            #     #tools.spotifyControl("Like")
+            #     #macros.spotifyControl("Like")
             #     threading.Thread(target=Spotify.event_handler, args=('Like',)).start()    
             
             #Spotify
             case [_, mode, 2, [3, 4]]: # any app, any mode and btn 3, 4 as layer
                 logger.debug("Moves Spotify to the current virtual Desktop")
-                threading.Thread(target=self.Spotify.move_spotify_window, args=('Current',)).start()    
+                threading.Thread(target=Spotify.move_spotify_window, args=('Current',)).start()    
 
             case [_, mode, 2, [3]]:
                 logger.debug("Moves Spotify to the virtual Desktop on the left")
-                threading.Thread(target=self.Spotify.move_spotify_window, args=('Left',)).start()    
+                threading.Thread(target=Spotify.move_spotify_window, args=('Left',)).start()    
             
             case [_, mode, 2, [4]]: 
                 logger.debug("Moves Spotify to the virtual Desktop on the right")
-                threading.Thread(target=self.Spotify.move_spotify_window, args=('Right',)).start()    
+                threading.Thread(target=Spotify.move_spotify_window, args=('Right',)).start()    
 
             
             case [_, mode, 3, []]:    # move desktop left for any app
-                threading.Thread(target = tools.change_desktop, args=('left', app)).start()
+                threading.Thread(target = macros.change_desktop, args=('left', app)).start()
 
             case [_, mode, 4, []]:     # move desktop right for any app   
-                threading.Thread(target = tools.change_desktop, args=('right', app)).start()
+                threading.Thread(target = macros.change_desktop, args=('right', app)).start()
             
 
 
@@ -313,84 +322,94 @@ class MacroDriver:
             # case ["Destiny 2", mode, 5, []]: # Rocket Flying Test
             #     #left clicks, then presses q, then moves mouse down 15 pixels
             #     logger.debug("Rocket Flying Test")
-            #     tools.rocket_flying()
+            #     macros.rocket_flying()
 
             # case ["Destiny 2", mode, 6, []]: # Wellskate Test
-            #     tools.wellskate()
+            #     macros.wellskate()
 
 
             # Specific app and Any Mode
             # VS Code Layer
             case ["Visual Studio Code", mode, 5, []]: # run code in Vs code
                 logger.debug("run code in Vs code")
-                tools.perform_hotkey(['ctrl', 'alt', 'n'])
+                macros.perform_hotkey(['ctrl', 'alt', 'n'])
 
             # Star Citizen Layer
             case ["Star Citizen", mode, 5, []]: # focus front shields
-                tools.sheild_focus_star_citizen("1")
+                macros.sheild_focus_star_citizen("1")
 
             case ["Star Citizen", mode, 6, []]: # focus back shields
-                tools.sheild_focus_star_citizen("2")
+                macros.sheild_focus_star_citizen("2")
 
             case ["Star Citizen", mode, 7, []]: # Reset shields
-                tools.sheild_focus_star_citizen("3")
+                macros.sheild_focus_star_citizen("3")
 
             # # Any App, Specific Mode
             # case [_, "2", 5]:     # Cut (Ctrl + x)
             #     logger.debug("Audacity Cut (Ctrl + x)")
-            #     tools.perform_hotkey(['ctrl', 'x'])
+            #     macros.perform_hotkey(['ctrl', 'x'])
 
             # case [_, "2", 6]:     # Audacity Split Ctrl + i 
             #     logger.debug("Audacity Split (ctrl + i)")
-            #     tools.perform_hotkey(['ctrl', 'i'])       
+            #     macros.perform_hotkey(['ctrl', 'i'])       
 
             # case [_, "2", 9]:     # Backspace
             #     logger.debug("Backspace")               
-            #     tools.perform_press(['backspace'])
+            #     macros.perform_press(['backspace'])
 
 
             # Macros that are last priority.     
             case [_, mode, 5, []]:   # Text to speech
                 logger.debug("Text to speech")
-                tools.textToSpeech()
+                macros.textToSpeech()
                 
             case [_, mode, 6, []]:   # Stop Speech
                 logger.debug("Stop Speech")
-                tools.stopSpeech()
+                macros.stopSpeech()
 
             case [_, mode, 7, []]:   # Copy
                 #logger.debug("Copy")
                 #NOTE : this can cause a keyboard interupt if used in terminal
-                tools.perform_hotkey(['ctrl', 'c'])             
+                macros.perform_hotkey(['ctrl', 'c'])             
 
             case [_, mode, 8, []]:   # Paste 
                 #logger.debug("Paste")
-                tools.perform_hotkey(['ctrl', 'v'])
+                macros.perform_hotkey(['ctrl', 'v'])
 
             case [_, mode, 9, []]:   # Search highlighted text
                 #logger.debug("Search highlighted text")
-                tools.search_highlighted_text()
+                macros.search_highlighted_text()
 
             case [_, mode, 10, []]:     # runs Task Manager      is button 10
                 logger.debug("Starting Task manager")
-                tools.perform_hotkey(['ctrl', 'shift', 'esc'])
+                macros.perform_hotkey(['ctrl', 'shift', 'esc'])
 
             case [_, mode, 11, []]:   #image to text             is button 11
                 logger.debug("Image to text")
-                threading.Thread(target = tools.Image_to_text2).start()
+                threading.Thread(target = macros.Image_to_text2).start()
                 
     def Event_handler(self, button, event_type, layers):
             #logger.info(f"{self.button, self.event_type, self.layers}")
             logger.info(f"{button, event_type, layers}")
-            focused_window_title, self.focused_window_hwnd = tools.get_focused()
-
-            if focused_window_title is None:
+            focused_window_title, self.focused_window_hwnd = macros.get_focused_name()
+            
+            if isinstance(focused_window_title, tuple):
+                focused_window_title = focused_window_title[0]
+                
+            if focused_window_title is None or len(focused_window_title) == 0:
                 app = 'Desktop'
             else:
                 split_focused_window = focused_window_title.split(" - ")
-                split_focused_window.reverse()
-                app = split_focused_window[0]
+                
+                if len(split_focused_window) == 1:
+                    split_focused_window = focused_window_title.split(" ")
+                    #app = split_focused_window[0]
 
+                else:
+                    split_focused_window.reverse()
+                app = split_focused_window[0]
+                app= app.strip('\n')
+                
             if button in ["Encoder1", "Encoder2"]:
                 self.Encoder_handler(app, button, event_type, layers)
             
@@ -439,7 +458,7 @@ if __name__ == '__main__':
     if plat[:5] == 'linux':
         logger.warning("Some features may not work")
         #toaster.show_toast("Warning", "Some features may not work on Linux", duration=2, threaded=True)
-        send_notification(title='Warning', msg='Some features may not work on Linux')
+        #send_notification(title='Warning', msg='Some features may not work on Linux')
 
     main()
 

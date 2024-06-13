@@ -5,7 +5,63 @@ Use subprocess.popen instead of os.system
 from setup import logger
 import time
 import subprocess
+from pynput import mouse, keyboard
+
+import pyautogui
+from PIL import ImageGrab
+import pytesseract
+import pyclip
+
+
 logger.debug(f'Initializing {__file__}')
+
+
+""" TODO
+implement thee rest of the macros
+
+"""
+##https://manpages.ubuntu.com/manpages/trusty/man1/xdotool.1.html 
+
+def _send_Command(cmd, is_shell=True, is_text=True):
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_shell, text=is_text)
+    return proc.communicate()
+    
+def _get_app_ids(app_name:str):
+    """does exactly what it says
+    Args:
+        app_name (str): the name of th app
+
+    Returns:
+        list[str]: a list of the app_ids
+    """
+    cmd = f'xdotool search --classname --onlyvisible {app_name}'
+    app_ids, _=  _send_Command(cmd)
+    apps = app_ids.split()
+    return apps
+
+def _CurrentDesktopNumber():
+    return int(_send_Command("xdotool get_desktop")[0])
+
+def _get_focused():
+    val = _send_Command("xdotool getactivewindow")[0]
+    if val == '':
+        val is None
+    else:
+        val = int(val)
+    return val
+
+def _get_focused_name():
+    win_id= _get_focused()
+    return _send_Command(f"xdotool getwindowname {win_id}"), win_id
+
+def _GetWindowDesktopNumber(win_id):
+    #get_desktop_for_window    
+    # cmd = f"xdotool get_desktop_for_window {win_id}"
+    # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+    val = _send_Command(f"xdotool get_desktop_for_window {win_id}")[0]
+    print(repr(val))
+    return int(val)
+    #return _send_Command(f"xdotool get_desktop_for_window {win_id}")
 
 class MediaTimer:
     """
@@ -52,6 +108,7 @@ class _SpotifyController:
         
     """
     def __init__(self):
+        self.spotify_window_id = None
         self.main_msg = [
             'dbus-send', 
             '--print-reply', 
@@ -65,7 +122,36 @@ class _SpotifyController:
         
         self.mediaTimer = MediaTimer()
 
+    def move_spotify_window_to_current_desktop(self):
+        """
+        """
+        if not self.spotify_window_id:
+            window_ids = _get_app_ids('Spotify')
 
+            for win_id in window_ids:
+                cmd = f"xdotool getwindowname {win_id}"
+                spotify_or_song_name, _blank = _send_Command(cmd)
+                if len(spotify_or_song_name) > 2 or 'Spotify Premium' in spotify_or_song_name:
+                    self.spotify_window_id= int(win_id)
+                    break
+        
+        _moveAppAccrossDesktops(app_id = self.spotify_window_id)        
+
+
+    def move_spotify_window(self, direction):
+        if not self.spotify_window_id:
+            window_ids = _get_app_ids('Spotify')
+            for win_id in window_ids:
+                
+                spotify_or_song_name, _blank = _send_Command(f"xdotool getwindowname {win_id}")
+                
+                if len(spotify_or_song_name) > 2 or 'Spotify Premium' in spotify_or_song_name:
+                    self.spotify_window_id= int(win_id)
+                    break
+        
+        _moveAppAccrossDesktops(app_id=self.spotify_window_id, movement=direction)
+
+        
 
     def sendCommand(self, cmd):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -175,59 +261,149 @@ class _YTMusicController:
 
 
 def _perform_hotkey(hotkey):
+    pyautogui.hotkey(hotkey)
     #logger.debug(f"perform_hotkey {hotkey = }")
-    raise NotImplementedError
+    #raise NotImplementedError
     #custom_keyboard.hotkey(*hotkey)
 
 def _perform_press(key):
+    pyautogui.press(key)
     #logger.debug(f"perform_press {key = }")
     #custom_keyboard.press(key)
-    raise NotImplementedError
+    #raise NotImplementedError
 
-def _change_desktop(direction:str, focused_app=None) -> None: #change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
+def _change_desktop(direction:str, focused_app=None): # change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
     """Changes the desktop, moves left or right
 
     Args:
         direction (str): Either: 'left' or 'right'
         focused_app (str): Does nothing, its here to allow compatibility with the windows version
     """
-    logger.debug(f"move desktop {direction}")
+    # modify so that it will check what the current desktop is and 
     
+    logger.debug(f"move desktop {direction}")
+    current_window = int(_send_Command("xdotool get_desktop")[0])
+
     direction = direction.lower()
     
     if direction == 'left':
-        cmd = 'xdotool set_desktop --relative -- -1'
+        if current_window == 0:
+            return "Movement Request is ignored"
+        cmd = "xdotool set_desktop --relative -- -1"
+        
     elif direction == 'right':
-        cmd = 'xdotool set_desktop --relative -- 1'
-    #os.system(cmd)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        total_desktops = int(_send_Command("xdotool get_num_desktops")[0])
+        if current_window +1 == total_desktops:
+            return "Movement Request is ignored"
+        cmd = "xdotool set_desktop --relative -- 1"
+        
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     proc.communicate()
 
-def _moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
+def _moveAppAccrossDesktops(**kwargs):
     """Moves an app accross desktops.
+    app_id, movement: str
+    moves the specified app_id in some way
+    by default is movement is left blank, it will bring the app the to current desktop
     
-    ### Not implemented
-    
+    if app_id is blank, it will move the focused one
+
     Movements are:
     'Left': Goes left,
     'Right': Goes Right,
     'Current': Moves to the current desktop
     
     Args:
-        hwnd (HWND): The HWND(handle) of the app
+        app_id (int | str): wind_id of the app
         movement (str): Movement Type
 
     Returns:
         Nothing at the moment
     """
-    raise NotImplementedError
-   
-def _Image_to_text2():
-    """Presses Win Shift S to open snippet mode, waits for mouse release then does tesseract OCR
-    Press Ctrl V to paste text
+    if 'app_id' in kwargs:
+        app_id = kwargs['app_id']
+    else:
+        app_id = _get_focused()
+        
+    if 'movement' in kwargs:
+        movement = kwargs['movement'].lower()
+    else:
+        movement = 'current'
+    ### use xdotool
+    movements = {
+            'left': (_GetWindowDesktopNumber(app_id) -1),
+            'right': (_GetWindowDesktopNumber(app_id) +1),
+            'current':_CurrentDesktopNumber()
+            }
+    destination = movements[movement]
+    
+    _send_Command(f'xdotool set_desktop_for_window {app_id} {destination}')
+
+def _moveFocusedAppAccrossDesktops(movement):
     """
-    #import pytesseract
+    #works
+    """
     
-    raise NotImplementedError
+    # cmd = "xdotool getactivewindow"
+    # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+    focused_app =  _get_focused()
+    #print(focused_app)
+    _moveAppAccrossDesktops(app_id= focused_app, movement= movement)
+
+def _Image_to_text2():
+    """
+    Okay so in this version, if you're linux distro is using spectacle to take screenshots  you will have to configure and make it save to clipboard
+
+    Presses Win Shift PrtSc to open spectacle mode, waits for mouse release then does tesseract OCR
+    Press Ctrl V to paste text
+    It works but spectacle takes some time too launch
+    """
     
+    m = mouse.Controller()
+    k = keyboard.Controller()
+
+    def on_release(key):
+        if key == keyboard.Key.esc:
+            logger.debug('esc pressed and released')
+            # Stop listener and the func
+            m.click(mouse.Button.left,1)
+            return False    
+        
+    def on_click(x, y, button, pressed):
+        if not pressed:
+            # Stop listener
+            k.press(keyboard.Key.enter)
+            k.release(keyboard.Key.enter)
+            
+            return False
+    
+    m.click(mouse.Button.left,1)
+    
+    time.sleep(0.2)
+    _perform_hotkey(['win', 'shift', 'prtsc'])
+    
+    keyboard_listener = keyboard.Listener(
+        on_release=on_release)
+
+    time.sleep(0.2)
+
+    keyboard_listener.start()
+
+    # Collect events until released # is used to block the code until the left mouse button is released
+    with mouse.Listener(on_click=on_click) as listener:
+        listener.join()
+        
+    time.sleep(0.1)
+
+    keyboard_listener.stop()
+
+    time.sleep(0.3)
+    img = ImageGrab.grabclipboard()
+    #grabs the image from clipboard and converts the image to text.
+    text = pytesseract.image_to_string(img)
+    text = text.replace('\x0c', '')
+    pyclip.copy(text)
+    logger.debug("imt has finished")
+
+
 logger.debug(f"Initializing is complete for {__file__}")

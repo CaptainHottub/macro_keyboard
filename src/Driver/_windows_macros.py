@@ -94,9 +94,12 @@ def pidGetter(name: str)-> int:
                 break
     return PID
 
-def get_focused():
+def _get_focused():
     hwnd = win32gui.GetForegroundWindow()
     return win32gui.GetWindowText(hwnd), hwnd
+
+def _get_focused_name():
+    return _get_focused()
 
 def get_forground_hwnd():
     processes = get_processes()
@@ -106,7 +109,7 @@ def get_forground_hwnd():
     
     return None
     
-def launchApp(name_or_path:str, timeout:int = 0.5) -> None:
+def launchApp(name_or_path:str, timeout:int = 0.5):
     #logger.debug(name_or_path,timeout)
     try:
         os.startfile(name_or_path)
@@ -378,12 +381,12 @@ def _perform_press(key):
     #logger.debug(f"perform_press {key = }")
     custom_keyboard.press(key)
 
-def _moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
+#def _moveAppAccrossDesktops(hwnd: int, movement: str):
+def _moveAppAccrossDesktops(**kwargs):
     """Moves an app accross desktops.
     This function requires the VirtualDesktopAccessor.dll, if it is not installed, the  func will return 1
-    If you input an app name, it will try and get the hwnd
-    if the app is not active, the hwnd will be None and the func will return 0
-    
+    if app_id is blank, it will move the focused one
+
     Movements are:
     'Left': Goes left,
     'Right': Goes Right,
@@ -399,6 +402,16 @@ def _moveAppAccrossDesktops(hwnd: int, movement: str) -> int:
     if VDA:
         #logger.debug(hwnd)
         
+        if 'hwnd' in kwargs:
+            hwnd = kwargs['hwnd']
+        else:
+            hwnd = _get_focused()
+            
+        if 'movement' in kwargs:
+            movement = kwargs['movement'].lower()
+        else:
+            movement = 'current'
+            
         if hwnd is None:
             logger.debug("hwnd is None")
             #launchApp(hwnd)

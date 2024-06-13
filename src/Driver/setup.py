@@ -4,6 +4,7 @@ import os
 import sys
 import yaml
 from pathlib import Path
+import toaster
 
 class CustomFormatter(logging.Formatter):
     MAGENTA = "\u001b[35m"

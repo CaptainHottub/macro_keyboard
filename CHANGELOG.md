@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [v2.2.131.b] - 2024-06-13
+
+Major changes to file structure
+
+Tools.py moved to macros.py
+and the os specific function got moved to there own files.
+move_desktop and spotify controller are the only functions that are currently cross platform
+_Image_to_text2 now works on linux.
+
+Azure speechsdk is broken for some reason
+
+### Changed
+- Getting the focused_window name is more reliable
+
+
 ### [v2.2.125.b] - 2024-06-09
 
 ### Added
