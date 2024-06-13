@@ -166,4 +166,3 @@ old_versions/
 .vscode/
 workspace.code-workspace
 logs/
-src/Driver/tempCodeRunnerFile.py
