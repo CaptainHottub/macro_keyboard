@@ -9,7 +9,8 @@ One of these macros uses the Tesseract OCR module in Python. I press the button 
 Another one uses Microsoft Azures Text To Speech API to read the text I highlight.
 I have one macro that moves Spotify to the current desktop.
 
-This is a work in progress.
+This is a work in progress. 
+I have switched to linux and I might not keep it compatible with windows. 
 
 All of this was inspired by Ryan Bates and his [Macro Keyboard Video][video-inspiration]
 
