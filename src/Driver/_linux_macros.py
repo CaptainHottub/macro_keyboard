@@ -26,7 +26,7 @@ def _send_Command(cmd, is_shell=True, is_text=True):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_shell, text=is_text)
     return proc.communicate()
     
-def _get_app_ids(app_name:str):
+def _get_app_ids(app_name:str, only_visible=True):
     """does exactly what it says
     Args:
         app_name (str): the name of th app
@@ -34,7 +34,10 @@ def _get_app_ids(app_name:str):
     Returns:
         list[str]: a list of the app_ids
     """
-    cmd = f'xdotool search --classname --onlyvisible {app_name}'
+    if only_visible:
+        cmd = f'xdotool search --classname --onlyvisible {app_name}'
+    else:
+        cmd = f'xdotool search --classname {app_name}'
     app_ids, _=  _send_Command(cmd)
     apps = app_ids.split()
     return apps
@@ -58,9 +61,14 @@ def _GetWindowDesktopNumber(win_id):
     #get_desktop_for_window    
     # cmd = f"xdotool get_desktop_for_window {win_id}"
     # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
-    val = _send_Command(f"xdotool get_desktop_for_window {win_id}")[0]
-    print(repr(val))
-    return int(val)
+    #val = _send_Command(f"xdotool get_desktop_for_window {win_id}")[0]
+    # print(val := _send_Command(f"xdotool get_desktop_for_window {win_id}")[0])
+    if val := _send_Command(f"xdotool get_desktop_for_window {win_id}")[0]:
+        return int(val)
+    
+    return _CurrentDesktopNumber()
+    
+    # return int(val)
     #return _send_Command(f"xdotool get_desktop_for_window {win_id}")
 
 class MediaTimer:
@@ -121,46 +129,55 @@ class _SpotifyController:
             "NextTrack":"Next"}
         
         self.mediaTimer = MediaTimer()
+        self._startSpotify()
 
-    def move_spotify_window_to_current_desktop(self):
-        """
-        """
-        if not self.spotify_window_id:
-            window_ids = _get_app_ids('Spotify')
+    def _startSpotify(self):
+        # I just made a shortcut for spotify
+        app_id = _get_app_ids('Spotify')
+        if len(app_id) == 0:
+            pyautogui.hotkey("ctrl", 'alt', 'shift', 'p')
+    
+    # def move_spotify_window_to_current_desktop(self):
+    #     """
+    #     """
+    #     if not self.spotify_window_id:
+    #         window_ids = _get_app_ids('Spotify', )
 
-            for win_id in window_ids:
-                cmd = f"xdotool getwindowname {win_id}"
-                spotify_or_song_name, _blank = _send_Command(cmd)
-                if len(spotify_or_song_name) > 2 or 'Spotify Premium' in spotify_or_song_name:
-                    self.spotify_window_id= int(win_id)
-                    break
+    #         for win_id in window_ids:
+    #             cmd = f"xdotool getwindowname {win_id}"
+    #             spotify_or_song_name, _blank = _send_Command(cmd)
+    #             if len(spotify_or_song_name) > 2 or 'Spotify Premium' in spotify_or_song_name:
+    #                 self.spotify_window_id= int(win_id)
+    #                 break
         
-        _moveAppAccrossDesktops(app_id = self.spotify_window_id)        
-
+    #     print(self.spotify_window_id)
+    #     _moveAppAccrossDesktops(app_id = self.spotify_window_id)        
 
     def move_spotify_window(self, direction):
         if not self.spotify_window_id:
-            window_ids = _get_app_ids('Spotify')
+            window_ids = _get_app_ids('Spotify', only_visible=False)
             for win_id in window_ids:
-                
-                spotify_or_song_name, _blank = _send_Command(f"xdotool getwindowname {win_id}")
-                
-                if len(spotify_or_song_name) > 2 or 'Spotify Premium' in spotify_or_song_name:
+                stdout, stderr = _send_Command(f"xdotool getwindowpid {win_id}")
+                if stdout and not stderr:
                     self.spotify_window_id= int(win_id)
                     break
-        
-        _moveAppAccrossDesktops(app_id=self.spotify_window_id, movement=direction)
-
-        
+                
+        stdout, stderr = _moveAppAccrossDesktops(app_id=self.spotify_window_id, movement=direction)
+        #logger.debug(stdout, stderr)
 
     def sendCommand(self, cmd):
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        return proc.communicate()
+        ret_value = _send_Command(cmd, is_shell=False)
+        
+        if ret_value[0] =='' or ret_value[1] == 'Error org.freedesktop.DBus.Error.ServiceUnknown: The name is not activatable': 
+            logger.debug("Spotify is not running, starting it.")
+            self._startSpotify()
+            time.sleep(1.8)
+            return _send_Command(cmd, is_shell=False)
+        return ret_value
 
     # use this: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html
     #https://github.com/DeaDBeeF-Player/deadbeef/issues/1785
     def event_handler(self, event):
-
         if event in ["PlayPause", "PrevTrack", "NextTrack"]:
             final_msg = self.main_msg + [f'org.mpris.MediaPlayer2.Player.{self.event_translation_layer[event]}']
 
@@ -201,6 +218,7 @@ class _SpotifyController:
             final_msg = self.main_msg + ['org.mpris.MediaPlayer2.Player.Seek', f'int64:{seek_by}']
 
             #print(sendCommand(seek_msg))
+        #print(final_msg)    
         self.sendCommand(final_msg)
 
     def press(self):
@@ -261,16 +279,12 @@ class _YTMusicController:
 
 
 def _perform_hotkey(hotkey):
+    logger.debug(f"perform_hotkey {hotkey = }")
     pyautogui.hotkey(hotkey)
-    #logger.debug(f"perform_hotkey {hotkey = }")
-    #raise NotImplementedError
-    #custom_keyboard.hotkey(*hotkey)
 
 def _perform_press(key):
+    logger.debug(f"perform_press {key = }")
     pyautogui.press(key)
-    #logger.debug(f"perform_press {key = }")
-    #custom_keyboard.press(key)
-    #raise NotImplementedError
 
 def _change_desktop(direction:str, focused_app=None): # change desktop hotkey, where direction is either 'left' or 'right'. Will alt+tab if specific program is focused
     """Changes the desktop, moves left or right
@@ -330,14 +344,19 @@ def _moveAppAccrossDesktops(**kwargs):
     else:
         movement = 'current'
     ### use xdotool
+    if not app_id:
+        logger.debug("App_id is nothing, so you are focusing the desktop. returning")
+        return
+    
+    logger.debug(f"{app_id=}")
+    
     movements = {
             'left': (_GetWindowDesktopNumber(app_id) -1),
             'right': (_GetWindowDesktopNumber(app_id) +1),
             'current':_CurrentDesktopNumber()
             }
     destination = movements[movement]
-    
-    _send_Command(f'xdotool set_desktop_for_window {app_id} {destination}')
+    return _send_Command(f'xdotool set_desktop_for_window {app_id} {destination}')
 
 def _moveFocusedAppAccrossDesktops(movement):
     """
@@ -405,5 +424,9 @@ def _Image_to_text2():
     pyclip.copy(text)
     logger.debug("imt has finished")
 
+def _start_task_viwer():
+    """Open System Monitor"""
+    _perform_hotkey(["win", "esc"])
+    
 
 logger.debug(f"Initializing is complete for {__file__}")

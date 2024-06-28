@@ -16,8 +16,8 @@ class CustomFormatter(logging.Formatter):
     format = '%(asctime)s.%(msecs)03d %(levelname)s - %(funcName)s: %(message)s'
 
     FORMATS = {
-        logging.DEBUG: MAGENTA + format + reset,
         logging.INFO: grey + format + reset,
+        logging.DEBUG: MAGENTA + format + reset,
         logging.WARNING: yellow + format + reset,
         logging.ERROR: red + format + reset,
         logging.CRITICAL: bold_red + format + reset

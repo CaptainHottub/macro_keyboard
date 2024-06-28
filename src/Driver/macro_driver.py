@@ -135,7 +135,7 @@ class MacroDriver:
                     continue
                 
                 finally:
-                    logger.debug("Waiting for message from microcontroller.")
+                    logger.info("Waiting for message from microcontroller.")
 
             else:
                 # will have to re write this
@@ -150,8 +150,6 @@ class MacroDriver:
                     button, event_type, layers = self.msgparser(button_string)
 
                     #print(repr(button),repr(event_type),repr(layers))
-                    
-                    
                     #logger.debug(f'Message was: {button=}, {event_type=}, {layers=}')
                     
                     if button == "Mode":
@@ -382,12 +380,14 @@ class MacroDriver:
 
             case [_, mode, 10, []]:     # runs Task Manager      is button 10
                 logger.debug("Starting Task manager")
-                macros.perform_hotkey(['ctrl', 'shift', 'esc'])
+                macros.start_task_viwer()
+                #macros.perform_hotkey(['ctrl', 'shift', 'esc'])
 
             case [_, mode, 11, []]:   #image to text             is button 11
                 logger.debug("Image to text")
                 threading.Thread(target = macros.Image_to_text2).start()
-                
+               
+     
     def Event_handler(self, button, event_type, layers):
             #logger.info(f"{self.button, self.event_type, self.layers}")
             logger.info(f"{button, event_type, layers}")

@@ -34,6 +34,13 @@ logger.debug(f'Initializing {__file__}')
 if sys.platform == 'win32':
     # make this a class
     try:
+        """
+        For the lifee of me i cant get this to work on linux. There was this whole megathread on github about the openssl 1.x EOL: https://github.com/Azure-Samples/cognitive-services-speech-sdk/issues/2048
+        I looks like they updated it to openssl 3.x, but it still wont work.
+        
+        """
+        
+        
         # the keys are stored in the environment variables
         SPEECH_KEY = os.environ.get('AZURE_SPEECH_KEY')
         SPEECH_REGION = os.environ.get('AZURE_SPEECH_REGION')
@@ -94,6 +101,52 @@ def get_time(func):
 """
 These should work on both systems
 """
+
+def ButtonMode(mode):
+    """Prints to the terminal, i havent updated what is says, so it might be wrong."""
+    ButtonDescriptions = f"""Current mode is: {mode}
+    If button is not their nothing is assigned to it.
+        
+    Default/Mode 1/Works on any mode and unspecified app:
+        Button 1:   Shows this
+        Button 2:   Controls spotify: Acts like headphone controls.
+        Button 3:   Switches desktop to the left
+        Button 4:   Switches desktop to the right
+        Button 5:   Text to speech, Converts highlighted text to speech
+        Button 6:   Stop Speech
+        Button 7:   Copy
+        Button 8:   Paste
+        Button 9:   Search highlighted text
+        Button 10:  Opens Task Manager
+        Button 11:  Converts image to text
+
+    When in Vscode:
+        Button 5:   run code in Vs code
+	
+    When in Destiny 2:
+        Button 5: Rocket Flying Test 
+        Button 6: Wellskate Test
+
+    When in Star Citizen:
+        Button 5: focus front shields  
+        Button 6: focus back shields
+        Button 7: Reset shields
+
+    Mode 2:
+        Button 5: Cut (ctrl +x)
+        Button 6: Split/Italics (Ctrl + i) 
+        Button 9: Backspace
+        
+    Mode 3 and 4 do nothing
+    """
+    print('\n\n')
+    logger.info(ButtonDescriptions)
+    print('\n\n')
+    
+    # try:
+    #     pyautogui.alert(ButtonDescriptions, "Button Mode")  
+    # except Exception as e:
+    #     logger.warning(e)
 
 def libreOffice_zoomin():   
     pyautogui.keyDown('ctrl')
@@ -236,13 +289,18 @@ def Image_to_text2():
     platformModule._Image_to_text2()
     logger.debug("Image_to_text2 has finished")
 
-
 def get_focused():
     
     return platformModule._get_focused()
+
 def get_focused_name():
     
     return platformModule._get_focused_name()
+
+def start_task_viwer():
+    platformModule._start_task_viwer()
+    #("Starting Task manager")
+
 
 
 # import SpotifyController

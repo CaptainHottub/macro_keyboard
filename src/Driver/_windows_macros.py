@@ -529,4 +529,8 @@ def _Image_to_text2():
     pyperclip.copy(text)
     logger.debug("imt has finished")
 
+def _start_task_viwer():
+    """Opens Task Manager"""
+    _perform_hotkey(['ctrl', 'shift', 'esc'])
+
 logger.debug(f"Initializing is complete for {__file__}")

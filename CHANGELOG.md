@@ -7,7 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-### [v2.2.131.b] - 2024-06-13
+## [v2.2.135.b] - 2024-06-27
+I belive most of the macros will work on linux.
+
+### Changed
+- The Azure TTS only works on Windows, I cant get it to work right now.
+- ButtonMode() now prints in the console instead of creating a window, it was crashing on the second time being pressed on linux (this is a temp solution) 
+
+
+## [v2.2.132.b] - 2024-06-17
+
+If spotify isnt running it will start, when _SpotifyController is called
+
+
+## [v2.2.131.b] - 2024-06-13
 
 Major changes to file structure
 
@@ -22,7 +35,7 @@ Azure speechsdk is broken for some reason
 - Getting the focused_window name is more reliable
 
 
-### [v2.2.125.b] - 2024-06-09
+## [v2.2.125.b] - 2024-06-09
 
 ### Added
 - Added some logs when certain things are initialized
