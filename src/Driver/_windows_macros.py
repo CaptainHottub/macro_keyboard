@@ -373,6 +373,29 @@ class _YTMusicController:
             print(result)
             self.event_handler(result)
 
+class _FireFoxController:
+    """A Controller Class for FireFox  IT is currently broken
+    """
+    def __init__(self):
+        # self.actions = {
+        #         'PrevTrack': 'Previous Track',
+        #         'SeekBackward': 'Seek Backward',
+        #         'PlayPause': 'Play Pause',
+        #         'SeekForward': 'Seek Forward',
+        #         'NextTrack': 'Next Track'
+        #         }
+        raise NotImplementedError("""pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
+                       IDK if im going to fix this""")
+        
+
+    def event_handler(self, event):
+        raise NotImplementedError("""pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
+                       IDK if im going to fix this""")
+
+    def press(self):
+        raise NotImplementedError("""pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
+                       IDK if im going to fix this""")
+      
 def _perform_hotkey(hotkey):
     #logger.debug(f"perform_hotkey {hotkey = }")
     custom_keyboard.hotkey(*hotkey)

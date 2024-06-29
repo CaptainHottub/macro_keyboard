@@ -12,6 +12,8 @@ import sys
 import traceback
 
 Spotify = macros.SpotifyController()
+FireFox = macros.FireFoxController()
+
 class MacroDriver:
     def __init__(self, baud_rate = 19200, mode = 1):
         self.baud_rate = baud_rate
@@ -188,9 +190,9 @@ class MacroDriver:
                     logger.error(e)
                     logger.error(traceback.format_exc())
 
-                except Exception as exception:
-                    logger.warning(f'Exception raised: {exception = }')
-                    #logger.error('ValueError, stop() has been called, goodbye...')
+                # except Exception as exception:
+                #     logger.warning(f'Exception raised: {exception = }')
+                #     #logger.error('ValueError, stop() has been called, goodbye...')
 
         logger.error('PROGRAM is shutting down')
     
@@ -223,6 +225,16 @@ class MacroDriver:
                 logger.debug('Encoder2 rotate right, zoming in')
                 macros.libreOffice_zoomin()
             
+            case ['LibreOffice Draw', "Encoder2", "RLB", []]:
+                logger.debug('Encoder2 rotate left, w/ button font_size_down')
+                macros.libreOffice_font_size_down()
+            
+            case ['LibreOffice Draw', "Encoder2", "RRB", []]:
+                logger.debug('Encoder2 rotate right w/ button, font_size_up')
+                macros.libreOffice_font_size_up()
+            
+ 
+            
             case [_, "Encoder2", "RL", []]:
                 logger.debug('Encoder2 rotate left, zoming out')
                 macros.perform_hotkey(['ctrl', '-'])
@@ -244,7 +256,7 @@ class MacroDriver:
                 logger.debug('Encoder2 rotate left w/ button, left arrow')
                 macros.perform_press('left')
 
-            case ["Encoder2", "RRB", []]:
+            case [_,"Encoder2", "RRB", []]:
                 logger.debug('Encoder2 rotate right w/ button, right arrow')
                 macros.perform_press('right')  
 
@@ -275,9 +287,9 @@ class MacroDriver:
                 logger.debug("Btn 2, no layers")
                 threading.Thread(target=Spotify.press, args=()).start()    
 
-            # case [_, mode, 2, [1]]: # any app, any mode and btn 1 as layer
-            #     logger.debug("Btn 2, btn 1 as layer")
-            #     threading.Thread(target=YTMusic.press, args=()).start() 
+            case [_, mode, 2, [1]]: # any app, any mode and btn 1 as layer
+                logger.debug("Btn 2, btn 1 as layer")
+                threading.Thread(target=FireFox.press, args=()).start() 
             
             # case [_, mode, 2, [1, 'Mode']]: # any app, any mode and 'Mode' and btn 1 as layer
             #     logger.debug("Btn 2, btn 1 as layer")
@@ -395,21 +407,28 @@ class MacroDriver:
             
             if isinstance(focused_window_title, tuple):
                 focused_window_title = focused_window_title[0]
-                
+            
+            #THIS IS GROSS, redo this
             if focused_window_title is None or len(focused_window_title) == 0:
                 app = 'Desktop'
             else:
                 split_focused_window = focused_window_title.split(" - ")
-                
+                       
                 if len(split_focused_window) == 1:
-                    split_focused_window = focused_window_title.split(" ")
+               
+                    split_focused_window = focused_window_title.split(" — ")
+                
+                    if len(split_focused_window) == 1:
+                        split_focused_window = focused_window_title.split(" ")
+                    #print(split_focused_window)
                     #app = split_focused_window[0]
 
-                else:
-                    split_focused_window.reverse()
-                app = split_focused_window[0]
+                # else:
+                #     split_focused_window.reverse()
+                #app = split_focused_window[0]
+                app = split_focused_window[-1]
                 app= app.strip('\n')
-                
+            
             if button in ["Encoder1", "Encoder2"]:
                 self.Encoder_handler(app, button, event_type, layers)
             

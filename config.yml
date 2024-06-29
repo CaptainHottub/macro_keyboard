@@ -16,3 +16,5 @@ system_tray_icon_image_path_relative: "/Images/pythonIcon.ico"
 connected_notification: True  
 # in seconds
 notification_time: 2
+
+spotify_auto_start: 0

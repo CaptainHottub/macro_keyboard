@@ -128,6 +128,7 @@ if config_path.exists():
     logging_level = config['logging_level']
 
     notification_time = config['notification_time']
+    spotify_auto_start = config['spotify_auto_start']
     
     log_folder_path =_path_addjuster(file_dir, config['log_folder_path'], config['log_folder_path_relative'], posix_file_dir)
     system_tray_icon_image_path =_path_addjuster(file_dir, config['system_tray_icon_image_path'], config['system_tray_icon_image_path_relative'], posix_file_dir)

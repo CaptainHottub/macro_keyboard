@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.136.b] - 2024-06-29
+Requirements file
+A media controller for FireFox, and TTS works
+
+### Changed
+- Modified the code that gets the app name, will have to make it better.
+- Pyclip is replacing Pyperclip, because Pyperclip wasn't in macros, only in that file. IDK why
+- Azure TTS now works on linux.
+
+### Added
+- Requirements file
+- A media controller for FireFox
+- spotify_auto_start setting to config. when 1, spotify will automaticaly start if you try and interact with it.
+- libreOffice_font_size_up() and libreOffice_font_size_down(). does exactly what its called
+
 ## [v2.2.135.b] - 2024-06-27
 I belive most of the macros will work on linux.
 

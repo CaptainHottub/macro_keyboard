@@ -8,8 +8,9 @@ import time
 import sys
 import os
 import azure.cognitiveservices.speech as speechsdk
-import pyperclip
 import pyautogui
+import pyclip       # import pyperclip   
+
 
 logger.debug(f'Initializing {__file__}')
 
@@ -30,52 +31,54 @@ logger.debug(f'Initializing {__file__}')
 #     from _linux_macros import perform_hotkey
 #     from _linux_macros import perform_press
 
+try:
+    """
+    OMFG, it only works with azure-cognitiveservices-speech==1.37.0
+    and openssl 1.1
+    # https://github.com/Azure-Samples/cognitive-services-speech-sdk/issues/2436
 
-if sys.platform == 'win32':
-    # make this a class
-    try:
-        """
-        For the lifee of me i cant get this to work on linux. There was this whole megathread on github about the openssl 1.x EOL: https://github.com/Azure-Samples/cognitive-services-speech-sdk/issues/2048
-        I looks like they updated it to openssl 3.x, but it still wont work.
-        
-        """
-        
-        
-        # the keys are stored in the environment variables
-        SPEECH_KEY = os.environ.get('AZURE_SPEECH_KEY')
-        SPEECH_REGION = os.environ.get('AZURE_SPEECH_REGION')
-        if SPEECH_KEY is None or SPEECH_REGION is None:
-            raise ValueError("One of the AZURE_SPEECH_KEYS is not defined.", (SPEECH_KEY,SPEECH_REGION))
-        # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-        speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
-        audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
-        # The language of the voice that speaks.
-        speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
-        speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
-
-    except Exception as e:
-        logger.error(f'Error setting up speech config: {e}')
-        #toaster.show_toast("Speech Config Error", "See Log File for more information", duration=5, threaded=True)
-        send_notification(title='Speech Config Error', msg='Speech Config Error\nSee Log File for more information', expire_time=2, urgency='normal')
+    For the lifee of me i cant get this to work on linux. There was this whole megathread on github about the openssl 1.x EOL: https://github.com/Azure-Samples/cognitive-services-speech-sdk/issues/2048
+    """
+    if speechsdk.__version__ != '1.37.0':
+        raise ModuleNotFoundError("You are using the wrong version of azure-cognitiveservices-speech. You must use version 1.37.0")
     
-    
-    def textToSpeech():
-        logger.info("in textToSpeech")
-        """Microsoft Azure moves to TLS 1.2 On October 31 2024
-        IDK what that really means, so if this breaks after that date, we will know why
-        https://learn.microsoft.com/en-us/security/engineering/solving-tls1-problem
-        """
-        perform_hotkey(['ctrl', 'c'])
-        time.sleep(0.1)
-        text = pyperclip.paste()
-        speech_synthesizer.speak_text(text)
-        #speech_synthesis_result = speech_synthesizer.speak_text_async(text)
+    # the keys are stored in the environment variables
+    SPEECH_KEY = os.environ.get('AZURE_SPEECH_KEY')
+    SPEECH_REGION = os.environ.get('AZURE_SPEECH_REGION')
+    if SPEECH_KEY is None or SPEECH_REGION is None:
+        raise ValueError("One of the AZURE_SPEECH_KEYS is not defined.", (SPEECH_KEY,SPEECH_REGION))
+    # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+    speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
+    audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
+    # The language of the voice that speaks.
+    speech_config.speech_synthesis_voice_name='en-US-JennyNeural'
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
-    def stopSpeech():
-        logger.info("in stopSpeech")
-        speech_synthesizer.stop_speaking()
-        #speech_synthesizer.stop_speaking_async()
+except Exception as e:
+    logger.error(f'Error setting up speech config: {e}')
+    #toaster.show_toast("Speech Config Error", "See Log File for more information", duration=5, threaded=True)
+    send_notification(title='Speech Config Error', msg='Speech Config Error\nSee Log File for more information', expire_time=2, urgency='normal')
 
+
+def textToSpeech():
+    logger.info("in textToSpeech")
+    """Microsoft Azure moves to TLS 1.2 On October 31 2024
+    IDK what that really means, so if this breaks after that date, we will know why
+    https://learn.microsoft.com/en-us/security/engineering/solving-tls1-problem
+    """
+    #perform_hotkey(['ctrl', 'c'])
+    pyautogui.hotkey(['ctrl', 'c'])
+    time.sleep(0.1)
+    text = pyclip.paste(text=True)
+    speech_synthesizer.speak_text_async(text)
+    logger.info("textToSpeech has finished")
+    #speech_synthesizer.speak_text(text)
+    #speech_synthesis_result = speech_synthesizer.speak_text_async(text)
+
+def stopSpeech():
+    logger.info("in stopSpeech")
+    #speech_synthesizer.stop_speaking()
+    speech_synthesizer.stop_speaking_async()
 
 # timer function
 def get_time(func):
@@ -149,14 +152,22 @@ def ButtonMode(mode):
     #     logger.warning(e)
 
 def libreOffice_zoomin():   
-    pyautogui.keyDown('ctrl')
-    pyautogui.hscroll(10)
-    pyautogui.keyUp('ctrl')
+    pyautogui.keyDown('ctrl', _pause=False)
+    pyautogui.hscroll(1, _pause=False)
+    pyautogui.keyUp('ctrl', _pause=False)
 
 def libreOffice_zoomout():
-    pyautogui.keyDown('ctrl')
-    pyautogui.hscroll(-10)
-    pyautogui.keyUp('ctrl')
+    pyautogui.keyDown('ctrl', _pause=False)
+    pyautogui.hscroll(-1, _pause=False)
+    pyautogui.keyUp('ctrl', _pause=False)
+    
+def libreOffice_font_size_up():   
+    pyautogui.hotkey('ctrl', ']', _pause=False)
+
+def libreOffice_font_size_down():
+    pyautogui.hotkey('ctrl', '[', _pause=False)
+
+    
 
 def sheild_focus_star_citizen(key): #macro to focus ship shields in star citizen
     logger.debug(f"right shift + {key}")
@@ -235,10 +246,14 @@ def ChromeController():
     return platformModule._ChromeController()
    
 def YTMusicController():
-    """A Controller Class for Youtube Music app, I might be able to use the same methoda as the spotify controller, but not right now.
-    I navent event used YT music after setting up the controller.
+    """A Controller Class for Youtube Music app, I might be able to use the same method as the spotify controller, but not right now.
+    I havent event used YT music after setting up the controller.
     """
     return platformModule._YTMusicController()
+
+def FireFoxController():
+    """A Controller Class for FireFox. This is a very early test""" 
+    return platformModule._FireFoxController()
 
 
 def perform_hotkey(hotkey):
