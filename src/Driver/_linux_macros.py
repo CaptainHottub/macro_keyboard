@@ -127,53 +127,249 @@ def _media_player_dbus(name):
     return None#, None
 
 #############################################     Macros that can be called     #############################################
-class _SpotifyController:
-    # https://stackoverflow.com/questions/70737550/how-to-connect-to-mediaplayer2-player-playbackstatus-signal-using-pygtk
-    # https://www.reddit.com/r/linuxquestions/comments/mv9z12/how_does_linux_handle_playpause_from_function_keys/
-    """Its a controller for spotify.
-    add a func to start it.
+# class _SpotifyController:
+#     """A Controller Class for Spotify"""
+#     # https://stackoverflow.com/questions/67549618/discrepancy-between-dbus-send-and-pythons-dbus-using-spotify
+#     # https://stackoverflow.com/questions/23324841/using-org-mpris-mediaplayer2-player-playbackstatus-property-in-python
+#     def __init__(self):
+#         # self.actions = {
+#         #         'PrevTrack': 'Previous Track',
+#         #         'SeekBackward': 'Seek Backward',
+#         #         'PlayPause': 'Play Pause',
+#         #         'SeekForward': 'Seek Forward',
+#         #         'NextTrack': 'Next Track'
+#         #         }
+#         self.spotify_window_id = None
+#         self.mediaTimer = MediaTimer()
+       
+#         if spotify_auto_start:
+#             if not _media_player_dbus('spotify'):
+#                 logger.info("Launching Spotify")
+#                 self._startSpotify()
+
+#     def _startSpotify(self):
+#         # I just made a shortcut for spotify
+#         pyautogui.hotkey("ctrl", 'alt', 'shift', 'p')
+#         time.sleep(0.4)
+
+#     def _get_all_properties(self, media_player_obj): 
+#         return media_player_obj.GetAll('org.mpris.MediaPlayer2.Player', dbus_interface='org.freedesktop.DBus.Properties')
+
+#     def _get_property(self, media_player_obj, prop_name):
+#         return media_player_obj.Get('org.mpris.MediaPlayer2.Player', prop_name, dbus_interface='org.freedesktop.DBus.Properties')
+ 
+#     def _set_property(self, media_player_obj, prop_name, value):
+#         return media_player_obj.Set('org.mpris.MediaPlayer2.Player', prop_name, value, dbus_interface='org.freedesktop.DBus.Properties')
+   
+#     def move_spotify_window(self, direction):
+#         if not self.spotify_window_id:
+#             window_ids = _get_app_ids('Spotify', only_visible=False)
+#             for win_id in window_ids:
+#                 stdout, stderr = _send_Command(f"xdotool getwindowpid {win_id}")
+#                 if stdout and not stderr:
+#                     self.spotify_window_id= int(win_id)
+#                     break
+                
+#         stdout, stderr = _moveAppAccrossDesktops(app_id=self.spotify_window_id, movement=direction)
+#         #logger.debug(stdout, stderr)
+    
+#     def event_handler(self, event):
+#         if media_player_obj := _media_player_dbus('spotify'):
+#             logger.debug("Spotify is running")
+#             media_player_iface = dbus.Interface(media_player_obj, dbus_interface='org.mpris.MediaPlayer2.Player')
+#             if event == "PlayPause":
+#                 media_player_iface.PlayPause()
+                
+#             elif event == "NextTrack":
+#                 media_player_iface.Next()
+
+#             elif event == "PrevTrack":
+#                 media_player_iface.Previous() 
+            
+#             elif event in ['VolumeUp', 'VolumeDown']:
+#                 volume = float(self._get_property(media_player_obj, 'Volume'))
+                
+#                 if event == 'VolumeUp':
+#                     volume += 0.05
+#                 else:
+#                     volume -= 0.05
+                
+#                 if volume > 1.0:
+#                     logger.debug("vol is greater then 1")
+#                     return
+          
+#                 self._set_property(media_player_obj, 'Volume', volume)
+            
+#             elif event == "Back5s":
+#                 media_player_iface.Seek(-5000000)
+#             elif event == "Forward5s":
+#                 media_player_iface.Seek(5000000)
+
+#         else:
+#             logger.debug(f"Spotify is NOT running, spotify auto start is set to {spotify_auto_start}")
+            
+#             if spotify_auto_start:
+#                 logger.debug("Starting Spotify")
+#                 self._startSpotify()
+#                 self.event_handler(event)
+
+#             logger.debug("ignoring msg")
+            
+#     def press(self):
+#         if result := self.mediaTimer.press_button():
+#             logger.debug(result)
+#             self.event_handler(result)     
+      
+# class _FireFoxController:
+#     """A Controller Class for FireFox
+#     When its a singular video, you can only play pause.
+#     When its in a playlist you can do Next and Previous.
+#     It doesnt look like seek works, I belive its because firefox doesnt allow it.
+#     reference testing.py for some more info
+    
+#     """
+#     # https://stackoverflow.com/questions/67549618/discrepancy-between-dbus-send-and-pythons-dbus-using-spotify
+#     # https://stackoverflow.com/questions/23324841/using-org-mpris-mediaplayer2-player-playbackstatus-property-in-python
+#     def __init__(self):
+#         # self.actions = {
+#         #         'PrevTrack': 'Previous Track',
+#         #         'SeekBackward': 'Seek Backward',
+#         #         'PlayPause': 'Play Pause',
+#         #         'SeekForward': 'Seek Forward',
+#         #         'NextTrack': 'Next Track'
+#         #         }
+#         self.mediaTimer = MediaTimer()
+
+#     def _get_all_properties(self, media_player_obj): 
+#         return media_player_obj.GetAll('org.mpris.MediaPlayer2.Player', dbus_interface='org.freedesktop.DBus.Properties')
+
+#     def _get_property(self, media_player_obj, prop_name):
+#         return media_player_obj.Get('org.mpris.MediaPlayer2.Player', prop_name, dbus_interface='org.freedesktop.DBus.Properties')
+ 
+#     def _set_property(self, media_player_obj, prop_name, value):
+#         return media_player_obj.Set('org.mpris.MediaPlayer2.Player', prop_name, value, dbus_interface='org.freedesktop.DBus.Properties')
+    
+#     def event_handler(self, event):
+#         if media_player_obj := _media_player_dbus('firefox'):
+#             logger.debug("Firefox is running")
+#             media_player_iface = dbus.Interface(media_player_obj, dbus_interface='org.mpris.MediaPlayer2.Player')
+#             if event == "PlayPause":
+#                 media_player_iface.PlayPause()
+                
+#             elif event == "NextTrack":
+#                 media_player_iface.Next()
+
+#             elif event == "PrevTrack":
+#                 media_player_iface.Previous() 
+            
+#             # elif event in ['VolumeUp', 'VolumeDown']:
+#             #     volume = float(self._get_property(media_player_obj, 'Volume'))
+                
+#             #     if event == 'VolumeUp':
+#             #         volume += 0.05
+#             #     else:
+#             #         volume -= 0.05
+                
+#             #     if volume > 1.0:
+#             #         logger.debug("vol is greater then 1")
+#             #         return
+          
+#             #     self._set_property(media_player_obj, 'Volume', volume)
+            
+#             # elif event == "Back5s":
+#             #     media_player_iface.Seek(-5000000)
+#             # elif event == "Forward5s":
+#             #     media_player_iface.Seek(5000000)
+
+#         else:
+#             logger.debug("firefox is NOT running, ignoring msg")
+            
+#     def press(self):
+#         if result := self.mediaTimer.press_button():
+#             logger.debug(result)
+#             self.event_handler(result)           
         
-    """
-    def __init__(self):
-        self.spotify_window_id = None
-        self.main_msg = [
-            'dbus-send', 
-            '--print-reply', 
-            '--session',
-            '--dest=org.mpris.MediaPlayer2.spotify', 
-            '/org/mpris/MediaPlayer2']
-        self.event_translation_layer = {
-            "PlayPause": "PlayPause", 
-            "PrevTrack":"Previous", 
-            "NextTrack":"Next"}
+# BRAND NEW
+class _MasterMediaController:
+    """A Master Controller Class"""
+    # https://stackoverflow.com/questions/67549618/discrepancy-between-dbus-send-and-pythons-dbus-using-spotify
+    # https://stackoverflow.com/questions/23324841/using-org-mpris-mediaplayer2-player-playbackstatus-property-in-python
+    def __init__(self, media_player_name):
+        self.media_player_name = media_player_name
+        self.actions = {
+                'PrevTrack': 'Previous Track',
+                'SeekBackward': 'Seek Backward',
+                'PlayPause': 'Play Pause',
+                'SeekForward': 'Seek Forward',
+                'NextTrack': 'Next Track'
+                }
         
         self.mediaTimer = MediaTimer()
+
+    def _get_all_properties(self, media_player_obj): 
+        return media_player_obj.GetAll('org.mpris.MediaPlayer2.Player', dbus_interface='org.freedesktop.DBus.Properties')
+
+    def _get_property(self, media_player_obj, prop_name):
+        return media_player_obj.Get('org.mpris.MediaPlayer2.Player', prop_name, dbus_interface='org.freedesktop.DBus.Properties')
+ 
+    def _set_property(self, media_player_obj, prop_name, value):
+        return media_player_obj.Set('org.mpris.MediaPlayer2.Player', prop_name, value, dbus_interface='org.freedesktop.DBus.Properties')
+   
+    def event_handler(self, event):
+        if media_player_obj := _media_player_dbus(self.media_player_name):
+            logger.debug(f"{self.media_player_name} is running")
+            media_player_iface = dbus.Interface(media_player_obj, dbus_interface='org.mpris.MediaPlayer2.Player')
+            if event == "PlayPause":
+                media_player_iface.PlayPause()
+                
+            elif event == "NextTrack":
+                media_player_iface.Next()
+
+            elif event == "PrevTrack":
+                media_player_iface.Previous() 
+            
+            elif event in ['VolumeUp', 'VolumeDown']:
+                volume = float(self._get_property(media_player_obj, 'Volume'))
+                
+                if event == 'VolumeUp':
+                    volume += 0.05
+                else:
+                    volume -= 0.05
+                
+                if volume > 1.0:
+                    logger.debug("vol is greater then 1")
+                    return
+          
+                self._set_property(media_player_obj, 'Volume', volume)
+            
+            elif event == "Back5s":
+                media_player_iface.Seek(-5000000)
+            elif event == "Forward5s":
+                media_player_iface.Seek(5000000)
+
+        else:
+            logger.debug(f"{self.media_player_name} is NOT running, ignoring msg")
+
+            
+    def press(self):
+        if result := self.mediaTimer.press_button():
+            logger.debug(result)
+            self.event_handler(result)    
+ 
+class _SpotifyController(_MasterMediaController):
+    def __init__(self):
+        _MasterMediaController.__init__(self, 'spotify')
         
+        self.spotify_window_id = None
         if spotify_auto_start:
-            self._startSpotify()
-
+            if not _media_player_dbus('spotify'):
+                logger.info("Launching Spotify")
+                self._startSpotify()
+                
     def _startSpotify(self):
-        
         # I just made a shortcut for spotify
-        app_id = _get_app_ids('Spotify')
-        if len(app_id) == 0:
-            pyautogui.hotkey("ctrl", 'alt', 'shift', 'p')
-    
-    # def move_spotify_window_to_current_desktop(self):
-    #     """
-    #     """
-    #     if not self.spotify_window_id:
-    #         window_ids = _get_app_ids('Spotify', )
-
-    #         for win_id in window_ids:
-    #             cmd = f"xdotool getwindowname {win_id}"
-    #             spotify_or_song_name, _blank = _send_Command(cmd)
-    #             if len(spotify_or_song_name) > 2 or 'Spotify Premium' in spotify_or_song_name:
-    #                 self.spotify_window_id= int(win_id)
-    #                 break
-        
-    #     print(self.spotify_window_id)
-    #     _moveAppAccrossDesktops(app_id = self.spotify_window_id)        
+        pyautogui.hotkey("ctrl", 'alt', 'shift', 'p')
+        time.sleep(0.4)
 
     def move_spotify_window(self, direction):
         if not self.spotify_window_id:
@@ -186,79 +382,13 @@ class _SpotifyController:
                 
         stdout, stderr = _moveAppAccrossDesktops(app_id=self.spotify_window_id, movement=direction)
         #logger.debug(stdout, stderr)
+ 
+class _FireFoxController(_MasterMediaController):
+    def __init__(self):
+        _MasterMediaController.__init__(self, 'firefox')
+                     
 
-    def sendCommand(self, cmd):
-        ret_value = _send_Command(cmd, is_shell=False)
-        
-        if ret_value[0] =='' or ret_value[1] == 'Error org.freedesktop.DBus.Error.ServiceUnknown: The name is not activatable': 
-            if spotify_auto_start: 
-                logger.debug("Spotify is not running. Starting Spotify.")
-                
-                self._startSpotify()
-                time.sleep(1.8)
-                return _send_Command(cmd, is_shell=False)
-            
-            logger.debug("Spotify is not running")
-            return 
-        return ret_value
-    # instead of sending dbus requests via subprocess, use the dbus module
-    # use this: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html
-    #https://github.com/DeaDBeeF-Player/deadbeef/issues/1785
-    def event_handler(self, event):
-        if event in ["PlayPause", "PrevTrack", "NextTrack"]:
-            final_msg = self.main_msg + [f'org.mpris.MediaPlayer2.Player.{self.event_translation_layer[event]}']
-
-        elif event in ['VolumeUp', 'VolumeDown']:
-            #https://github.com/DeaDBeeF-Player/deadbeef/issues/1785
-            get_volume_msg = self.main_msg+['org.freedesktop.DBus.Properties.Get', 
-                                'string:org.mpris.MediaPlayer2.Player', 
-                                'string:Volume']
-
-            # outputmsg = self.sendCommand(get_volume_msg)
-            # print(outputmsg)
-            
-            if outputmsg := self.sendCommand(get_volume_msg):
-                intermidiate = outputmsg[0].split("double ")
-                volume = intermidiate[-1][0:-1]
-
-                
-                volume = float(volume)
-
-                if event == 'VolumeUp':
-                    new_volume = volume + 0.05
-                else:
-                    new_volume = volume - 0.05
-
-                if new_volume > 1.0:
-                    logger.debug("vol is greater then 1")
-                    return
-
-                get_volume_msg[5] = 'org.freedesktop.DBus.Properties.Set'
-                get_volume_msg.append(f'variant:double:{new_volume:.2f}')
-                final_msg = get_volume_msg
-            else:
-                logger.debug("Spotify is not running, ignoring message")
-            
-                return
-        
-        elif event in ["Back5s", "Forward5s"]: # https://gitlab.gnome.org/World/podcasts/-/issues/238
-
-            if event == "Forward5s":
-                #seek is in microseconds
-                seek_by = 5000000
-            else:
-                seek_by = -5000000
-            final_msg = self.main_msg + ['org.mpris.MediaPlayer2.Player.Seek', f'int64:{seek_by}']
-
-            #print(sendCommand(seek_msg))
-        #print(final_msg)    
-        self.sendCommand(final_msg)
-
-    def press(self):
-        if result := self.mediaTimer.press_button():
-            logger.debug(result)
-            self.event_handler(result)
-        
+ 
 class _ChromeController:
     """A Controller Class for Chrome  IT is currently broken
     """
@@ -311,56 +441,7 @@ class _YTMusicController:
 
     def press(self):
         self.broken()
-
-class _FireFoxController:
-    """A Controller Class for FireFox
-    When its a singular video, you can only play pause.
-    When its in a playlist you can do Next and Previous.
-    It doesnt look like seek works, I belive its because firefox doesnt allow it.
-    reference testing.py for some more info
     
-    """
-    # https://stackoverflow.com/questions/67549618/discrepancy-between-dbus-send-and-pythons-dbus-using-spotify
-    # https://stackoverflow.com/questions/23324841/using-org-mpris-mediaplayer2-player-playbackstatus-property-in-python
-    def __init__(self):
-        #logger.warning(""" pywinauto.application.Application().connect() doesn't seem to work for me, so this controller doesnt work
-        #              I'm going to fix it one day, but Idk when.""")
-        self.actions = {
-                'PrevTrack': 'Previous Track',
-                'SeekBackward': 'Seek Backward',
-                'PlayPause': 'Play Pause',
-                'SeekForward': 'Seek Forward',
-                'NextTrack': 'Next Track'
-                }
-        self.mediaTimer = MediaTimer()
-        self.firefox_player_obj = _media_player_dbus('firefox')
-
-    def _get_properties(self):
-        properties = self.firefox_player_obj.GetAll('org.mpris.MediaPlayer2.Player', dbus_interface='org.freedesktop.DBus.Properties')
-        for i in properties:
-            print(i, properties[i])
-
-    def event_handler(self, event):
-        if not self.firefox_player_obj:
-            self.firefox_player_obj = _media_player_dbus('firefox')
-    
-        self.firefox_player_iface = dbus.Interface(self.firefox_player_obj, dbus_interface='org.mpris.MediaPlayer2.Player')
-        if event == "PlayPause":
-            self.firefox_player_iface.PlayPause()
-        
-        # elif event in ["NextTrack", "PrevTrack"]:
-        #     self._get_properties()
-        elif event == "NextTrack":
-            self.firefox_player_iface.Next()
-
-        elif event == "PrevTrack":
-            self.firefox_player_iface.Previous() 
-
-    def press(self):
-        if result := self.mediaTimer.press_button():
-            logger.debug(result)
-            self.event_handler(result)    
-
 def _perform_hotkey(hotkey):
     logger.debug(f"perform_hotkey {hotkey = }")
     pyautogui.hotkey(hotkey)
@@ -513,3 +594,4 @@ def _start_task_viwer():
     
 
 logger.debug(f"Initializing is complete for {__file__}")
+

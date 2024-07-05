@@ -7,6 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v2.2.137.b] - 2024-07-04
+Improved Media Controllers for firefox and spotify.
+Semi-updat
+
+### Changed
+- Spotify and firefox controllers grab from the master controller.
+- This would probably work with chrome too
+
+### Added
+- A MasterMediaController class, that has the press, and envent_handler stuff in it
+
 ## [v2.2.136.b] - 2024-06-29
 Requirements file
 A media controller for FireFox, and TTS works

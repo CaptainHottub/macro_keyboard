@@ -109,7 +109,8 @@ class MacroDriver:
                 # Look for the device
                 arduino_ports = [
                     p.device for p in serial.tools.list_ports.comports()
-                    if 'Pico - CircuitPython' in p.description
+                    # if 'Pico - CircuitPython' in p.description
+                    if 'KB2040 - CircuitPython' in p.description
                 ]
             
                 if not arduino_ports:

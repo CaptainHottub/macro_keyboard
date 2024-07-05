@@ -17,4 +17,4 @@ connected_notification: True
 # in seconds
 notification_time: 2
 
-spotify_auto_start: 0
+spotify_auto_start: 1
