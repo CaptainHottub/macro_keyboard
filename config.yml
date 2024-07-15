@@ -1,0 +1,20 @@
+logging: True   
+logging_level: DEBUG
+log_folder: True
+
+# The direct path
+log_folder_path: "" # "C:/Coding/macro_keyboard/logs"  
+# relative from /macro_keyboard/
+log_folder_path_relative: "/logs"
+
+system_tray_icon: True  
+# The direct path
+system_tray_icon_image_path: ""  
+# relative from /macro_keyboard/
+system_tray_icon_image_path_relative: "/Images/pythonIcon.ico"  
+
+connected_notification: True  
+# in seconds
+notification_time: 2
+
+spotify_auto_start: 1

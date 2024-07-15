@@ -9,7 +9,8 @@ One of these macros uses the Tesseract OCR module in Python. I press the button 
 Another one uses Microsoft Azures Text To Speech API to read the text I highlight.
 I have one macro that moves Spotify to the current desktop.
 
-This is a work in progress.
+This is a work in progress. 
+I have switched to linux and I might not keep it compatible with windows. 
 
 All of this was inspired by Ryan Bates and his [Macro Keyboard Video][video-inspiration]
 
@@ -17,6 +18,9 @@ All of this was inspired by Ryan Bates and his [Macro Keyboard Video][video-insp
 
 
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/pcb.jpg?raw=true)
+
+![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/PCB_screenshot.png?raw=true)
+
 
 I  have one button that works like the button on the old wired headphones from Apple.
 1 press will play/ pause, 2 presses will go to the next song, and 3 presses will got to the previous song.
@@ -42,5 +46,5 @@ This work is licensed under a
 [cc-by-nc-image]: https://licensebuttons.net/l/by-nc/4.0/88x31.png
 
 [retrobuilds]: http://www.retrobuiltgames.com/the-build-page/macro-keyboard-v2-0/ 
-[retrobuilds2]: https://github.com/retrobuiltRyan/MacroKeyboardV2 
+[retrobuilds2]: https://github.com/retrobuiltRyan/MacroKeyboardV2
 [video-inspiration]: https://www.youtube.com/watch?v=IDlcxLQ1SbY
