@@ -14,23 +14,6 @@ import pyclip       # import pyperclip
 
 logger.debug(f'Initializing {__file__}')
 
-# if sys.platform == 'win32':
-#     from _windows_macros import SpotifyController
-#     from _windows_macros import ChromeController
-#     from _windows_macros import YTMusicController
-#     from _windows_macros import change_desktop
-#     from _windows_macros import perform_hotkey
-#     from _windows_macros import perform_press
-    
-#     #perform_hotkey
-# elif sys.platform == 'linux':
-#     from _linux_macros import SpotifyController
-#     from _linux_macros import ChromeController
-#     from _linux_macros import YTMusicController
-#     from _linux_macros import change_desktop
-#     from _linux_macros import perform_hotkey
-#     from _linux_macros import perform_press
-
 try:
     """
     OMFG, it only works with azure-cognitiveservices-speech==1.37.0
@@ -59,7 +42,7 @@ except Exception as e:
     #toaster.show_toast("Speech Config Error", "See Log File for more information", duration=5, threaded=True)
     send_notification(title='Speech Config Error', msg='Speech Config Error\nSee Log File for more information', expire_time=2, urgency='normal')
 
-
+##WTF this wont work in the konsole profile launcher
 def textToSpeech():
     logger.info("in textToSpeech")
     """Microsoft Azure moves to TLS 1.2 On October 31 2024
@@ -318,10 +301,4 @@ def start_task_viwer():
 
 
 
-# import SpotifyController
-# import ChromeController
-# import YTMusicController
-# import change_desktop
-# import perform_press
-# import perform_hotkey
 logger.debug(f"Initializing is complete for {__file__}")

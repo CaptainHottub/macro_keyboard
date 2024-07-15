@@ -5,11 +5,24 @@ My macro_keyboard project
 All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+<!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
-## [v2.2.137.b] - 2024-07-04
+## [2.3.001] - 2024-07-14
+IT SHOULD WORK THE SAME
+You can now send text or json to the microcontroller.
+Big changes to MacroDriver and the microcontroller code,
+An LED now lights up when the pause state is true 
+
+### Changed
+- Changed the structure of MacroDriver:
+- Moved Button_handler and Encoder_handler outside of MacroDriver
+
+### Added
+- You can now send text or json to the microcontroller.
+
+## [2.2.137.b] - 2024-07-04
 Improved Media Controllers for firefox and spotify.
-Semi-updat
+Semi-update
 
 ### Changed
 - Spotify and firefox controllers grab from the master controller.
@@ -18,7 +31,7 @@ Semi-updat
 ### Added
 - A MasterMediaController class, that has the press, and envent_handler stuff in it
 
-## [v2.2.136.b] - 2024-06-29
+## [2.2.136.b] - 2024-06-29
 Requirements file
 A media controller for FireFox, and TTS works
 
@@ -33,7 +46,7 @@ A media controller for FireFox, and TTS works
 - spotify_auto_start setting to config. when 1, spotify will automaticaly start if you try and interact with it.
 - libreOffice_font_size_up() and libreOffice_font_size_down(). does exactly what its called
 
-## [v2.2.135.b] - 2024-06-27
+## [2.2.135.b] - 2024-06-27
 I belive most of the macros will work on linux.
 
 ### Changed
@@ -41,12 +54,12 @@ I belive most of the macros will work on linux.
 - ButtonMode() now prints in the console instead of creating a window, it was crashing on the second time being pressed on linux (this is a temp solution) 
 
 
-## [v2.2.132.b] - 2024-06-17
+## [2.2.132.b] - 2024-06-17
 
 If spotify isnt running it will start, when _SpotifyController is called
 
 
-## [v2.2.131.b] - 2024-06-13
+## [2.2.131.b] - 2024-06-13
 
 Major changes to file structure
 
@@ -61,7 +74,7 @@ Azure speechsdk is broken for some reason
 - Getting the focused_window name is more reliable
 
 
-## [v2.2.125.b] - 2024-06-09
+## [2.2.125.b] - 2024-06-09
 
 ### Added
 - Added some logs when certain things are initialized
@@ -69,7 +82,7 @@ Azure speechsdk is broken for some reason
 ### Changed
 - The System Tray Icon should now show the full version.
 
-## [v2.2.124.b] - 2024-06-09
+## [2.2.124.b] - 2024-06-09
 
 It should be easier to test macros now.
 added testing.py, that will ask for an input and it will send said input to MacroDriver.Event_handler()
@@ -82,13 +95,13 @@ added testing.py, that will ask for an input and it will send said input to Macr
 - tools.change_desktop() should now be faster
 
 
-## [v2.2.123.b] - 2024-06-08
+## [2.2.123.b] - 2024-06-08
 
 It now works on linux and windows.
 There are still some bugs, like the Azure speech stuff doesnt work
 
 
-## [v2.2.121.b] - 2024-06-08
+## [2.2.121.b] - 2024-06-08
 
 First port to linux
 
@@ -103,7 +116,7 @@ First port to linux
 - the media controllers got moved to media_controller.py
 - The Azure speech stuff will not work on linus due to a big.
 
-## [v2.2.111] - 2024-06-07
+## [2.2.111] - 2024-06-07
 
 Removed unessisary comments
 
@@ -111,7 +124,7 @@ Removed unessisary comments
 - Removed unessisary comments
 - chromeAudioControl and mediaTimerV2
 
-## [v2.2.110] - 2024-06-07
+## [2.2.110] - 2024-06-07
  
 Brainstorming in TODO
 Minor changes
@@ -131,14 +144,14 @@ Minor changes
 - Modified get_processes()
 - Removed hwndGetter().
 
-## [v2.2.108] - 2024-04-22
+## [2.2.108] - 2024-04-22
  
 chromeAudioControl is more reliable
 
 ### Changed
 - I believe I made chromeAudioControl more reliable
 
-## [v2.2.107] - 2024-04-19
+## [2.2.107] - 2024-04-19
  
 Changed how spotify controls work
 
@@ -152,7 +165,7 @@ Changed how spotify controls work
 ### Fixed
 - N/A
 
-## [v2.2.105] - 2024-04-19
+## [2.2.105] - 2024-04-19
  
 Changed how spotify controls work
 
@@ -177,7 +190,7 @@ Changed how spotify controls work
 - N/A
 
 
-## [v2.2.101] - 2024-04-18
+## [2.2.101] - 2024-04-18
  
 First CHANGELOG commit
  

@@ -167,3 +167,5 @@ old_versions/
 workspace.code-workspace
 logs/
 testing.py
+serial_exchange-host.py
+serial_exchange_v2.py

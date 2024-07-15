@@ -2,7 +2,7 @@
 All the linux specific stuff will be moved here
 Use subprocess.popen instead of os.system
 """
-from setup import logger, spotify_auto_start
+from setup import logger, spotify_auto_start, send_notification
 import time
 import subprocess
 from pynput import mouse, keyboard
@@ -12,7 +12,7 @@ from PIL import ImageGrab
 import pytesseract
 import pyclip
 import dbus  #New
-
+import os
 
 logger.debug(f'Initializing {__file__}')
 
@@ -55,6 +55,7 @@ def _get_focused():
     return val
 
 def _get_focused_name():
+    # this isnt reliable when on wayland :(
     win_id= _get_focused()
     return _send_Command(f"xdotool getwindowname {win_id}"), win_id
 
@@ -533,6 +534,65 @@ def _moveFocusedAppAccrossDesktops(movement):
     #print(focused_app)
     _moveAppAccrossDesktops(app_id= focused_app, movement= movement)
 
+def _start_task_viwer():
+    """Open System Monitor"""
+    _perform_hotkey(["win", "esc"])    
+
+# def _Image_to_text2():
+#     """
+#     Okay so in this version, if you're linux distro is using spectacle to take screenshots  you will have to configure and make it save to clipboard
+
+#     Presses Win Shift PrtSc to open spectacle mode, waits for mouse release then does tesseract OCR
+#     Press Ctrl V to paste text
+#     It works but spectacle takes some time too launch
+#     """
+    
+#     m = mouse.Controller()
+#     k = keyboard.Controller()
+
+#     def on_release(key):
+#         if key == keyboard.Key.esc:
+#             logger.debug('esc pressed and released')
+#             # Stop listener and the func
+#             m.click(mouse.Button.left,1)
+#             return False    
+        
+#     def on_click(x, y, button, pressed):
+#         if not pressed:
+#             # Stop listener
+#             k.press(keyboard.Key.enter)
+#             k.release(keyboard.Key.enter)
+            
+#             return False
+    
+#     m.click(mouse.Button.left,1)
+    
+#     time.sleep(0.2)
+#     _perform_hotkey(['win', 'shift', 'prtsc'])
+    
+#     keyboard_listener = keyboard.Listener(
+#         on_release=on_release)
+
+#     time.sleep(0.2)
+
+#     keyboard_listener.start()
+
+#     # Collect events until released # is used to block the code until the left mouse button is released
+#     with mouse.Listener(on_click=on_click) as listener:
+#         listener.join()
+        
+#     time.sleep(0.1)
+
+#     keyboard_listener.stop()
+
+#     time.sleep(0.3)
+#     img = ImageGrab.grabclipboard()
+#     #grabs the image from clipboard and converts the image to text.
+#     text = pytesseract.image_to_string(img)
+#     text = text.replace('\x0c', '')
+#     pyclip.copy(text)
+#     logger.debug("imt has finished")
+
 def _Image_to_text2():
     """
     Okay so in this version, if you're linux distro is using spectacle to take screenshots  you will have to configure and make it save to clipboard
@@ -541,26 +601,16 @@ def _Image_to_text2():
     Press Ctrl V to paste text
     It works but spectacle takes some time too launch
     """
-    
-    m = mouse.Controller()
-    k = keyboard.Controller()
-
     def on_release(key):
-        if key == keyboard.Key.esc:
+        if key == keyboard.Key.esc: # Stop listener and the func
             logger.debug('esc pressed and released')
-            # Stop listener and the func
-            m.click(mouse.Button.left,1)
+            pyautogui.click()
             return False    
         
     def on_click(x, y, button, pressed):
-        if not pressed:
-            # Stop listener
-            k.press(keyboard.Key.enter)
-            k.release(keyboard.Key.enter)
-            
+        if not pressed: # on release, Stop the listener
+            _perform_press('ENTER')
             return False
-    
-    m.click(mouse.Button.left,1)
     
     time.sleep(0.2)
     _perform_hotkey(['win', 'shift', 'prtsc'])
@@ -586,12 +636,9 @@ def _Image_to_text2():
     text = pytesseract.image_to_string(img)
     text = text.replace('\x0c', '')
     pyclip.copy(text)
+    send_notification(title='Image To Text Successfull', msg='Image To Text has finished', app_name=os.path.basename(__file__))
     logger.debug("imt has finished")
 
-def _start_task_viwer():
-    """Open System Monitor"""
-    _perform_hotkey(["win", "esc"])
-    
 
 logger.debug(f"Initializing is complete for {__file__}")
 

@@ -13,7 +13,7 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = '%(asctime)s.%(msecs)03d %(levelname)s - %(funcName)s: %(message)s'
+    format = '%(asctime)s.%(msecs)03d %(levelname)s - %(filename)s\%(funcName)s: %(message)s'
 
     FORMATS = {
         logging.INFO: grey + format + reset,
