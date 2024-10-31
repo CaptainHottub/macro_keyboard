@@ -34,6 +34,8 @@ Or like the fn key on laptops.
 
 The way I wrote the microcontroller code is that any key can be a layer and the only limit to how many you can have presses is the number of buttons connected to the microcontroller.
 
+If you want to use the Text To Speech Macro you will need to setup a Azure Speech resource.   
+Quickstart guide: https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python   
 
 
 This work is licensed under a

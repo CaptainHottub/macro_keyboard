@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 <!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
+## [2.3.004] - 2024-10-31
+New Top Case that also acts as the plate for the keyswithes
+Updated Photos
+
+### Changed
+- Changed the way the "focused_window_title" is aquired on linux, this should now work for factorio
+
+## [2.3.003] - 2024-08-30
+Driver shoudn't crash when Microcontroller is unpluged
+
+## [2.3.002] - 2024-07-29
+was messing with asyncio on microcontroller for the layer leds, It doesnt seem to run asynchronisly
+
+### Changed
+- lightshow when microcontrller boots
+
 ## [2.3.001] - 2024-07-14
 IT SHOULD WORK THE SAME
 You can now send text or json to the microcontroller.

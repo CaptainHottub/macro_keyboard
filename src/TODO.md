@@ -1,8 +1,3 @@
-Maybe move the comunication between microcontroller and driver to hexadecimal instead of binary.
-
-start using DBus to control the media players on linux
-
-
 It looks like PyWinCtl does what I need for. It has Ctypes stuff for linux      :https://pywinctl.readthedocs.io/en/latest/?badge=latest#window-features
 Pyautogui works in linux, so does pynput
 

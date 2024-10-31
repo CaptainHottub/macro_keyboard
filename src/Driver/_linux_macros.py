@@ -73,6 +73,77 @@ def _GetWindowDesktopNumber(win_id):
     # return int(val)
     #return _send_Command(f"xdotool get_desktop_for_window {win_id}")
 
+def _get_focused_window_info(geometry = False):
+    """
+    Returns the Name and the ID of the focused window.
+    add geometry = True to get geometry info
+    
+    Use xwininfo to get info on a window
+    xprop too
+    return a dict with all info
+    """
+    active_window_id = int(_send_Command("xdotool getactivewindow")[0])
+    focused_window_id = int(_send_Command("xdotool getwindowfocus")[0])
+    
+    if active_window_id != focused_window_id:
+        logger.warning(f"something is wrong, {active_window_id} != {focused_window_id}")
+        return 0
+    
+    window_hex_id = hex(active_window_id)
+
+    window_data = {
+        #"name": None,
+        #"class_name": None,
+        # "class": None,
+        "id": int(active_window_id), 
+        #"pid": None,
+        #"geometry": None
+    }
+    
+    window_name = _send_Command(f"xdotool getwindowname {active_window_id}")[0]
+    window_class = _send_Command(f"xdotool getwindowclassname {active_window_id}")[0]
+    
+    window_data["name"] = window_name.rstrip()
+    window_data["class"] = window_class.rstrip()
+    
+    """Use xprop to get some info"""
+    xprop = _send_Command(f"xprop -id {window_hex_id} WM_NAME WM_CLASS _NET_WM_PID")[0]    
+    xprop = xprop.split("\n")
+    xprop = [i.replace('"', '') for i in xprop]
+    # print(xprop)
+ 
+    
+    """
+    WM_NAME(UTF8_STRING) = ~macro_keyboard - Visual Studio Code
+    Splits at ' = '  ->  ['WM_NAME(UTF8_STRING)', '"macro_keyboard - Visual Studio Code"']
+    then takes the last item in the list from the split  -> '"macro_keyboard - Visual Studio Code"'
+    and puts it in the ditctionary
+    """    
+    # window_data["name"] = xprop[0].split(" = ")[-1]
+    window_data["class_name"] = xprop[1].split(" = ")[-1]
+    window_data["pid"] = xprop[2].split(" = ")[-1]
+    
+    window_data["class_name"] = window_data["class_name"].split(', ')
+
+
+    if geometry:
+        """Use xwininfo to get more info"""
+        xwininfo = _send_Command(f"xwininfo -id {window_hex_id}")[0]
+        xwininfo = xwininfo.split("\n")
+        info_i_want = ['width', 'height', 'corners', 'geometry']
+        for item in xwininfo:
+            item = item.lower()
+            if "border width" in item:
+                continue 
+            for info in info_i_want:
+                if info in item:
+                    x = item.split(': ')[-1]
+                    window_data[info] = x
+        window_data['geometry'] = window_data['geometry'].split(" ")[-1]
+        
+    # print(window_data)
+    return window_data
+
 class MediaTimer:
     """
     This will sometimes return None

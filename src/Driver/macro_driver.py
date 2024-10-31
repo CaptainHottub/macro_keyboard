@@ -1,5 +1,5 @@
 #from . import setup
-from setup import logger, send_notification, file_dir, config, version
+from setup import logger, send_notification, file_dir, config, version, plat
 #config = setup.config
 import macros
 import pystray
@@ -54,8 +54,9 @@ class MacroDriver:
             self.serial_port.close()
 
     def find_device_serial_port(self, name):
-        device_ports = [p.device for p in serial.tools.list_ports.comports()
-                        if name in p.description]
+        device_ports = [port.device 
+                        for port in serial.tools.list_ports.comports()
+                        if name in port.description]
         return device_ports
     
     def setup_serial(self):
@@ -69,7 +70,7 @@ class MacroDriver:
             
             #if not ports:
             if len(ports) == 0:
-                logger.info('No Pi Pico found in comports. Retrying in 5 seconds...')
+                logger.info('No KB2040 found in comports. Retrying in 5 seconds...')
                 time.sleep(5)
                 self.setup_serial()
                 # continue    
@@ -111,23 +112,32 @@ class MacroDriver:
         """
         Helper to handle serial errors
         """
+        logger.error("Exception on read, did the board disconnect?")
         #global channel
         if self.channel is not None:
+            logger.error("Closing Connection to Microcontroller.")
             self.channel.close()
             self.channel = None
-            logger.error("Exception on read, did the board disconnect ?")
+        
+            logger.error("Changing serial Port Variable, will have to get new one.")
+            
+            self.port = None
 
     def read_serial(self):
         while self.run:
             self.setup_serial()
+            
             line = None
             try:
+                #receives data from microcontroller
                 line = self.channel.readline()[:-2]
             except KeyboardInterrupt:
                 logger.critical("KeyboardInterrupt - quitting")
                 exit()
+                
             except Exception as ex:
                 logger.error(ex)
+                #logger.error("The Microcontroller probably disconected.")    
                 self.error_serial()
                 time.sleep(1)
                 continue
@@ -138,7 +148,7 @@ class MacroDriver:
                 except Exception as ex:
                     logger.warning(ex)
                     data = {"raw": line.decode("utf8")}
-                # print(data)
+                    #print(data)
             
                 if "raw" in data:
                     logger.debug(data)
@@ -166,30 +176,55 @@ class MacroDriver:
         #logger.(f"{self.mode, button, event_type, layers}")
         logger.info(f"{event_data}, {mode}")
         
-        focused_window_title, focused_window_hwnd = macros.get_focused_name()
-    
-        if isinstance(focused_window_title, tuple):
-            focused_window_title = focused_window_title[0]
+        if plat == 'linux':
+            focused_window_data = macros.get_focused_window_info()
+            window_title = focused_window_data['name']
         
-        #THIS IS GROSS, redo this
-        if focused_window_title is None or len(focused_window_title) == 0:
-            app = 'Desktop'
-        else:
-            split_focused_window = focused_window_title.split(" - ")
-                    
-            if len(split_focused_window) == 1:
+            seperators = [' - ', ' — ']
+            for sep in seperators:
+                if sep in window_title:
+                    split_window_title = window_title.split(sep)
+                    window_title = split_window_title[-1]
+                    break
+            else:
+                if focused_window_data['class'] in window_title.lower():
+                    window_title = focused_window_data['class']
+                elif "Desktop" in window_title:
+                    window_title = 'Desktop'
+                # else:
+                #     print(focused_window_data['class_name'])
+                #     print(focused_window_data['class'])
             
-                split_focused_window = focused_window_title.split(" — ")
+            app_data = {"app": window_title, "hwnd": focused_window_data['id']}    
+            # print(window_title)
             
-                if len(split_focused_window) == 1:
-                    split_focused_window = focused_window_title.split(" ")
+        elif plat == 'win32':
+            focused_window_title, focused_window_hwnd = macros.get_focused_name()
+        
+            if isinstance(focused_window_title, tuple):
+                focused_window_title = focused_window_title[0]
+            
+            #THIS IS GROSS, redo this
+            if focused_window_title is None or len(focused_window_title) == 0:
+                app = 'Desktop'
 
-            app = split_focused_window[-1]
-            app= app.strip('\n')
-            
-        app_data = {"app": app, "hwnd": focused_window_hwnd}
+            else:
+                split_focused_window = focused_window_title.split(" - ")
+                        
+                if len(split_focused_window) == 1:
+                
+                    split_focused_window = focused_window_title.split(" — ")
+                
+                    if len(split_focused_window) == 1:
+                        split_focused_window = focused_window_title.split(" ")
+
+                app = split_focused_window[-1]
+                app= app.strip('\n')
         
+            app_data = {"app": app, "hwnd": focused_window_hwnd}
         
+        # print(app_data)
+        logger.debug(app_data)
         if 'Encoder' in event_data:
             Encoder_handler(event_data, mode, app_data)
             
@@ -262,6 +297,18 @@ def Encoder_handler(event_data, mode, app_data):
         case ['LibreOffice Draw', 2, "RRB", []]:
             logger.debug('Encoder2 rotate right w/ button, font_size_up')
             macros.libreOffice_font_size_up()
+        
+    
+        
+        # case ['factorio', 2, "RL", []]:
+        #     logger.debug('Encoder2 rotate left, Increase area')
+        #     macros.perform_press('add')
+    
+        # case ['factorio', 2, "RR", []]:
+        #     logger.debug('Encoder2 rotate right, decrease area')
+        #     macros.perform_press('subtract')
+        
+        
         
         ###TEMPORARY
         case [_, 2, "RL", [2]]:
@@ -373,6 +420,7 @@ def Button_handler(event_data, mode, app_data):
             logger.debug("Pause button press")
             macro_driver.change_pause_state()
 
+        # Specific app and Any Mode
 
         # # TEST
         # case ["Destiny 2", mode, 5, []]: # Rocket Flying Test
@@ -383,8 +431,14 @@ def Button_handler(event_data, mode, app_data):
         # case ["Destiny 2", mode, 6, []]: # Wellskate Test
         #     macros.wellskate()
 
-
-        # Specific app and Any Mode
+        case ['factorio', mode, 7, []]:
+            logger.debug('Increase area factorio')
+            macros.perform_press('add')
+    
+        case ['factorio', mode, 8, []]:
+            logger.debug('decrease area factorio' )
+            macros.perform_press('subtract')
+        
         # VS Code Layer
         case ["Visual Studio Code", mode, 5, []]: # run code in Vs code
             logger.debug("run code in Vs code")

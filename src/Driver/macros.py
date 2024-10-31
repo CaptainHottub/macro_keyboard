@@ -299,6 +299,11 @@ def start_task_viwer():
     platformModule._start_task_viwer()
     #("Starting Task manager")
 
-
+def get_focused_window_info():
+    """
+    Returns the Name and the HWND of the focused window.
+    """
+    return platformModule._get_focused_window_info()
+    
 
 logger.debug(f"Initializing is complete for {__file__}")

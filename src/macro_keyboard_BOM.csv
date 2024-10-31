@@ -1,0 +1,15 @@
+Index,Quantity,Description,Vender,Vendor Part Number,Unit Price ,Extended Price,Notes,,
+1,1,Adafruit KB2040 -  RP2040 Kee Boar Driver,DigiKey,1528-5302-ND,13.14,13.14,,,
+2,1,macro_keyboard v2.2.x PCB,-,,,,,,
+3,13,MX Cherry Keyswitch ,-,,,,1,,1 can be any MX compatible keyswitch
+4,13,Cherry MX Keycap,-,,,,1,,2 any 6x6mm tactile switch will work   
+5,2,Rotary encoder with Switch,DigiKey,987-1398-ND,4.62,9.24,,,3 This DigiKey listing comes in packs of 10
+6,1,SWITCH TACTILE SPST-NO 0.05A 12V,DigiKey,679-2443-ND,0.69,0.69,2,,4 This DigiKey listing comes in packs of 20
+7,2,1x12 Header 0.1” pitch,DigiKey,S6100-ND,1.42,2.84,,,
+8,12,"Diode, small, 100V 300MA SOD123",DigiKey,1N4148W-13FDICT-ND,0.15,1.8,,,
+9,1,RES 330 OHM 5% 1/4W 1206,DigiKey,RMCF1206JT330RCT-ND,0.16,0.16,,,
+10,2,SK6812-E RGB LEDS  - 10PC,DigiKey,1528-4960-ND,4.62,9.24,3,,
+11,1,3D Printed Case  - Custom -,-,,,,,,
+12,1,KAILH MX HotSwap Sockets - 20PC,DigiKey,1528-4958-ND,7.27,7.27,4,,
+13,4,M3x10mm Machine Screws,-,,,,,,
+,,,,,,44.38,,,
