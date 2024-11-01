@@ -60,7 +60,8 @@ def send_notification(**kwargs):
     try:
         if plat == 'linux':
             if 'msg' in kwargs:
-                cmd = f'notify-send -u {urgency} -t {expire_time*1000} -a {app_name} "{kwargs['msg']}"'
+                msg = kwargs['msg']
+                cmd = f'notify-send -u {urgency} -t {expire_time*1000} -a {app_name} "{msg}"'
                 os.system(cmd)
 
         elif plat == 'win32':

@@ -11,37 +11,11 @@ import pyautogui
 from PIL import ImageGrab
 import pytesseract
 import pyclip
-# import dbus  #New
 import os
 
 from mpris2 import Player, get_players_uri
 
 logger.debug(f'Initializing {__file__}')
-
-# import dbus_next as dbus #New
-#https://github.com/altdesktop/python-dbus-next
-
-# from dbus_next.aio import MessageBus
-# import asyncio
-
-# loop = asyncio.get_event_loop()
-# async def test():
-#     bus = await MessageBus().connect()
-#     # the introspection xml would normally be included in your project, but
-#     # this is convenient for development
-#     introspection = await bus.introspect('org.mpris.MediaPlayer2.spotify', '/org/mpris/MediaPlayer2')
-
-#     obj = bus.get_proxy_object('org.mpris.MediaPlayer2.spotify', '/org/mpris/MediaPlayer2', introspection)
-#     player = obj.get_interface('org.mpris.MediaPlayer2.Player')
-#     properties = obj.get_interface('org.freedesktop.DBus.Properties')
-
-#     # call methods on the interface (this causes the media player to play)
-#     await player.call_play()
-#     time.sleep(1)
-#     await player.call_pause()
-    
-# loop.run_until_complete(test())
-
 
 """ TODO
 implement thee rest of the macros
