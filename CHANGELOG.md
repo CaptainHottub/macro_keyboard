@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 <!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
+## [2.3.005] - 2024-11-01
+_MasterMediaController() now uses mpris2 package
+
 ## [2.3.004] - 2024-10-31
 New Top Case that also acts as the plate for the keyswithes
 Updated Photos
