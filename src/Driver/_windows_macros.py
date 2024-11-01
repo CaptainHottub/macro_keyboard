@@ -247,6 +247,9 @@ class _SpotifyController:
 
 class _ChromeController:
     """A Controller Class for Chrome
+    I chose to do it this way instead of using media keys because, if I wanted to play/pause spotify,
+    sometimes chrome would intercept it and play/pause.
+    This way it sends commands directly to the app.
     """
     def __init__(self):
         self.actions = {

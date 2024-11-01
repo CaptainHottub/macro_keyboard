@@ -18,7 +18,7 @@ import keypad
 import neopixel
 import rotaryio
 
-import asyncio          # https://github.com/adafruit/Adafruit_CircuitPython_asyncio/tree/main
+# import asyncio          # https://github.com/adafruit/Adafruit_CircuitPython_asyncio/tree/main
 from rainbowio import colorwheel
 ################################################################
 # select the serial REPL port

@@ -504,7 +504,7 @@ def Button_handler(event_data, mode, app_data):
 
 def sysIcon():
     """
-    The icon for the widget will live in # '/macro_keyboard/Images/pythonIcon.ico'
+    The icon for the widget lives in '/macro_keyboard/Images/pythonIcon.ico'
     
     """ 
     if config['system_tray_icon_image_path_relative'] and config['system_tray_icon_image_path'] == '':
