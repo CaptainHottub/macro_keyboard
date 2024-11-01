@@ -29,6 +29,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
+      if: runner.os =='ubuntu-latest'
       run: |
         sudo apt install libdbus-1-dev
     - name: Install pip dependencies
