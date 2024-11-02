@@ -48,4 +48,4 @@ toml==0.10.2
 typing_extensions==4.12.2
 update-checker==0.18.0
 urllib3==2.2.2
-win32gui==221.5; sys_platform == 'win32'
+pywin32==308; sys_platform == 'win32'

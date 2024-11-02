@@ -6,18 +6,74 @@ import yaml
 from pathlib import Path
 import toaster
 
+def addLoggingLevel(levelName, levelNum, methodName=None):
+    """
+    Comprehensively adds a new logging level to the `logging` module and the
+    currently configured logging class.
+
+    `levelName` becomes an attribute of the `logging` module with the value
+    `levelNum`. `methodName` becomes a convenience method for both `logging`
+    itself and the class returned by `logging.getLoggerClass()` (usually just
+    `logging.Logger`). If `methodName` is not specified, `levelName.lower()` is
+    used.
+
+    To avoid accidental clobberings of existing attributes, this method will
+    raise an `AttributeError` if the level name is already an attribute of the
+    `logging` module or if the method name is already present 
+
+    Example
+    -------
+    >>> addLoggingLevel('TRACE', logging.DEBUG - 5)
+    >>> logging.getLogger(__name__).setLevel("TRACE")
+    >>> logging.getLogger(__name__).trace('that worked')
+    >>> logging.trace('so did this')
+    >>> logging.TRACE
+    5
+    
+    Got this code from: https://stackoverflow.com/a/35804945
+
+    """
+    if not methodName:
+        methodName = levelName.lower()
+
+    if hasattr(logging, levelName):
+       raise AttributeError('{} already defined in logging module'.format(levelName))
+    if hasattr(logging, methodName):
+       raise AttributeError('{} already defined in logging module'.format(methodName))
+    if hasattr(logging.getLoggerClass(), methodName):
+       raise AttributeError('{} already defined in logger class'.format(methodName))
+    # This method was inspired by the answers to Stack Overflow post
+    # http://stackoverflow.com/q/2183233/2988730, especially
+    # http://stackoverflow.com/a/13638084/2988730
+    def logForLevel(self, message, *args, **kwargs):
+        if self.isEnabledFor(levelNum):
+            self._log(levelNum, message, args, **kwargs)
+    def logToRoot(message, *args, **kwargs):
+        logging.log(levelNum, message, *args, **kwargs)
+
+    logging.addLevelName(levelNum, levelName)
+    setattr(logging, levelName, levelNum)
+    setattr(logging.getLoggerClass(), methodName, logForLevel)
+    setattr(logging, methodName, logToRoot)
+
+addLoggingLevel('TRACE', 5, methodName='trace')
+
 class CustomFormatter(logging.Formatter):
+    """Uses ANSI escape codes
+    """
     MAGENTA = "\u001b[35m"
+    blue = "\x1b[34;20m"
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = '%(asctime)s.%(msecs)03d %(levelname)s - %(filename)s\%(funcName)s: %(message)s'
+    format = '%(asctime)s.%(msecs)03d %(levelname)s - %(filename)s/%(funcName)s: %(message)s'
 
     FORMATS = {
         logging.INFO: grey + format + reset,
         logging.DEBUG: MAGENTA + format + reset,
+        logging.TRACE: blue + format + reset,
         logging.WARNING: yellow + format + reset,
         logging.ERROR: red + format + reset,
         logging.CRITICAL: bold_red + format + reset
@@ -135,7 +191,7 @@ if config_path.exists():
     system_tray_icon_image_path =_path_addjuster(file_dir, config['system_tray_icon_image_path'], config['system_tray_icon_image_path_relative'], posix_file_dir)
    
     
-if config['logging']:
+if config['logging']:    
     logger = logging.getLogger("My_app")
     stream_handler = logging.StreamHandler()
     
@@ -146,6 +202,11 @@ if config['logging']:
     elif logging_level == 'DEBUG':
         logger.setLevel(logging.DEBUG)
         stream_handler.setLevel(logging.DEBUG)
+    
+    elif logging_level == 'TRACE':  # only use to show the most detail
+        logger.setLevel(logging.TRACE)
+        stream_handler.setLevel(logging.TRACE)
+    
     
     stream_handler.setFormatter(CustomFormatter())
     logger.addHandler(stream_handler)

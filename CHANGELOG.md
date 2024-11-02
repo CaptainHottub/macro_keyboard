@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 <!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
+## [2.3.007] - 2024-11-02
+- Added a new logging level called "trace", use only to show the most detailed info
+- Implemented Spotify.move_spotify_window()
+- Added pywin32==308 to the requirements.txt, its for Windows
+- Updated README.md
+- Added images for 3d printed case
+
 ## [2.3.005] - 2024-11-01
 _MasterMediaController() now uses mpris2 package
 

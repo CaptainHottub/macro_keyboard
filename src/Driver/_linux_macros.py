@@ -14,6 +14,7 @@ import pyclip
 import os
 
 from mpris2 import Player, get_players_uri
+from dbus import DBusException
 
 logger.debug(f'Initializing {__file__}')
 
@@ -144,8 +145,9 @@ def _get_focused_window_info(geometry = False):
     # print(window_data)
     return window_data
 
-def _is_app_alive(name: str) -> list[dict[str:str]]:
-    """Finds if an app is alive/running using: 
+# def _is_app_alive(name: str) -> list[dict[str:str]]:
+def _get_app_info(name: str) -> list[dict[str:str]]:
+    """Returns info of the app with the specified name: 
         "wmctrl -lx | grep app_name"
     Will return None if the app is not alive/running
 
@@ -154,6 +156,7 @@ def _is_app_alive(name: str) -> list[dict[str:str]]:
 
     Returns:
         list[dict[str:str]]:  list of dictionaries with keys: 'id', 'desktop', 'class', 'client_machine', 'title'
+        0: if the app is not running
     """
     
     dictionary_keys = ['id', 'desktop', 'class', 'client_machine', 'title']
@@ -179,6 +182,7 @@ def _is_app_alive(name: str) -> list[dict[str:str]]:
         app_dict = dict(zip(dictionary_keys, app ))
     
     return app_dict 
+
 
 class MediaTimer:
     """
@@ -337,6 +341,7 @@ class _MasterMediaController:
     # https://github.com/hugosenari/mpris2
     def __init__(self, media_player_name):
         self.media_player_name = media_player_name
+        logger.info(f"Setting up the MediaController for {media_player_name}")
         self.actions = {
                 'PrevTrack': 'Previous Track',
                 'SeekBackward': 'Seek Backward',
@@ -352,17 +357,24 @@ class _MasterMediaController:
     def _get_dbus_uri(self):
         for uri in get_players_uri():
             if self.media_player_name in uri:
+                logger.trace(f"the uri for {self.media_player_name} is {uri}")
                 return uri
         logger.debug(f"There is no dbus_uri with {self.media_player_name}")
+        return None
     
     def _set_player(self):
         try:
-            # media_player = Player(dbus_interface_info={'dbus_uri': f'org.mpris.MediaPlayer2.{self.media_player_name}'})
+            logger.trace("In _set_player()")
+            logger.trace(f"the dbus_uri is {self.dbus_uri}") 
+            if self.dbus_uri is None:
+                logger.trace("the dbus_uri is None") 
+                return None
             media_player = Player(dbus_interface_info={'dbus_uri': self.dbus_uri})
+            logger.trace(f"the media_player is {media_player}")             
             return media_player
-        except Exception as e:
-            logger.warning(e)
-    
+        except DBusException as e:
+            logger.warning(f"DBusException: {e}")
+
     # def _get_all_properties(self, media_player_obj): 
         # return media_player_obj.GetAll('org.mpris.MediaPlayer2.Player', dbus_interface='org.freedesktop.DBus.Properties')
 
@@ -373,10 +385,10 @@ class _MasterMediaController:
     #     return media_player_obj.Set('org.mpris.MediaPlayer2.Player', prop_name, value, dbus_interface='org.freedesktop.DBus.Properties')
    
     def event_handler(self, event):
-        try:
+        try:   
             if self.media_player:
                 
-                # logger.debug(f"{self.media_player_name} is running")
+                logger.debug(f"{self.media_player_name} is running")
             
                 if event == "PlayPause":
                     self.media_player.PlayPause()
@@ -422,28 +434,25 @@ class _MasterMediaController:
                     self.media_player.Seek(5000000)
 
             else:
-                logger.debug(f"{self.media_player_name} is NOT running, ignoring msg")
+                logger.debug(f"There is no mediaplayer for {self.media_player_name}, attempting to get it, if it exists will retry")
+                
+                self.dbus_uri = self._get_dbus_uri()
+                self.media_player = self._set_player()
+    
+                if self.media_player is not None:
+                    self.event_handler(event)
+                
+        except DBusException as e:
+            logger.warning(f"DBusException: {e}")
+            logger.debug(f"{self.media_player_name} may have been closed, reseting data")
+            self.media_player = None
+
         except Exception as e:
             logger.info(e)
             logger.info(f"{self.media_player_name} Is Not running, ignoring msg")
-
-    def _bypass_press(self, action):
-        """This Should only be used to test. 
-        
-        Bypass the press() function and send actions directly to event_handler()
- 
-        Args:
-            action (str): the action you want to happen, can be :
-            'PlayPause'
-            'NextTrack'
-            'PrevTrack'
-            'VolumeUp'
-            'VolumeDown'
-            'Back5s'
-            'Forward5s'
-        """
-        self.event_handler(action)
+    
             
+ 
     def press(self):
         if result := self.mediaTimer.press_button():
             logger.debug(result)
@@ -454,7 +463,7 @@ class _SpotifyController(_MasterMediaController):
     def __init__(self):
         
         if spotify_auto_start:
-            if _is_app_alive('spotify') == 0:
+            if _get_app_info('spotify') == 0:
                 logger.info("Launching Spotify")
                 self._startSpotify()
             else:
@@ -466,6 +475,17 @@ class _SpotifyController(_MasterMediaController):
         # I just made a shortcut for spotify
         pyautogui.hotkey("ctrl", 'alt', 'shift', 'p')
         time.sleep(0.4)
+        
+    def move_spotify_window(self, movement_direction, autostart=True):
+        if app_info := _get_app_info('spotify'):
+            _moveAppAccrossDesktops(app_id=app_info['id'], movement=movement_direction )
+            
+        else:
+            if autostart:
+                self._startSpotify()
+                
+                self.move_spotify_window(movement_direction)
+        
 
 class _FireFoxController(_MasterMediaController):
     def __init__(self):

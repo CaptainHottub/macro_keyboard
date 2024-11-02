@@ -358,7 +358,8 @@ def Button_handler(event_data, mode, app_data):
     
     match [app, mode, event_data['Button_id'], layers]:
         #Format: 
-        #case [AppName, "MacroMode", "ButtonNumber"]:
+        # case [AppName, MacroMode, ButtonNumber, [layers]]:
+        # case [str, int, int, list[int]]
         # Leave AppName _ for any app
         # MacroMode as mode for any mode
         # Layers is a list of layers where "Mode" will be the last one

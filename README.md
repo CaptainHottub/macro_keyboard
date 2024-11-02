@@ -1,3 +1,4 @@
+
 # macro_keyboard
 
 13-Key USB Macro Keyboard using the [KB2040 Kee Boar Driver][KB2040]
@@ -12,13 +13,17 @@
 - 15 Addressable RGB LED backlights.
 - South Facing LED and sockets
 - KAILH hot swap sockets
-- Unlimited layers and key combinations (not literally, more like $12^{12}$)
+- Unlimited layers and key combinations
 
 ## Getting Started
 macro_keyboard V2.2x was designed to use the [Adafruit KB2040 - RP2040 Kee Boar Driver][KB2040], which has the same shape as the Arduino Pro Micro, so you could use any Arduino Pro Micro shaped MC in this macro_keyboard.
 > If you use a different micro controller, you will have to change the pins in the MC code.
 
 The KB2040 currently runs [CircuitPython](https://circuitpython.org/) version 8.2.9, but should work with anything newer.
+
+#### Dependencies
+If you are on Linux want to use the Media Controller macros you will you will need to install this package:
+`sudo apt install libdbus-1-dev`
 
 ### KB2040 Setup
 You will need to install CircuitPython on your KB2040 and to do so, follow Adafruit's excellent guide how to do exactly that: https://learn.adafruit.com/adafruit-kb2040/circuitpython
@@ -78,13 +83,16 @@ Spotify auto start
 
 Everything in the `config.yaml` file can be changed, you can add or remove whatever you want.
 
+To run it you need to run the `macro_driver.py` in a terminal:
+
+    python -u "/macro_keyboard/src/Driver/macro_driver.py"
+
 ### Assembling the PCB
 Soldering all the components to the PCB can be a little difficult as I did chose some pretty small components, especially the LED's and diodes.
 The production Gerber zip file for the PCB is in `src/PCB/Macro_PCB_2.2.x_Production_Gerber`, which you can submit to JLCPCB to get made.
 The Bill Of Material is at  `/src/macro_keyboard_BOM.csv`. Most parts can be sourced from DigiKey.
 
 There is a `macro_keyboard.step` that should help with any questions on component orientation.
-
 
 **Bottom Mount Components**
 - 13 KAILH Hot Swap Sockets
@@ -110,6 +118,63 @@ If done properly any MX compatible key switch should just slide into each socket
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/assembled_PCB.png?raw=true)
 You should now have a fully assembles macro_keyboard that's ready to run. :)
 It just needs a case.
+
+### 3D Printed Case
+Top half of the case
+![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/Top_case.png?raw=true)
+
+The top half also serves as a plate that the keys snap into.
+![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/top_case_with_assembled_PCB.png?raw=true)
+The bottom case on the left is called; `Bottom_Case_with_hole_V2.stl`, and the bottom case on the left is called; `Bottom_Case_No_Hole_V2.stl`
+![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/both_versions_bottom_case.png?raw=true)
+The case uses 4 M3x12mm screws to secure it together, but it does support M3x10mm screws.
+
+### Macro Examples
+There are multiple macros that will work when you initially setup the driver. A couple of them are more complex then just keystrokes.
+There are two groups of macro that I use the most, the first "group" is to control Spotify, the second "group" is to change and move apps across virtual desktops.
+
+#### Spotify Macros
+These macros use different code for different Operation Systems, because the Windows code wasn't compatible with Linux.
+The prepacked macros involving Spotify are:
+
+```python
+####################################### Encoder 1 ########################################
+match [app, encoder_data['Id'], encoder_data['Value'], layers]:
+	case [_, 1, "RL", []]:	# Rotate Left
+		logger.debug('VolumeDown')
+		threading.Thread(target=Spotify.event_handler, args=('VolumeDown',)).start()
+	case [_, 1, "RR", []]:	# Rotate Right
+		logger.debug('VolumeUp')
+		threading.Thread(target=Spotify.event_handler, args=('VolumeUp',)).start()
+	case [_, 1, "RLB", []]:	# Rotate Left with Button
+		logger.debug('Back5s')
+		threading.Thread(target=Spotify.event_handler, args=('Back5s',)).start()
+	case [_, 1, "RRB", []]:	# Rotate Right with Butotn
+		logger.debug('Forward5s')
+		threading.Thread(target=Spotify.event_handler, args=('Forward5s',)).start()
+
+####################################### Buttons ########################################
+match [app, mode, event_data['Button_id'], layers]:
+	case [_, mode, 2, []]: # button 2
+		logger.debug("Btn 2, no layers")
+		threading.Thread(target=Spotify.press, args=()).start()
+	case [_, mode, 2, [3, 4]]: # button 2 while button 3 and 4 are held
+		logger.debug("Moves Spotify to the current virtual Desktop")
+		threading.Thread(target=Spotify.move_spotify_window, args=('Current',)).start()    
+	case [_, mode, 2, [3]]: # button 2 while button 3 is held
+		logger.debug("Moves Spotify to the virtual Desktop on the left")
+		threading.Thread(target=Spotify.move_spotify_window, args=('Left',)).start()    
+	case [_, mode, 2, [4]]: # button 2 while button 4 is held
+		logger.debug("Moves Spotify to the virtual Desktop on the right")
+		threading.Thread(target=Spotify.move_spotify_window, args=('Right',)).start()   
+	case [_, mode, 2, [1]]: # button 2 while button 1 is held
+		logger.debug("Btn 2 and btn 1 as layer")
+		threading.Thread(target=FireFox.press, args=()).start()
+```
+The macro I use the most is Spotify.press() which is attached to Button 2.
+It works exactly like Apple's EarPods or there AirPods, where 1 press will play/pause, 2 presses will skip to the next song and 3 presses goes to the previous song.
+On Linux it uses the `org.mpris.MediaPlayer2`  dbus interface to control media players.
+On Windows it uses `pywinauto`  to connect to Spotify and send keyboard inputs.
 
 
 

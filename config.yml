@@ -1,5 +1,5 @@
 logging: True   
-logging_level: DEBUG #INFO or DEBUG
+logging_level: DEBUG #INFO or DEBUG or TRACE
 
 log_folder: True
 # The direct path
