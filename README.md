@@ -121,11 +121,15 @@ It just needs a case.
 
 ### 3D Printed Case
 Top half of the case
+
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/Top_case.png?raw=true)
 
 The top half also serves as a plate that the keys snap into.
+
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/top_case_with_assembled_PCB.png?raw=true)
+
 The bottom case on the left is called; `Bottom_Case_with_hole_V2.stl`, and the bottom case on the left is called; `Bottom_Case_No_Hole_V2.stl`
+
 ![alt text](https://github.com/CaptainHottub/macro_keyboard/blob/master/Images/both_versions_bottom_case.png?raw=true)
 The case uses 4 M3x12mm screws to secure it together, but it does support M3x10mm screws.
 
