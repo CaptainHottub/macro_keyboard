@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 - Added a Soundboard Functionality
 - Temporary fix for recursion limit crash
 - Temporaraly disabled any function that gets window/app info, Wayland breaks alot of that.
+- Slight update to requirments.txt
 
 
 ## [2.3.007] - 2024-11-02
