@@ -10,7 +10,9 @@ import os
 import azure.cognitiveservices.speech as speechsdk
 import pyautogui
 import pyclip       # import pyperclip   
-
+import sounddevice as sd
+import soundfile as sf
+import threading
 
 logger.debug(f'Initializing {__file__}')
 
@@ -150,7 +152,6 @@ def libreOffice_font_size_up():
 def libreOffice_font_size_down():
     pyautogui.hotkey('ctrl', '[', _pause=False)
 
-    
 
 def sheild_focus_star_citizen(key): #macro to focus ship shields in star citizen
     logger.debug(f"right shift + {key}")
@@ -190,7 +191,47 @@ def search_highlighted_text():
     time.sleep(0.2)
     
     perform_press('enter')
+
+
+def play_audio_on_devices(filename, devices=["default"], volume=0.5):
+    """Basically a soundboard.          
+
+    To list devices: print(sd.query_devices())  
+
+    # Example usage:        
+    devices = ["default", "HELLDIVERS"]     
+    play_audio_on_devices(test.mp3, devices, volume=0.5)       
+    play_audio_on_devices(AHHHHH.mp3, volume=0.5)        
+
+    Args:
+        filename (str): Audio file you want to play
+        devices (list, optional): The audio device you want the audio outputed to. Defaults to "default".
+        volume (float, optional): Float val from 1.0 to 0. Defaults to 0.5.
+    """
+    full_path = os.path.abspath(os.path.expanduser(filename))
     
+    def play_on_device(filename, device, volume):
+        with sf.SoundFile(filename) as f:
+            with sd.OutputStream(channels=f.channels, device=device) as stream:
+                blocksize = 1024
+                while True:
+                    data = f.read(blocksize, dtype='float32')
+                    data *= volume
+                    if len(data) == 0:
+                        break
+                    stream.write(data)
+
+    threads = []
+    for device in devices:
+        t = threading.Thread(target=play_on_device, args=(full_path, device, volume), daemon=True)
+        t.start()
+        threads.append(t)
+    # Optional: wait for all threads to finish
+    for t in threads:
+        t.join()
+        
+    logger.debug("Succesfully Finished play_audio_on_devices")
+
 #############################################     OS specific Macros     #############################################
 
 if sys.platform == 'win32':

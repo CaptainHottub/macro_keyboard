@@ -22,6 +22,7 @@ class MacroDriver:
         self.focused_window_hwnd = None
         self.channel = None
         self.device = "KB2040 - CircuitPython"
+        self.recursion_count = 0
              
     def update_mode(self):
         self.mode += 1
@@ -70,12 +71,21 @@ class MacroDriver:
             
             #if not ports:
             if len(ports) == 0:
+                logger.info(f'at {self.recursion_count} recursions')
                 logger.info('No KB2040 found in comports. Retrying in 5 seconds...')
                 time.sleep(5)
+                self.recursion_count +=1
+                
+                # temporary fix to to many recursions
+                if self.recursion_count == 500:
+                    self.recursion_count=0
+                    return 
+                
                 self.setup_serial()
                 # continue    
             elif len(ports) > 0:
                 self.port = ports[0]
+                self.recursion_count=0
                 
         try:
             #global channel
@@ -298,7 +308,15 @@ def Encoder_handler(event_data, mode, app_data):
             logger.debug('Encoder2 rotate right w/ button, font_size_up')
             macros.libreOffice_font_size_up()
         
-    
+        case ['LibreOffice Writer', 2, "RLB", []]:
+            logger.debug('Encoder2 rotate left, w/ button font_size_down')
+            macros.libreOffice_font_size_down()
+        
+        case ['LibreOffice Writer', 2, "RRB", []]:
+            logger.debug('Encoder2 rotate right w/ button, font_size_up')
+            macros.libreOffice_font_size_up()
+
+        # zoomin in writer needs ctrl + scrollwheel
         
         # case ['factorio', 2, "RL", []]:
         #     logger.debug('Encoder2 rotate left, Increase area')
@@ -467,7 +485,25 @@ def Button_handler(event_data, mode, app_data):
         case [_, 2, 9, []]:     # Backspace
             logger.debug("Backspace")               
             macros.perform_press(['backspace'])
+        
+        
+        # Any App, Any Mode, Specific Layer
+        case [_, mode, 5, ['Mode']]:   # 
+            logger.debug("HD2 Soundboard Clanker - Plane")
+            threading.Thread(
+                target = macros.play_audio_on_devices, 
+                args=('~/soundboard_audios/plane-cut.mp3', ["default", "HELLDIVERS"])
+                ).start()
+            
+        case [_, mode, 6, ['Mode']]:   #
+            logger.debug("Nothing Yet")
 
+        case [_, mode, 7, ['Mode']]:   # 
+            logger.debug("Nothing Yet")
+
+        case [_, mode, 8, ['Mode']]:   # 
+            logger.debug("Nothing Yet")
+        
 
         # Macros that are last priority.     
         case [_, mode, 5, []]:   # Text to speech
@@ -529,6 +565,13 @@ def main():
     # Create a new macro driver
     macro_driver = MacroDriver()
 
+    warning_msg = 'WARNING GETTING APP INFO IS BROKEN, HAS BEEN SEMI DISABLED!!!!!!'
+    logger.warning(warning_msg)
+    logger.warning(warning_msg)
+    logger.warning(warning_msg)
+    logger.warning(warning_msg)
+    logger.warning(warning_msg)
+    logger.warning(warning_msg)
     # Start the macro driver
     macro_driver.read_serial()
     # macro_driver.start()

@@ -1,3 +1,5 @@
+Fix any bugs introduced when using Wayland on linux
+
 It looks like PyWinCtl does what I need for. It has Ctypes stuff for linux      :https://pywinctl.readthedocs.io/en/latest/?badge=latest#window-features
 Pyautogui works in linux, so does pynput
 

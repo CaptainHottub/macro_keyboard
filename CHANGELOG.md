@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 <!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
+
+
+## [2.3.009] - 2025-9-18
+- Added a Soundboard Functionality
+- Temporary fix for recursion limit crash
+- Temporaraly disabled any function that gets window/app info, Wayland breaks alot of that.
+
+
 ## [2.3.007] - 2024-11-02
 - Added a new logging level called "trace", use only to show the most detailed info
 - Implemented Spotify.move_spotify_window()

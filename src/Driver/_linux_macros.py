@@ -47,6 +47,11 @@ def _get_app_ids(app_name:str, only_visible=True):
 def _CurrentDesktopNumber():
     return int(_send_Command("xdotool get_desktop")[0])
 
+"""
+A lot of this ig gonna have to change because of wayland
+
+"""
+
 def _get_focused():
     val = _send_Command("xdotool getactivewindow")[0]
     if val == '':
@@ -83,8 +88,10 @@ def _get_focused_window_info(geometry = False):
     xprop too
     return a dict with all info
     """
-    active_window_id = int(_send_Command("xdotool getactivewindow")[0])
-    focused_window_id = int(_send_Command("xdotool getwindowfocus")[0])
+    active_window_id = 0
+    # active_window_id = int(_send_Command("xdotool getactivewindow")[0])
+    # focused_window_id = int(_send_Command("xdotool getwindowfocus")[0])
+    focused_window_id = 0
     
     if active_window_id != focused_window_id:
         logger.warning(f"something is wrong, {active_window_id} != {focused_window_id}")
@@ -101,14 +108,17 @@ def _get_focused_window_info(geometry = False):
         #"geometry": None
     }
     
-    window_name = _send_Command(f"xdotool getwindowname {active_window_id}")[0]
-    window_class = _send_Command(f"xdotool getwindowclassname {active_window_id}")[0]
+    # window_name = _send_Command(f"xdotool getwindowname {active_window_id}")[0]
+    window_name = ''
+    # window_class = _send_Command(f"xdotool getwindowclassname {active_window_id}")[0]
+    window_class = ''
     
     window_data["name"] = window_name.rstrip()
     window_data["class"] = window_class.rstrip()
     
     """Use xprop to get some info"""
-    xprop = _send_Command(f"xprop -id {window_hex_id} WM_NAME WM_CLASS _NET_WM_PID")[0]    
+    # xprop = _send_Command(f"xprop -id {window_hex_id} WM_NAME WM_CLASS _NET_WM_PID")[0]    
+    xprop = '' 
     xprop = xprop.split("\n")
     xprop = [i.replace('"', '') for i in xprop]
     # print(xprop)
@@ -121,8 +131,10 @@ def _get_focused_window_info(geometry = False):
     and puts it in the ditctionary
     """    
     # window_data["name"] = xprop[0].split(" = ")[-1]
-    window_data["class_name"] = xprop[1].split(" = ")[-1]
-    window_data["pid"] = xprop[2].split(" = ")[-1]
+    window_data["class_name"] = ''
+    # window_data["class_name"] = xprop[1].split(" = ")[-1]
+    # window_data["pid"] = xprop[2].split(" = ")[-1]
+    window_data["pid"] = 'xprop[2].split(" = ")[-1]'
     
     window_data["class_name"] = window_data["class_name"].split(', ')
 
@@ -710,6 +722,7 @@ def _Image_to_text2():
         
     def on_click(x, y, button, pressed):
         if not pressed: # on release, Stop the listener
+            time.sleep(0.1)
             _perform_press('ENTER')
             return False
     
