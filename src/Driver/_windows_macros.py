@@ -466,15 +466,6 @@ def _change_desktop(direction, focused_app): #change desktop hotkey, where direc
     logger.debug(f"move desktop {direction}")
     if VDA:
         #### this is so much faster!!!!
-        try: 
-            global forground_hwnd
-            win32gui.SetForegroundWindow(forground_hwnd)
-        except Exception as e:
-            print(e)
-            if isinstance(e, win32gui.error):
-                #It's not actually a win32gui error, its from pywintypes.error, and win32gui imports it as error.
-                forground_hwnd = get_forground_hwnd()
-
         if direction == 'left':
             newDesktopNum = CurrentDesktopNumber() -1
         elif direction == 'right':
