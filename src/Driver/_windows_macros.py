@@ -2,7 +2,7 @@
 All the windows specific stuff will be moved here
 """
 import contextlib
-from setup import logger
+# from setup import logger
 import time
 import pywinauto
 import psutil
@@ -17,8 +17,17 @@ from pynput import mouse, keyboard
 import win32gui
 import win32process
 
-
+# from setup import logger, spotify_auto_start, send_notification
+from logger_setup import setup_logging, get_logger
+from config import settings
+"""
+All the stuff from tools.py will be moved here
+"""
+setup_logging()
+logger = get_logger(settings.get('app.app_name', 'DefaultApp'))
 logger.debug(f'Initializing {__file__}')
+
+spotify_auto_start = settings.get('app.spotify_auto_start', False)
 
 VDA = False
 
@@ -338,8 +347,8 @@ class _YTMusicController:
         
     def launch_ytmusic(self):
         #logger.debug("Launching Spotify")
-        
-        launchApp(r'C:\Users\Taylor\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\YouTube Music')
+        logger.warning("Launch_ytmusic has been disabled.")
+        #launchApp(r'Location')
         time.sleep(0.75)
 
     def get_app_info(self, app_name: str) -> list:

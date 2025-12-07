@@ -2,21 +2,30 @@
 All the linux specific stuff will be moved here
 Use subprocess.popen instead of os.system
 """
-from setup import logger, spotify_auto_start, send_notification
 import time
 import subprocess
 from pynput import mouse, keyboard
-
 import pyautogui
 from PIL import ImageGrab
 import pytesseract
 import pyclip
 import os
-
 from mpris2 import Player, get_players_uri
 from dbus import DBusException
 
+
+# from setup import logger, spotify_auto_start, send_notification
+from logger_setup import setup_logging, get_logger
+from config import settings
+from notifications import send_notification # Import the new function
+"""
+All the stuff from tools.py will be moved here
+"""
+setup_logging()
+logger = get_logger(settings.get('app.app_name', 'DefaultApp'))
 logger.debug(f'Initializing {__file__}')
+
+spotify_auto_start = settings.get('app.spotify_auto_start', False)
 
 """ TODO
 implement thee rest of the macros
@@ -37,15 +46,15 @@ def _get_app_ids(app_name:str, only_visible=True):
         list[str]: a list of the app_ids
     """
     if only_visible:
-        cmd = f'xdotool search --classname --onlyvisible {app_name}'
+        cmd = f'kdotool search --classname --onlyvisible {app_name}'
     else:
-        cmd = f'xdotool search --classname {app_name}'
+        cmd = f'kdotool search --classname {app_name}'
     app_ids, _=  _send_Command(cmd)
     apps = app_ids.split()
     return apps
 
 def _CurrentDesktopNumber():
-    return int(_send_Command("xdotool get_desktop")[0])
+    return int(_send_Command("kdotool get_desktop")[0])
 
 """
 A lot of this ig gonna have to change because of wayland
@@ -53,7 +62,7 @@ A lot of this ig gonna have to change because of wayland
 """
 
 def _get_focused():
-    val = _send_Command("xdotool getactivewindow")[0]
+    val = _send_Command("kdotool getactivewindow")[0]
     if val == '':
         val is None
     else:
@@ -63,21 +72,17 @@ def _get_focused():
 def _get_focused_name():
     # this isnt reliable when on wayland :(
     win_id= _get_focused()
-    return _send_Command(f"xdotool getwindowname {win_id}"), win_id
+    return _send_Command(f"kdotool getwindowname {win_id}"), win_id
 
 def _GetWindowDesktopNumber(win_id):
     #get_desktop_for_window    
-    # cmd = f"xdotool get_desktop_for_window {win_id}"
-    # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
-    #val = _send_Command(f"xdotool get_desktop_for_window {win_id}")[0]
-    # print(val := _send_Command(f"xdotool get_desktop_for_window {win_id}")[0])
-    if val := _send_Command(f"xdotool get_desktop_for_window {win_id}")[0]:
+    if val := _send_Command(f"kdotool get_desktop_for_window {win_id}")[0]:
         return int(val)
     
     return _CurrentDesktopNumber()
     
     # return int(val)
-    #return _send_Command(f"xdotool get_desktop_for_window {win_id}")
+    #return _send_Command(f"kdotool get_desktop_for_window {win_id}")
 
 def _get_focused_window_info(geometry = False):
     """
@@ -88,41 +93,27 @@ def _get_focused_window_info(geometry = False):
     xprop too
     return a dict with all info
     """
-    active_window_id = 0
-    # active_window_id = int(_send_Command("xdotool getactivewindow")[0])
-    # focused_window_id = int(_send_Command("xdotool getwindowfocus")[0])
-    focused_window_id = 0
-    
-    if active_window_id != focused_window_id:
-        logger.warning(f"something is wrong, {active_window_id} != {focused_window_id}")
+    active_window_id = str(_send_Command("kdotool getactivewindow")[0])
+        
+    if not active_window_id:
+        logger.warning(f"something is wrong, {active_window_id}")
         return 0
     
-    window_hex_id = hex(active_window_id)
 
     window_data = {
         #"name": None,
         #"class_name": None,
         # "class": None,
-        "id": int(active_window_id), 
+        "id": active_window_id, 
         #"pid": None,
         #"geometry": None
     }
-    
-    # window_name = _send_Command(f"xdotool getwindowname {active_window_id}")[0]
-    window_name = ''
-    # window_class = _send_Command(f"xdotool getwindowclassname {active_window_id}")[0]
-    window_class = ''
+
+    window_name = _send_Command(f"kdotool getwindowname {active_window_id}")[0]
+    window_class = _send_Command(f"kdotool getwindowclassname {active_window_id}")[0]
     
     window_data["name"] = window_name.rstrip()
     window_data["class"] = window_class.rstrip()
-    
-    """Use xprop to get some info"""
-    # xprop = _send_Command(f"xprop -id {window_hex_id} WM_NAME WM_CLASS _NET_WM_PID")[0]    
-    xprop = '' 
-    xprop = xprop.split("\n")
-    xprop = [i.replace('"', '') for i in xprop]
-    # print(xprop)
- 
     
     """
     WM_NAME(UTF8_STRING) = ~macro_keyboard - Visual Studio Code
@@ -130,31 +121,24 @@ def _get_focused_window_info(geometry = False):
     then takes the last item in the list from the split  -> '"macro_keyboard - Visual Studio Code"'
     and puts it in the ditctionary
     """    
-    # window_data["name"] = xprop[0].split(" = ")[-1]
-    window_data["class_name"] = ''
-    # window_data["class_name"] = xprop[1].split(" = ")[-1]
-    # window_data["pid"] = xprop[2].split(" = ")[-1]
-    window_data["pid"] = 'xprop[2].split(" = ")[-1]'
-    
-    window_data["class_name"] = window_data["class_name"].split(', ')
-
+    # window_data["class_name"] = ''
+    # window_data["class_name"] = window_data["class_name"].split(', ')
 
     if geometry:
         """Use xwininfo to get more info"""
-        xwininfo = _send_Command(f"xwininfo -id {window_hex_id}")[0]
-        xwininfo = xwininfo.split("\n")
-        info_i_want = ['width', 'height', 'corners', 'geometry']
-        for item in xwininfo:
+        out = _send_Command(f"kdotool getwindowgeometry {active_window_id}")[0]
+        stripped_list = [s.lstrip() for s in out.split("\n")]
+        info_i_want = ['position', 'geometry']
+        for item in stripped_list:
             item = item.lower()
-            if "border width" in item:
-                continue 
+            
             for info in info_i_want:
                 if info in item:
-                    x = item.split(': ')[-1]
-                    window_data[info] = x
-        window_data['geometry'] = window_data['geometry'].split(" ")[-1]
-        
-    # print(window_data)
+                    pos = item.split(': ')[-1]
+                    # Translates the , and x to ' ' 
+                    pos = pos.translate(str.maketrans({',': ' ', 'x': ' '}))
+                    x,y = pos.split(' ')
+                    window_data[info] = {"x":x,"y":y} 
     return window_data
 
 # def _is_app_alive(name: str) -> list[dict[str:str]]:
@@ -230,121 +214,6 @@ class MediaTimer:
         
         if not self.timer_active:
             return self.start_timer(0.55)
-
-# def _media_player_dbus(name):
-#     """Returns the dbus object of the app specified
-#     will return none if ther is nothing
-#     Args:
-#         name (str): name of the app, ie: firefox, spotify
-#     Returns:
-#         ProxyObjectClass: media_player_obj
-        
-#     """#ProxyObjectClass, Interface: media_player_obj, media_player_iface
-#     name = 'org.mpris.MediaPlayer2.' + name.lower()
-#     for service in dbus.SessionBus().list_names():
-#         if service.startswith(name):
-#             media_player_obj = dbus.SessionBus().get_object(service, "/org/mpris/MediaPlayer2")
-#             #media_player_iface = dbus.Interface(media_player_obj, dbus_interface='org.mpris.MediaPlayer2.Player')
-#             # print(service, media_player_obj)
-#             return media_player_obj#, media_player_iface
-    
-#     return None#, None
-
-#############################################     Macros that can be called     #############################################
-
-# class _MasterMediaController:
-#     """A Master Controller Class"""
-#     # https://stackoverflow.com/questions/67549618/discrepancy-between-dbus-send-and-pythons-dbus-using-spotify
-#     # https://stackoverflow.com/questions/23324841/using-org-mpris-mediaplayer2-player-playbackstatus-property-in-python
-#     def __init__(self, media_player_name):
-#         self.media_player_name = media_player_name
-#         self.actions = {
-#                 'PrevTrack': 'Previous Track',
-#                 'SeekBackward': 'Seek Backward',
-#                 'PlayPause': 'Play Pause',
-#                 'SeekForward': 'Seek Forward',
-#                 'NextTrack': 'Next Track'
-#                 }
-        
-#         self.mediaTimer = MediaTimer()
-
-#     def _get_all_properties(self, media_player_obj): 
-#         return media_player_obj.GetAll('org.mpris.MediaPlayer2.Player', dbus_interface='org.freedesktop.DBus.Properties')
-
-#     def _get_property(self, media_player_obj, prop_name):
-#         return media_player_obj.Get('org.mpris.MediaPlayer2.Player', prop_name, dbus_interface='org.freedesktop.DBus.Properties')
- 
-#     def _set_property(self, media_player_obj, prop_name, value):
-#         return media_player_obj.Set('org.mpris.MediaPlayer2.Player', prop_name, value, dbus_interface='org.freedesktop.DBus.Properties')
-   
-#     def event_handler(self, event):
-#         if media_player_obj := _media_player_dbus(self.media_player_name):
-#             logger.debug(f"{self.media_player_name} is running")
-#             media_player_iface = dbus.Interface(media_player_obj, dbus_interface='org.mpris.MediaPlayer2.Player')
-#             if event == "PlayPause":
-#                 media_player_iface.PlayPause()
-                
-#             elif event == "NextTrack":
-#                 media_player_iface.Next()
-
-#             elif event == "PrevTrack":
-#                 media_player_iface.Previous() 
-            
-#             elif event in ['VolumeUp', 'VolumeDown']:
-#                 volume = float(self._get_property(media_player_obj, 'Volume'))
-                
-#                 if event == 'VolumeUp':
-#                     volume += 0.05
-#                 else:
-#                     volume -= 0.05
-                
-#                 if volume > 1.0:
-#                     logger.debug("vol is greater then 1")
-#                     return
-          
-#                 self._set_property(media_player_obj, 'Volume', volume)
-            
-#             elif event == "Back5s":
-#                 media_player_iface.Seek(-5000000)
-#             elif event == "Forward5s":
-#                 media_player_iface.Seek(5000000)
-
-#         else:
-#             logger.debug(f"{self.media_player_name} is NOT running, ignoring msg")
-
-            
-#     def press(self):
-#         if result := self.mediaTimer.press_button():
-#             logger.debug(result)
-#             self.event_handler(result)    
- 
-# class _SpotifyController(_MasterMediaController):
-#     def __init__(self):
-#         _MasterMediaController.__init__(self, 'spotify')
-        
-#         self.spotify_window_id = None
-#         if spotify_auto_start:
-#             if not _media_player_dbus('spotify'):
-#                 logger.info("Launching Spotify")
-#                 self._startSpotify()
-                
-#     def _startSpotify(self):
-#         # I just made a shortcut for spotify
-#         pyautogui.hotkey("ctrl", 'alt', 'shift', 'p')
-#         time.sleep(0.4)
-
-#     def move_spotify_window(self, direction):
-#         if not self.spotify_window_id:
-#             window_ids = _get_app_ids('Spotify', only_visible=False)
-#             for win_id in window_ids:
-#                 stdout, stderr = _send_Command(f"xdotool getwindowpid {win_id}")
-#                 if stdout and not stderr:
-#                     self.spotify_window_id= int(win_id)
-#                     break
-                
-#         stdout, stderr = _moveAppAccrossDesktops(app_id=self.spotify_window_id, movement=direction)
-#         #logger.debug(stdout, stderr)
- 
 
     
 # BRAND NEW    
@@ -574,21 +443,13 @@ def _change_desktop(direction:str, focused_app=None): # change desktop hotkey, w
     # modify so that it will check what the current desktop is and 
     
     logger.debug(f"move desktop {direction}")
-    current_window = int(_send_Command("xdotool get_desktop")[0])
-
+  
     direction = direction.lower()
-    
     if direction == 'left':
-        if current_window == 0:
-            return "Movement Request is ignored"
-        cmd = "xdotool set_desktop --relative -- -1"
-        
-    elif direction == 'right':
-        total_desktops = int(_send_Command("xdotool get_num_desktops")[0])
-        if current_window +1 == total_desktops:
-            return "Movement Request is ignored"
-        cmd = "xdotool set_desktop --relative -- 1"
-        
+        cmd = "qdbus org.kde.KWin /KWin org.kde.KWin.previousDesktop"
+    else:
+        cmd = "qdbus org.kde.KWin /KWin org.kde.KWin.nextDesktop"
+    
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     proc.communicate()
 
@@ -621,7 +482,7 @@ def _moveAppAccrossDesktops(**kwargs):
         movement = kwargs['movement'].lower()
     else:
         movement = 'current'
-    ### use xdotool
+    ### use kdotool
     if not app_id:
         logger.debug("App_id is nothing, so you are focusing the desktop. returning")
         return
@@ -634,14 +495,14 @@ def _moveAppAccrossDesktops(**kwargs):
             'current':_CurrentDesktopNumber()
             }
     destination = movements[movement]
-    return _send_Command(f'xdotool set_desktop_for_window {app_id} {destination}')
+    return _send_Command(f'kdotool set_desktop_for_window {app_id} {destination}')
 
 def _moveFocusedAppAccrossDesktops(movement):
     """
     #works
     """
     
-    # cmd = "xdotool getactivewindow"
+    # cmd = "kdotool getactivewindow"
     # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     focused_app =  _get_focused()
     #print(focused_app)
@@ -651,60 +512,6 @@ def _start_task_viwer():
     """Open System Monitor"""
     _perform_hotkey(["win", "esc"])    
 
-# def _Image_to_text2():
-#     """
-#     Okay so in this version, if you're linux distro is using spectacle to take screenshots  you will have to configure and make it save to clipboard
-
-#     Presses Win Shift PrtSc to open spectacle mode, waits for mouse release then does tesseract OCR
-#     Press Ctrl V to paste text
-#     It works but spectacle takes some time too launch
-#     """
-    
-#     m = mouse.Controller()
-#     k = keyboard.Controller()
-
-#     def on_release(key):
-#         if key == keyboard.Key.esc:
-#             logger.debug('esc pressed and released')
-#             # Stop listener and the func
-#             m.click(mouse.Button.left,1)
-#             return False    
-        
-#     def on_click(x, y, button, pressed):
-#         if not pressed:
-#             # Stop listener
-#             k.press(keyboard.Key.enter)
-#             k.release(keyboard.Key.enter)
-            
-#             return False
-    
-#     m.click(mouse.Button.left,1)
-    
-#     time.sleep(0.2)
-#     _perform_hotkey(['win', 'shift', 'prtsc'])
-    
-#     keyboard_listener = keyboard.Listener(
-#         on_release=on_release)
-
-#     time.sleep(0.2)
-
-#     keyboard_listener.start()
-
-#     # Collect events until released # is used to block the code until the left mouse button is released
-#     with mouse.Listener(on_click=on_click) as listener:
-#         listener.join()
-        
-#     time.sleep(0.1)
-
-#     keyboard_listener.stop()
-
-#     time.sleep(0.3)
-#     img = ImageGrab.grabclipboard()
-#     #grabs the image from clipboard and converts the image to text.
-#     text = pytesseract.image_to_string(img)
-#     text = text.replace('\x0c', '')
-#     pyclip.copy(text)
-#     logger.debug("imt has finished")
 
 def _Image_to_text2():
     """

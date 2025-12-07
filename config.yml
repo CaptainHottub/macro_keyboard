@@ -1,20 +1,61 @@
-logging: True   
-logging_level: DEBUG #INFO or DEBUG or TRACE
+# ==================================
+# General Application Settings
+# ==================================
+app:
+  # General application behavior
+  connected_notification: true
+  notification_time: 2 # Time in seconds
+  loop_interval: 1
 
-log_folder: True
-# The direct path
-log_folder_path: "" # "C:/Coding/macro_keyboard/logs"  
-# relative from /macro_keyboard/
-log_folder_path_relative: "/logs"
 
-system_tray_icon: True  
-# The direct path
-system_tray_icon_image_path: ""  
-# relative from /macro_keyboard/
-system_tray_icon_image_path_relative: "/Images/pythonIcon.ico"  
+# ==================================
+# Device Settings
+# ==================================
+device:
+  baud_rate: 115200
 
-connected_notification: True  
+# ==================================
+# System Tray Icon Settings
+# ==================================
+system_tray:
+  # Enable or disable the system tray icon feature
+  enabled: true
 
-notification_time: 2 # in seconds
+  # Configuration for the icon image
+  icon:
+    # Use an absolute or relative path for the icon image.
+    # The relative path is recommended for portability.
+    path: "" # "C:/Coding/macro_keyboard/Images/pythonIcon.ico"
+    relative_path: "Images/pythonIcon.ico" # Path from the project root
 
-spotify_auto_start: True
+# ==================================
+# Logging Settings
+# ==================================
+logging:
+  # Enable or disable the logging feature
+  enabled: true
+
+  # Set the desired logging level (e.g., DEBUG, INFO, WARNING, ERROR)
+  level: DEBUG
+
+  # Configuration for log file storage
+  folder:
+    # Enable or disable writing logs to a file
+    enabled: true
+    # The absolute path to the log folder. Overrides relative_path if specified.
+    path: "" # "C:/Coding/macro_keyboard/logs"
+    # The path to the log folder relative to the project root.
+    relative_path: "logs"
+
+# ==================================
+# Feature-Specific Toggles
+# ==================================
+features:
+  spotify_auto_start: false
+  keyboard_pause_btn: false
+
+# ==================================
+# Soundboard Setting
+# ==================================
+soundboard:
+  base_sound_path: "~/Documents/soundboard_audios"
