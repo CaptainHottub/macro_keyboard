@@ -7,6 +7,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 <!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
+## [2.4.001] - 2025-12-06
+
+Major refactor for of code base and Wayland compatibility.
+Hopefully its much easier to understand. 
+
+### Added
+- **User Sandbox:** Introduced `user_macros.py` as a dedicated file for custom user scripts. This allows users to write their own macros using decorators (`@register`) without touching the core driver code.
+- **Registry Pattern:** Replaced the monolithic `match/case` statement in `macro_handlers.py` with a `MACRO_REGISTRY` and `ENCODER_REGISTRY`.
+
+### Changed
+- **Wayland Support:** Switched desktop switching logic from `xdotool` (broken on Wayland) to `qdbus` for native KDE Plasma support.
+- **Path Safety:** Removed hardcoded paths . The driver now uses `pathlib` to strictly resolve `~` to the current user's home directory from `config.yml`.
+
 
 
 ## [2.3.009] - 2025-9-18

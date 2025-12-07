@@ -169,3 +169,4 @@ logs/
 testing.py
 serial_exchange-host.py
 serial_exchange_v2.py
+src/Driver/action_visualizer_gui_v2.py

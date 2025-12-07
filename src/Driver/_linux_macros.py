@@ -63,10 +63,11 @@ A lot of this ig gonna have to change because of wayland
 
 def _get_focused():
     val = _send_Command("kdotool getactivewindow")[0]
+    # logger.warning(repr(val))
     if val == '':
         val is None
     else:
-        val = int(val)
+        val = val.strip()
     return val
 
 def _get_focused_name():
@@ -93,13 +94,11 @@ def _get_focused_window_info(geometry = False):
     xprop too
     return a dict with all info
     """
-    active_window_id = str(_send_Command("kdotool getactivewindow")[0])
-        
+    active_window_id =_get_focused()
     if not active_window_id:
-        logger.warning(f"something is wrong, {active_window_id}")
-        return 0
+        logger.debug(f"something is wrong, Assuming the active window is desktop or something. {active_window_id}")
+        return False
     
-
     window_data = {
         #"name": None,
         #"class_name": None,
@@ -505,7 +504,6 @@ def _moveFocusedAppAccrossDesktops(movement):
     # cmd = "kdotool getactivewindow"
     # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     focused_app =  _get_focused()
-    #print(focused_app)
     _moveAppAccrossDesktops(app_id= focused_app, movement= movement)
 
 def _start_task_viwer():

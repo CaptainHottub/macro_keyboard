@@ -187,21 +187,27 @@ class MacroDriver:
         system_name = platform.system().lower()
         
         if system_name == 'linux':
-            focused_window_data = macros.get_focused_window_info()
-            window_title = focused_window_data.get('name', '')
+            focused_window_data = macros.get_focused_window_info()            
+            if focused_window_data:
+                window_title = focused_window_data.get('name', '')
+                separators = [' - ', ' — ']
+                for sep in separators:
+                    if sep in window_title:
+                        window_title = window_title.split(sep)[-1]
+                        break
+                else:
+                    if focused_window_data.get('class', '').lower() in window_title.lower():
+                        window_title = focused_window_data['class']
+                    elif "desktop" in window_title.lower():
+                        window_title = 'Desktop'
+                
+                tmp_hwnd= focused_window_data.get('id')
             
-            separators = [' - ', ' — ']
-            for sep in separators:
-                if sep in window_title:
-                    window_title = window_title.split(sep)[-1]
-                    break
             else:
-                if focused_window_data.get('class', '').lower() in window_title.lower():
-                    window_title = focused_window_data['class']
-                elif "desktop" in window_title.lower():
-                    window_title = 'Desktop'
-            
-            app_data = {"app": window_title, "hwnd": focused_window_data.get('id')}
+                window_title = "desktop"
+                tmp_hwnd='0'
+                
+            app_data = {"app": window_title, "hwnd": tmp_hwnd}
         
         elif system_name == 'windows':
             focused_window_title, focused_window_hwnd = macros.get_focused_name()
