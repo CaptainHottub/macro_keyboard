@@ -52,7 +52,6 @@ logging:
 # ==================================
 features:
   spotify_auto_start: false
-  keyboard_pause_btn: false
 
 # ==================================
 # Soundboard Setting

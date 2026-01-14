@@ -7,6 +7,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 <!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
+## [2.4.002] - 2025-01-13
+
+Minor changes. Updated to python 3.14.2
+Adding comments
+
+### Added
+- **Overhaul on microcontroller code:** Pressing the encoder button once is now a valid input, layer delays apply*.
+When you press and hold a button, the led bellow turns green, then once the layer delay has passed, it turns red. Indicating its a layer.
+
+### Changed
+- **Python Version:** Updated to python 3.14.2
+- **Updated Package Dependencies:** Most package dependencies have been updated to the latest version.
+- **Azure TTS Version Lock:** The Microsoft Azure TTS no longer needs a specific function.
+
+### Removed 
+- **Pause State Function:** Fully removed the paused state function, it is nolonger needed and it added complexity for no reason. 
+
+
 ## [2.4.001] - 2025-12-06
 
 Major refactor for of code base and Wayland compatibility.

@@ -21,19 +21,9 @@ All the stuff from tools.py will be moved here
 setup_logging()
 logger = get_logger("Macros")
 
-logger.debug(f'Initializing {__file__}')
+logger.info(f'Initializing {__file__}')         # uhhhh doesnt show?
 
 try:
-    """
-    OMFG, it only works with azure-cognitiveservices-speech==1.37.0
-    and openssl 1.1
-    # https://github.com/Azure-Samples/cognitive-services-speech-sdk/issues/2436
-
-    For the lifee of me i cant get this to work on linux. There was this whole megathread on github about the openssl 1.x EOL: https://github.com/Azure-Samples/cognitive-services-speech-sdk/issues/2048
-    """
-    if speechsdk.__version__ != '1.37.0':
-        raise ModuleNotFoundError("You are using the wrong version of azure-cognitiveservices-speech. You must use version 1.37.0")
-    
     # the keys are stored in the environment variables
     SPEECH_KEY = os.environ.get('AZURE_SPEECH_KEY')
     SPEECH_REGION = os.environ.get('AZURE_SPEECH_REGION')
@@ -62,6 +52,12 @@ def textToSpeech():
     pyautogui.hotkey(['ctrl', 'c'])
     time.sleep(0.1)
     text = pyclip.paste(text=True)
+    if not text:
+        logger.debug("No text was copied")
+        return
+    
+    logger.debug("Text was copied")
+    
     speech_synthesizer.speak_text_async(text)
     logger.info("textToSpeech has finished")
     #speech_synthesizer.speak_text(text)

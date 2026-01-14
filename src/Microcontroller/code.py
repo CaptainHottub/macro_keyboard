@@ -18,7 +18,7 @@ import keypad
 import neopixel
 import rotaryio
 
-# import asyncio          # https://github.com/adafruit/Adafruit_CircuitPython_asyncio/tree/main
+import asyncio          #https://github.com/adafruit/Adafruit_CircuitPython_asyncio/tree/main
 from rainbowio import colorwheel
 ################################################################
 # select the serial REPL port
@@ -37,11 +37,11 @@ num_pixels = 15
 pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.1, auto_write=False)
 
 
-
+# vales for encoder_1_button.value is inverted. its False when pressed.
 encoder_1_button = digitalio.DigitalInOut(board.D8)
 encoder_1_button.direction = digitalio.Direction.INPUT
 encoder_1_button.pull = digitalio.Pull.UP
-encoder_1_button_state = None
+# encoder_1_button_state = None
 #encoder_1 = rotaryio.IncrementalEncoder(board.D4, board.D5)
 encoder_1 = rotaryio.IncrementalEncoder(board.D5, board.D4)
 encoder_1_last_position = 0
@@ -50,7 +50,7 @@ encoder_1_last_position = 0
 encoder_2_button = digitalio.DigitalInOut(board.D9)
 encoder_2_button.direction = digitalio.Direction.INPUT
 encoder_2_button.pull = digitalio.Pull.UP
-encoder_2_button_state = None
+# encoder_2_button_state = None
 #encoder_2 = rotaryio.IncrementalEncoder(board.D6, board.D7)
 encoder_2 = rotaryio.IncrementalEncoder(board.D7, board.D6)
 encoder_2_last_position = 0
@@ -68,162 +68,57 @@ Mode = 1
 
 # held_keys = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-held_keys_dict={}
 
-# def msgContructor2(event, type, encoder_button: int = 0, encoder_pos_change: int = 0 ):
-#     data_out = {}
-#     # data_out["buttons"] = [{"status": "RELEASED", "id": button_id}]
-#     if type == "mode": 
-#         #check if it has a timestamp and if diff <(less then) 0.250:  then send: 00010000 (0001 = release 0000 = mode)
-
-#         if held_keys[-1]:  # I dont think this needs to be here
-    
-#             diff = (supervisor.ticks_ms() - held_keys[-1])/1000
-#             if diff < 0.250:   # if its less then
-#                 # data_out["buttons"] = [{"id": hex(0)}]
-#                 # data_out["buttons"] = [{"id": '0x0'}]
-#                 # data_out["button_id"] =  '0x0'
-#                 data_out["Button_id"] =  'Mode'
-#             else:
-#                 held_keys[-1]  = 0
-#                 return 
-
-#         held_keys[-1]  = 0
-    
-#     elif type == "button":
-#         # key_timestamp = held_keys[MatrixEvent.key_number]
-#         key_timestamp = held_keys[event.key_number]
-
-#         if key_timestamp:
-#             diff = (supervisor.ticks_ms() - key_timestamp) /1000
-            
-#             if diff < 0.250: # this means it was pressed fast
-#                 # button_id = hex(MatrixEvent.key_number+1)
-#                 # data_out["buttons"] = [{"id": button_id}]
-#                 # data_out["button_id"] = button_id
-#                 print(f"ashdashda, {diff}")
-#                 # data_out["Button_id"] = MatrixEvent.key_number+1
-#                 data_out["Button_id"] = event.key_number+1
-
-#             else: # the buton was held for over 0.250 seconds 
-#                 # held_keys[MatrixEvent.key_number]  = 0
-#                 held_keys[event.key_number]  = 0
-#                 return
-
-#         # held_keys[MatrixEvent.key_number]  = 0
-#         held_keys[event.key_number]  = 0
-    
-#     elif type == "rotary encoder": #look at the encoder vars list, which would be ordered as ["name", ChangeInPosition, buttonState],  
-#         # print(encoder_pos_change > 0)
-#         # print(encoder_pos_change, encoder_button)
-        
-#         # encoder = hex(event[-1])
-#         encoder = int(event[-1])
-#         # 0 for left and 1 for right,  left is negative and right is positive
-#         if encoder_pos_change < 0:
-#             encoder_val = "RL"
-#         else:
-#             encoder_val = "RR"
-#         if encoder_button:
-#             encoder_val+="B"
-        
-#         data_out["Encoder"] = [{'Id': encoder, 'Value': encoder_val}]
-    
-#     layers = []
-#     #on to layers now      
-#     for index, timestamp in enumerate(held_keys):
-#         if timestamp:
-#             #if there is a button  that is being held
-#             diff = (supervisor.ticks_ms() - timestamp)/1000
-#             if diff > 0.100: 
-#                 if index == 12:
-#                     # button_id = '0x0'
-#                     button_id = 'Mode'
-#                 else:
-#                     # button_id = hex(index+1)
-#                     button_id = index+1
-#                 layers.append(button_id)
-
-#     if len(layers) !=0:
-#         data_out["Layers"] = layers 
-#     print(json.dumps(data_out))
-    
-#     pixels[14] = (0, 255, 0)
-#     pixels.show()
-#     time.sleep(0.05)
-#     pixels[14] = (0, 0, 0)
-#     pixels.show()
+active_btns = {}
+layer_delay = 0.250 # in seconds
+btn_pressed_color = (0, 255, 0)  
+btn_active_layer_color = (255, 0, 0)   
 
 
-def msgContructor3(event, type, encoder_button: int = 0, encoder_pos_change: int = 0 ):
+def msgContructor4(msg):
     data_out = {}
-    if type == "mode": 
-        if held_keys_dict["Mode"]:  # I dont think this needs to be here
-            timestamp = held_keys_dict["Mode"]
-            diff = (supervisor.ticks_ms() - timestamp)/1000
-            if diff < 0.250:   # if its less then
-                data_out["Button_id"] =  'Mode'
-            else:
-                held_keys_dict.pop("Mode")
-                # held_keys[-1]  = 0
-                return 
-        
-        held_keys_dict.pop("Mode")
+    # print(msg)
+    # all keys with a layer "atribute"
+    layers = [key for key, values in active_btns.items() if values['layer']]
+    # sorts the list
+    layers = sorted(layers, key=lambda x: (isinstance(x, (int, float)), x))
 
-    elif type == "button":
-        key_timestamp = held_keys_dict[event.key_number]
-
-        if key_timestamp:
-            diff = (supervisor.ticks_ms() - key_timestamp) /1000
-            
-            if diff < 0.250: # this means it was pressed fast
-                # data_out["Button_id"] = MatrixEvent.key_number+1
-                data_out["Button_id"] = event.key_number+1
-
-            else: # the buton was held for over 0.250 seconds 
-                # held_keys[MatrixEvent.key_number]  = 0
-                held_keys_dict.pop(event.key_number)
-                # held_keys[event.key_number]  = 0
-                return
-        held_keys_dict.pop(event.key_number)
+    # checks if 21 and 22 are in the list, if they are, remove it
+    if 21 in layers:
+        layers.remove(21)
+    if 22 in layers:
+        layers.remove(22)
     
-    elif type == "rotary encoder": #look at the encoder vars list, which would be ordered as ["name", ChangeInPosition, buttonState],  
-
-        encoder = int(event[-1])
-        # 0 for left and 1 for right,  left is negative and right is positive
-        if encoder_pos_change < 0:
-            encoder_val = "RL"
-        else:
-            encoder_val = "RR"
-        if encoder_button:
-            encoder_val+="B"
-        
-        data_out["Encoder"] = [{'Id': encoder, 'Value': encoder_val}]
+    # converts it all to strings
+    layers = list(map(str, layers))
     
-    layers = []
-    #on to layers now      
-    for key, timestamp in held_keys_dict.items():
-        #if there is a button  that is being held
-        diff = (supervisor.ticks_ms() - timestamp)/1000
-        if diff > 0.100: 
-            if key == "Mode":
-                # button_id = '0x0'
-                button_id = 'Mode'
-            else:
-                # button_id = hex(index+1)
-                button_id = key+1
-            layers.append(button_id)
-            
+    
+    data_out = msg
     if len(layers) !=0:
         data_out["Layers"] = layers 
+    
+    # message is complete.
     print(json.dumps(data_out))
     
     pixels[14] = (0, 255, 0)
     pixels.show()
-    time.sleep(0.05)
+    time.sleep(0.01)
     pixels[14] = (0, 0, 0)
     pixels.show()
+    
+    
+def encoder_pos_change_to_msg(encoder_pos_change, btn):
+    if encoder_pos_change < 0:
+        encoder_val = "CCW"
+    else:
+        encoder_val = "CW"
+    if btn:
+        encoder_val+="B"
+        
+    return encoder_val
 
+
+"""
 # async def layer_color_changer():
 #     # await asyncio.sleep(0.100)
 #     #await asyncio.sleep(0.130)
@@ -246,9 +141,7 @@ def msgContructor3(event, type, encoder_button: int = 0, encoder_pos_change: int
 #                 pixels[index] = (255,0,0)
 #                 pixels.show()        
             
-            
-            
-            
+              
 #     # for i in held_keys: #loops through all the items in held_keys list
 #     #     print(i)
 #     #     if i != 0:  # if any var is not 0
@@ -303,7 +196,8 @@ def msgContructor3(event, type, encoder_button: int = 0, encoder_pos_change: int
 #         print("sda")
 #         await asyncio.sleep(min_diff)
 #         asyncio.run(layer_color_changer2(key=key))
-        
+"""        
+
 
 ################################################################
 # loop-y-loop
@@ -312,7 +206,8 @@ def msgContructor3(event, type, encoder_button: int = 0, encoder_pos_change: int
 def main():
     encoder_1_last_position = 0
     encoder_2_last_position = 0 
-
+    encoder_1_button_last_pos = 1
+    encoder_2_button_last_pos = 1
     
     while True:
         # add to that dictionary to send the data at the end of the loop
@@ -348,40 +243,91 @@ def main():
                     
                 onboard_pix.fill((0, 0, 0))
         
-        
+ 
+        ################################################################
+        # BTN checks
+        ################################################################
+        if len(active_btns):
+            for key, values in active_btns.items():
+                if values['layer']:
+                    continue
+                time_diff = (supervisor.ticks_ms() - values['time'])/1000
+                if time_diff > layer_delay:
+                    pxl = values['led']['num']
+                        
+                    pixels[pxl] = btn_active_layer_color
+                    pixels.show()
+                    active_btns[key]['led']['color'] = btn_active_layer_color                 
+                    active_btns[key]['layer'] = True
+
+                
         ################################################################
         # Encoders
         ################################################################
         encoder_1_position = encoder_1.position
         encoder_2_position = encoder_2.position
         if encoder_1_last_position is None or encoder_1_position != encoder_1_last_position:
-            # led.value = True
+            
             encoder_1_position_change = encoder_1_position - encoder_1_last_position
-
-            msgContructor3("Encoder1", "rotary encoder", not encoder_1_button.value, encoder_1_position_change)
-            time.sleep(0.1)
-            # led.value = False
-
-
+            value_msg = encoder_pos_change_to_msg(encoder_1_position_change, not encoder_1_button.value)
+            msg = {'Encoder': [{'Id': 1, 'Value': value_msg}]}
+            
+            msgContructor4(msg)
         encoder_1_last_position = encoder_1_position
 
         if encoder_2_last_position is None or encoder_2_position != encoder_2_last_position:
-            # led.value = True
+
             encoder_2_position_change = encoder_2_position -  encoder_2_last_position
-
-            msgContructor3("Encoder2", "rotary encoder", not encoder_2_button.value, encoder_2_position_change)
-            time.sleep(0.1)
-            # led.value = False
-
-
+            value_msg = encoder_pos_change_to_msg(encoder_2_position_change, not encoder_2_button.value)
+            msg = {'Encoder': [{'Id': 2, 'Value': value_msg}]}
+            
+            msgContructor4(msg)
         encoder_2_last_position = encoder_2_position
 
-        # if not encoder_1_button.value and encoder_1_button_state is None:
-        #     encoder_1_button_state = "pressed"
-        #     print("Button pressed.")
-        # if encoder_1_button.value and encoder_1_button_state == "pressed":
-        #     print("Button released.")
-        #     encoder_1_button_state = None
+        ################################################################
+        # Encoders Buttons
+        ################################################################
+        if encoder_1_button.value != encoder_1_button_last_pos:
+            # btn is released
+            if encoder_1_button.value:
+                if 21 in active_btns.keys():
+                    if not active_btns[21]['layer']:
+                        msg = {'Encoder': [{'Id': 1, 'Value': 'B'}]}
+                        msgContructor4(msg)
+                        
+                    pxl = active_btns[21]['led']['num']
+                    pixels[pxl] = (0, 0, 0)
+                    pixels.show()
+                    active_btns.pop(21)        
+                
+            # button is pressed
+            else:
+                active_btns[21] = {'status':True, 'time':supervisor.ticks_ms(), 'led':{'num':13,'color':btn_pressed_color}, 'layer': False}
+                
+                pixels[13] = btn_pressed_color        #turns it green
+                pixels.show()
+        encoder_1_button_last_pos = encoder_1_button.value
+        
+        if encoder_2_button.value != encoder_2_button_last_pos:
+            # btn is released
+            if encoder_2_button.value:
+                if 22 in active_btns.keys():
+                    if not active_btns[22]['layer']:
+                        msg = {'Encoder': [{'Id': 2, 'Value': 'B'}]}
+                        msgContructor4(msg)
+                        
+                    pxl = active_btns[22]['led']['num']
+                    pixels[pxl] = (0, 0, 0)
+                    pixels.show()
+                    active_btns.pop(22)
+                
+            # button is pressed
+            else:
+                active_btns[22] = {'status':True, 'time':supervisor.ticks_ms(), 'led':{'num':13,'color':btn_pressed_color}, 'layer': False}
+                
+                pixels[13] = btn_pressed_color        #turns it green
+                pixels.show()
+        encoder_2_button_last_pos = encoder_2_button.value
         
         ################################################################
         # Buttons
@@ -391,50 +337,36 @@ def main():
             
             if MatrixEvent.pressed:
                 # when the button is pressed, all I want it to do is put the time stamp in he held_keys list 
-                
-                held_keys_dict[MatrixEvent.key_number] = MatrixEvent.timestamp
-
-                ### A barebones test for changing colors if its a layer
-                pixels[MatrixEvent.key_number] = (0, 255, 0)        #turns it green
+                active_btns[MatrixEvent.key_number] = {'status':True, 'time':MatrixEvent.timestamp, 'led':{'num':MatrixEvent.key_number,'color':btn_pressed_color}, 'layer': False}
+                pixels[MatrixEvent.key_number] = btn_pressed_color        #turns it green
                 pixels.show()
                 
-                
-                # print(f"pressed {MatrixEvent.key_number} at {MatrixEvent.timestamp}")
-                # asyncio.run(layer_color_changer2())
-                for key, timestamp in held_keys_dict.items():
-                    diff = (supervisor.ticks_ms() - timestamp)/1000
-                    if diff > 0.100: 
-                        if key =="Mode":
-                            pixels[12] = (255,0,0)
-                        else:
-                            pixels[key] = (255,0,0)
-                        pixels.show()       
-        
             if MatrixEvent.released:
-                # print(f"released {MatrixEvent.key_number} at {MatrixEvent.timestamp}")
-                
-                msgContructor3(MatrixEvent, 'button')
-            
+                if not active_btns[MatrixEvent.key_number]['layer']:
+                    msgContructor4({'ButtonId': MatrixEvent.key_number + 1})
+              
                 pixels[MatrixEvent.key_number] = (0, 0, 0)
                 pixels.show()
-
-
+                active_btns.pop(MatrixEvent.key_number)
+                
+                
         if ModeEvent := ModeButton.events.get():
             # this is the mode button
             if ModeEvent.pressed:
-                # pixels[12] = (255, 0, 0)
-                pixels[12] = (0, 255, 0)
+                active_btns["Mode"] = {'status':True, 'time':ModeEvent.timestamp, 'led':{'num':12,'color':btn_pressed_color}, 'layer': False}
+                pixels[12] = btn_pressed_color        #turns it green
                 pixels.show()
-                held_keys_dict["Mode"] = ModeEvent.timestamp
-                
-                
+            
                 # asyncio.run(layer_color_changer2())
                 
             if ModeEvent.released:
-                msgContructor3(ModeEvent, "mode")
-                
+                if not active_btns["Mode"]['layer']:
+                    msgContructor4({'ButtonId': 'Mode'})
+            
                 pixels[12] = (0, 0, 0)
                 pixels.show()
+                active_btns.pop("Mode")
+       
 
 def startup():
     pixels.fill((0,255,0))

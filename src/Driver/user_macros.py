@@ -20,8 +20,8 @@ def mute_discord():
     
 
 # --- Example: Encoder ---
-# "When I turn the left knob (1) to the right ('RR'), play a sound"
-@register_encoder(encoder_id=1, action='RR', mode=3)
+# "When I turn the left knob (1) to the right ('CW'), play a sound"
+@register_encoder(encoder_id=1, action='CW', mode=3)
 def crank_it_up():
     user_log("Cranking the volume!")
     play_user_sound("victory.mp3")
@@ -134,10 +134,10 @@ def screenshot_to_text():
 
 
 # -- App Specific Controls --
-@button_register(button=5, app="Visual Studio Code")
-def vs_code_run():
-    logger.debug("VS Code: Run code (Ctrl + Alt + N)")
-    macros.perform_hotkey(['ctrl', 'alt', 'n'])
+# @button_register(button=5, app="Visual Studio Code")
+# def vs_code_run():
+#     logger.debug("VS Code: Run code (Ctrl + Alt + N)")
+#     macros.perform_hotkey(['ctrl', 'alt', 'n'])
 
 @button_register(button=5, app="Star Citizen")
 def sc_focus_front_shields():
@@ -197,14 +197,6 @@ def sb_reset():
     logger.debug("Soundboard: Reset Soundboard Audio")
     # play_user_sound('hava3.mp3', 0.5)
     macros.soundboard.reset()
-    
-
-# Pause Button (highest priority, regardless of other factors)
-@button_register(button=12)
-def pause_btn():
-    logger.debug("Pause button press")
-    # macro_driver.toggle_pause()
-    
 
 
 # -- Mode 2 Controls --
@@ -228,50 +220,50 @@ def backspace():
 # -------------------- Standard Encoder Controls --------------------
 
 ########################################    Encoder 1    ########################################
-# @register_encoder(encoder_id=1, action='RL')
+# @register_encoder(encoder_id=1, action='CCW')
 # def volume_down():
 #     macros.SpotifyController().event_handler('VolumeDown')
 
-@register_encoder(encoder_id=1, action='RLB')
+@register_encoder(encoder_id=1, action='CCWB')
 def sp_backward_5s():
     logger.debug('Back5s')
     Spotify.event_handler('Back5s',)
 
-@register_encoder(encoder_id=1, action='RRB')
+@register_encoder(encoder_id=1, action='CWB')
 def sp_forward_5s():
     logger.debug('Forward5s')
     Spotify.event_handler('Forward5s',)
 
 ########################################    Encoder 2    ########################################
 
-@register_encoder(encoder_id=2, action='RLB', app='LibreOffice Draw')
+@register_encoder(encoder_id=2, action='CCWB', app='LibreOffice Draw')
 def draw_font_down():   
     logger.debug('Encoder2 rotate left, w/ button font_size_down')
     macros.libreOffice_font_size_down()
 
-@register_encoder(encoder_id=2, action='RRB', app='LibreOffice Draw')
+@register_encoder(encoder_id=2, action='CWB', app='LibreOffice Draw')
 def draw_font_up():
     logger.debug('Encoder2 rotate right w/ button, font_size_up')
     macros.libreOffice_font_size_up()
 
-@register_encoder(encoder_id=2, action='RLB', app='LibreOffice Writer')
+@register_encoder(encoder_id=2, action='CCWB', app='LibreOffice Writer')
 def writer_font_down():
     logger.debug('Encoder2 rotate left, w/ button font_size_down')
     macros.libreOffice_font_size_down()
 
-@register_encoder(encoder_id=2, action='RRB', app='LibreOffice Writer')
+@register_encoder(encoder_id=2, action='CWB', app='LibreOffice Writer')
 def writer_font_up():
     logger.debug('Encoder2 rotate right w/ button, font_size_up')
     macros.libreOffice_font_size_up()
 # zoomin in writer needs ctrl + scrollwheel
 
 
-@register_encoder(encoder_id=2, action='RL', app='factorio')
+@register_encoder(encoder_id=2, action='CCW', app='factorio')
 def factorio_increase_area():
     logger.debug('Encoder2 rotate left, Increase area')
     macros.perform_press('add')
 
-@register_encoder(encoder_id=2, action='RR', app='factorio')
+@register_encoder(encoder_id=2, action='CW', app='factorio')
 def factorio_decrease_area():
     logger.debug('Encoder2 rotate right, decrease area')
     macros.perform_press('subtract')
@@ -279,28 +271,28 @@ def factorio_decrease_area():
 
 
 ###TEMPORARY
-@register_encoder(encoder_id=2, action='RL', layers=('2',))
+@register_encoder(encoder_id=2, action='CCW', layers=('2',))
 def zoom_in_2():
     logger.debug('Encoder2 rotate left, zoming out')
     macros.perform_press('left')
 
-@register_encoder(encoder_id=2, action='RR', layers=('2',))
+@register_encoder(encoder_id=2, action='CW', layers=('2',))
 def zoom_out_2():
     logger.debug('Encoder2 rotate right, zoming in')
     macros.perform_press('right')   
 
 
-@register_encoder(encoder_id=2, action='RR', layers=('Mode',))
+@register_encoder(encoder_id=2, action='CW', layers=('Mode',))
 def zoom_reset():
     logger.debug('Encoder2 rotate right with mode, reseting zoom')
     macros.perform_hotkey(['ctrl', '0'])  
 
-@register_encoder(encoder_id=2, action='RLB')
+@register_encoder(encoder_id=2, action='CCWB')
 def left_arrow():
     logger.debug('Encoder2 rotate left w/ button, left arrow')
     macros.perform_press('left')
 
-@register_encoder(encoder_id=2, action='RRB')
+@register_encoder(encoder_id=2, action='CWB')
 def right_arrow():
     logger.debug('Encoder2 rotate right w/ button, right arrow')
     macros.perform_press('right')  

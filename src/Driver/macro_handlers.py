@@ -1,4 +1,4 @@
-import threading
+# import threading
 import inspect
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -8,7 +8,7 @@ import macros  # Your main library of tools
 
 Spotify = macros.SpotifyController()
 logger = get_logger("MacroHandlers")
-
+logger.info(f'Initializing {__file__}')         # uhhhh doesnt show?
 
 
 # ---  Thread Safety (The "Mash" Protection) ---
@@ -19,6 +19,19 @@ EXECUTOR = ThreadPoolExecutor(max_workers=8)
 # ---  Setup Safe Paths ---
 SOUND_DIR = Path(settings.get('paths.sounds', '~/Documents/soundboard_audios')).expanduser()
 
+# ------------------------------ Explanation ------------------------------ 
+"""
+macros are called by a decorator
+When you write the macro functionin user_macros.py or here, you need to add at minimum:
+
+    @button_register(button=x,layers=(y))
+    def macro_example():
+        ...
+
+You dont call the macro function itself, 
+
+
+"""
 
 # --- BUTTON REGISTRY ---
 MACRO_REGISTRY = {}
@@ -48,8 +61,8 @@ def register_encoder(encoder_id, action, app=None, mode=None, layers=()):
     
     Arguments:
         encoder_id (int): 1 or 2
-        action (str): 'RL' (Rotate Left), 'RR' (Rotate Right), 
-                      'RLB' (Left while pressed), 'RRB' (Right while pressed)
+        action (str): 'CCW' (Rotate Left), 'CW' (Rotate Right), 
+                      'CCWB' (Left while pressed), 'CWB' (Right while pressed)
     """
     def decorator(func):
         # Key: (App, Mode, EncoderID, Action, Layers)
@@ -87,7 +100,7 @@ except Exception as e:
 # --- BUTTON HANDLER ---
 
 def button_handler(event_data, mode, app_data, macro_driver):
-    button_id = event_data['Button_id']
+    button_id = event_data['ButtonId']
     layers = tuple(sorted(event_data.get('Layers', [])))
     app_name = app_data['app']
     focused_window_hwnd = app_data['hwnd']
@@ -100,8 +113,18 @@ def button_handler(event_data, mode, app_data, macro_driver):
         (None, mode, button_id, layers),
         (None, None, button_id, layers)
     ]
+    # builds a list of possible input combinations using the button_id, app_name, mode and layers list
 
+    # view all the loaded macros?, 
+    # key is the button combo needed and value is a pointer to the func
+    
+    # for key, value in MACRO_REGISTRY.items():
+    #     print(key, value)
+
+    
+    # loops through the input combination keys
     for key in candidate_keys:
+        # checks if the candidate keys is a valid key combo in the macro registery. 
         if key in MACRO_REGISTRY:
             action = MACRO_REGISTRY[key]
             
@@ -170,7 +193,7 @@ def stop_speech():
 
 def encoder_handler(event_data, mode, app_data):
     encoder_id = event_data['Encoder'][0]['Id']
-    action_type = event_data['Encoder'][0]['Value'] # 'RL', 'RR', etc.
+    action_type = event_data['Encoder'][0]['Value'] # 'CCW', 'CW', etc.
     layers = tuple(sorted(event_data.get('Layers', [])))
     app_name = app_data['app']
 
@@ -215,20 +238,20 @@ def encoder_handler(event_data, mode, app_data):
 # --- DEFAULT ENCODER MACROS ---
 
 # Global Volume Control (Encoder 1)
-@register_encoder(encoder_id=1, action='RL')
+@register_encoder(encoder_id=1, action='CCW')
 def volume_down():
     macros.SpotifyController().event_handler('VolumeDown')
 
-@register_encoder(encoder_id=1, action='RR')
+@register_encoder(encoder_id=1, action='CW')
 def volume_up():
     macros.SpotifyController().event_handler('VolumeUp')
 
 # Zooming (Encoder 2 - Default)
-@register_encoder(encoder_id=2, action='RL')
+@register_encoder(encoder_id=2, action='CCW')
 def zoom_out():
     macros.perform_hotkey(['ctrl', '-'])
 
-@register_encoder(encoder_id=2, action='RR')
+@register_encoder(encoder_id=2, action='CW')
 def zoom_in():
     macros.perform_hotkey(['ctrl', '='])
     """
@@ -239,10 +262,10 @@ def zoom_in():
     
     
 # App Specific: LibreOffice (Encoder 2)
-@register_encoder(encoder_id=2, action='RL', app='LibreOffice Draw')
+@register_encoder(encoder_id=2, action='CCW', app='LibreOffice Draw')
 def draw_zoom_out():
     macros.libreOffice_zoomout()
 
-@register_encoder(encoder_id=2, action='RR', app='LibreOffice Draw')
+@register_encoder(encoder_id=2, action='CW', app='LibreOffice Draw')
 def draw_zoom_in():
     macros.libreOffice_zoomin()

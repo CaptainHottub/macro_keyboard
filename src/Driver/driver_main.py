@@ -1,11 +1,8 @@
-# import time
-from device import MacroDriver
 from logger_setup import setup_logging, get_logger
-# from config import load_settings
-from config import load_settings, settings
+from device import MacroDriver
+from config import load_settings
 from system_tray import create_tray_icon, stop_tray_icon
 # from system_tray import create_tray_icon, stop_tray_icon, show_notification
-# from notifications import send_notification # Import the new function
 
 # --- Startup procedure ---
 load_settings()
@@ -25,11 +22,9 @@ def main():
     """The main application entry point and control loop."""
     logger.info("Initializing device driver.")
 
-    pause_enabled = settings.get('features.keyboard_pause_btn', False)
-    logger.info(f"Keyboard pause button feature enabled: {pause_enabled}")
     # --- Create the MacroDriver instance ---
     global macro_driver
-    macro_driver = MacroDriver(enable_pause_btn=pause_enabled)
+    macro_driver = MacroDriver()
 
     # --- Start System Tray Icon ---
     create_tray_icon(quit_application)

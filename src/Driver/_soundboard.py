@@ -15,6 +15,7 @@ from logger_setup import setup_logging, get_logger
 """
 Basically a soundboard.          
 This doesnt always work, its pretty finicky.
+Its build for linux, may not work on windows.
     
 
 To list devices: print(sd.query_devices())  

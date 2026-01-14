@@ -9,8 +9,8 @@ import sys
 
 from logger_setup import get_logger, setup_logging
 from notifications import send_notification
-import macros
 from config import settings
+import macros
 from macro_handlers import encoder_handler, button_handler  # Import the new functions
 
 setup_logging()
@@ -20,15 +20,14 @@ class MacroDriver:
     """
     Manages communication with the KB2040 device for macro operations.
     """
-    def __init__(self, *, enable_pause_btn: bool = False):
+    def __init__(self):
         self.baud_rate = settings.get('device.baud_rate', 115200)
         self.device_name = settings.get('device.name', "KB2040 - CircuitPython")
         self.run = True
         self.mode = 1
-        self._process_data = self._process_data_with_pause_btn if enable_pause_btn else self._process_data_without_pause_btn
-        self.pause_state = False
         self.serial_port = None
         self.port_name = None
+        self.sys_name = platform.system().lower()
         # self._recursion_count = 0
         # self._max_recursion = 10
 
@@ -38,17 +37,6 @@ class MacroDriver:
             self.mode = 1
         logger.info(f'Mode is now {self.mode}')
 
-    def on_pause(self, state: bool):
-        logger.info(f'Pause is set to: {state}')
-        self.pause_state = state
-        
-    def toggle_pause(self):
-        self.pause_state = not self.pause_state
-        color = (255, 0, 0) if self.pause_state else (0, 0, 0)
-        
-        data = {"color": [13, color]}
-        self.write_serial(data)
-        logger.info(f'Pause is set to: {self.pause_state}')
 
     def stop(self):
         self.run = False
@@ -120,13 +108,25 @@ class MacroDriver:
             
             try:
                 line = self.serial_port.readline()
+                
                 if line:
+                    
                     try:
                         data = json.loads(line.decode("utf8").strip())
-                        self._process_data(data)
+                        
+                        if "raw" in data:
+                            logger.debug(f"Raw data: {data['raw']}")
+                            return
+                        # if data.get('Button_id') == 'Mode':
+                        #     self.update_mode()
+                        #     return
+                        
+                        self.event_handler(data, self.mode)
+                        
                     except json.JSONDecodeError:
                         logger.warning(f"Failed to decode JSON: {line.decode('utf8').strip()}")
                         logger.debug(f"Raw line data: {line}")
+                        
                     except Exception as e:
                         logger.error(f"Error processing received data: {e}")
 
@@ -143,50 +143,15 @@ class MacroDriver:
                 self._handle_serial_error()
                 time.sleep(1)
 
-
-    def _process_data_without_pause_btn(self, data):
-        """Processes a single data packet from the device."""
-        # logger.debug(f"Received data: {data}")
-        
-        if "raw" in data:
-            logger.debug(f"Raw data: {data['raw']}")
-            return
-        # if data.get('Button_id') == 'Mode':
-        #     self.update_mode()
-        #     return
-        
-        self.event_handler(data, self.mode)
-
-    def _process_data_with_pause_btn(self, data):
-        """Processes a single data packet from the device."""
-        # logger.debug(f"Received data: {data}")
-        
-        if "raw" in data:
-            logger.debug(f"Raw data: {data['raw']}")
-            return
-        
-        if data.get('Button_id') == 12 and not data.get('Layers'):
-            self.toggle_pause()
-            return
-        
-        if self.pause_state and data.get('Button_id') != 12:
-            logger.info('Device is paused, ignoring button press')
-            return
-        
-        # if data.get('Button_id') == 'Mode':
-        #     self.update_mode()
-        #     return
-        
-        self.event_handler(data, self.mode)
-
+    
     def event_handler(self, event_data, mode):
         """Handles incoming events and executes platform-specific macros."""
         logger.info(f"Event: {event_data}, Mode: {mode}")
 
         app_data = {}
-        system_name = platform.system().lower()
         
-        if system_name == 'linux':
+        # bunch of giberish to determine the focused app. is none, it returns "Desktop"
+        if self.sys_name == 'linux':
             focused_window_data = macros.get_focused_window_info()            
             if focused_window_data:
                 window_title = focused_window_data.get('name', '')
@@ -209,7 +174,7 @@ class MacroDriver:
                 
             app_data = {"app": window_title, "hwnd": tmp_hwnd}
         
-        elif system_name == 'windows':
+        elif self.sys_name == 'windows':
             focused_window_title, focused_window_hwnd = macros.get_focused_name()
             
             if not focused_window_title:
@@ -226,18 +191,18 @@ class MacroDriver:
             app_data = {"app": app, "hwnd": focused_window_hwnd}
         
         else:
-            logger.warning(f"Unsupported platform for window focus: {system_name}")
+            logger.warning(f"Unsupported platform for window focus: {self.sys_name}")
             return
         
         logger.debug(app_data)
         
         # Makes everything in the layers list a string.
-        event_data['Layers'] = [str(item) for item in event_data.get('Layers', [])]
+        # event_data['Layers'] = [str(item) for item in event_data.get('Layers', [])]
 
         # Dispatch events to appropriate handlers
         if 'Encoder' in event_data:
             encoder_handler(event_data, mode, app_data)
-        elif 'Button_id' in event_data:
+        elif 'ButtonId' in event_data:
             button_handler(event_data, mode, app_data, self)
 
 
@@ -254,6 +219,7 @@ class MacroDriver:
     def change_rgb(self, pixels, color):
         """
         Sends a command to change the RGB color of specified pixels.
+        work in progress...     not really
         """
         data = {"color": [pixels, color]}
         self.write_serial(data)

@@ -215,7 +215,6 @@ class MediaTimer:
             return self.start_timer(0.55)
 
     
-# BRAND NEW    
 class _MasterMediaController:
     """A Master Controller Class"""
     # https://github.com/hugosenari/mpris2
