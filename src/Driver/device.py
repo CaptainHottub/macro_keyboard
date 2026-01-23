@@ -22,7 +22,6 @@ class MacroDriver:
     """
     def __init__(self):
         self.baud_rate = settings.get('device.baud_rate', 115200)
-        self.device_name = settings.get('device.name', "KB2040 - CircuitPython")
         self.run = True
         self.mode = 1
         self.serial_port = None
@@ -30,7 +29,13 @@ class MacroDriver:
         self.sys_name = platform.system().lower()
         # self._recursion_count = 0
         # self._max_recursion = 10
-
+        
+        if self.sys_name == 'linux':
+            dev_name = "KB2040 - CircuitPython"
+        elif self.sys_name == 'windows':
+            dev_name = "USB Serial Device"
+        self.device_name = settings.get('device.name', dev_name)
+        
     def update_mode(self):
         self.mode += 1
         if self.mode > 2:
