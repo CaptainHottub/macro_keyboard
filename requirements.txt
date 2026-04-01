@@ -25,7 +25,7 @@ pillow==12.1.0
 playsound3==3.3.0; sys_platform == 'linux'
 psutil==6.0.0; sys_platform == 'win32'
 PyAutoGUI==0.9.54
-pycairo==1.29.0
+# pycairo==1.29.0
 pyclip==0.7.0
 pycparser==2.23
 PyGetWindow==0.0.9
