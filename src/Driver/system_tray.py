@@ -1,4 +1,5 @@
 import pystray
+from pystray import MenuItem
 from PIL import Image
 from pathlib import Path
 from threading import Thread
@@ -43,14 +44,19 @@ def create_tray_icon(main_loop_callback):
     except FileNotFoundError:
         logger.error(f"Icon file not found at: {icon_path}")
         return
-
+    
+    def test(icon, item):
+        print("pressed")
+    
     def on_quit(icon, item):
         logger.info("Quitting via tray icon...")
         icon.stop()
         main_loop_callback()
-
-    menu = (
-        pystray.MenuItem('Quit', on_quit),
+    
+    menu = pystray.Menu(
+        MenuItem('test', test), 
+        pystray.Menu.SEPARATOR,  # Adds a visual divider
+        MenuItem('Quit', on_quit)
     )
 
     tray_icon = pystray.Icon('macro_keyboard_driver', image, 'Macro Keyboard Driver', menu)
@@ -71,8 +77,8 @@ def stop_tray_icon():
         tray_icon = None
         logger.info("System tray icon stopped.")
 
-def show_notification(title, message):
-    """Displays a system tray notification."""
-    global tray_icon
-    if tray_icon:
-        tray_icon.notify(message, title)
+# def show_notification(title, message):
+#     """Displays a system tray notification."""
+#     global tray_icon
+#     if tray_icon:
+#         tray_icon.notify(message, title)
