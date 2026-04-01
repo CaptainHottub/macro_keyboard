@@ -235,6 +235,55 @@ def search_highlighted_text():
         
 #     logger.debug("Succesfully Finished play_audio_on_devices")
 
+
+def sheets_transpose_selected():
+    """
+    Assumes User already copied the data.
+    Grabs the data from the clipboard, splits it into a matrix
+    Transposes the matrix and merges it back into one str
+    saves it to clipboard and paste it.
+    """
+    logger.debug("sheets_transpose_selected has just started")
+    try:
+        copy_data = pyclip.paste()
+        
+        # print(copy_data)
+        if b'\t' not in copy_data and b'\n' not in copy_data:
+            logger.debug("No data to convert between.")
+            return
+        
+        parsed_data = []
+        
+        # slpits clipboard data by \n and b'\t' characters, newline and tab
+        # '\n' represents moving rows and '\t\' represents moving across columns
+        for row in copy_data.splitlines():
+            parsed_data.append(row.split(b'\t'))
+
+        column_num=len(parsed_data[0])
+        # will have column_num amounts of empty list in it.
+        rotated_list = [[] for _ in range(column_num)]
+        # transpose the parsed_data list/matrix
+        for row in parsed_data:
+            for cindex, column in enumerate(row):
+                rotated_list[cindex].append(column)
+            
+        # merge it all back into one string to print
+        # out_string = b''
+        joined_rows = [b'\t'.join(row) for row in rotated_list] 
+        out_string = b'\n'.join(joined_rows)
+
+        pyclip.copy(out_string)
+        time.sleep(0.1)
+        perform_hotkey(['ctrl', 'shift', 'v'])
+
+        
+    except Exception as e:
+        logger.error(e)
+        
+    logger.debug("sheets_transpose_selected finished") 
+
+
+
 #############################################     OS specific Macros     #############################################
 
 if sys.platform == 'win32':

@@ -16,6 +16,55 @@ from macro_handlers import encoder_handler, button_handler  # Import the new fun
 setup_logging()
 logger = get_logger("DeviceDriver")
 
+def build_app_aliases(window_title_raw: str, window_class: str = "") -> list[str]:
+    """
+    Builds a prioritized list of app identifiers.
+    Example: 'Tables - Google Sheets - Google Chrome' ->
+      ['Google Sheets - Google Chrome', 'Google Sheets', 'Google Chrome', <window_class?>]
+    Made by chat gpt
+    """
+    raw = (window_title_raw or "").strip()
+    if not raw:
+        aliases = []
+    else:
+        # Support both separators you already use
+        seps = [" - ", " — "]
+        parts = None
+        for sep in seps:
+            if sep in raw:
+                parts = [p.strip() for p in raw.split(sep) if p.strip()]
+                break
+        if parts is None:
+            parts = [raw]
+
+        base = parts[-1] if parts else ""
+
+        # Heuristic: browsers often have "... - <Site/App> - <Browser>"
+        browser_names = {
+            "Google Chrome", "Chromium", "Mozilla Firefox", "Firefox",
+            "Brave", "Microsoft Edge", "Vivaldi", "Opera",
+        }
+
+        aliases = []
+        if base in browser_names and len(parts) >= 2:
+            # Most specific first
+            aliases.append(f"{parts[-2]} - {base}")  # Google Sheets - Google Chrome
+            aliases.append(parts[-2])                # Google Sheets
+        if base:
+            aliases.append(base)
+
+    # Optional: include WM class as a fallback identifier
+    if window_class:
+        aliases.append(window_class)
+
+    # De-dupe preserving order
+    out = []
+    for a in aliases:
+        if a and a not in out:
+            out.append(a)
+    return out
+
+
 class MacroDriver:
     """
     Manages communication with the KB2040 device for macro operations.
@@ -154,38 +203,59 @@ class MacroDriver:
         logger.info(f"Event: {event_data}, Mode: {mode}")
 
         app_data = {}
+        separators = [" - ", " — "]
         
         # bunch of giberish to determine the focused app. is none, it returns "Desktop"
         if self.sys_name == 'linux':
-            focused_window_data = macros.get_focused_window_info()            
-            if focused_window_data:
-                window_title = focused_window_data.get('name', '')
-                separators = [' - ', ' — ']
-                for sep in separators:
-                    if sep in window_title:
-                        window_title = window_title.split(sep)[-1]
-                        break
-                else:
-                    if focused_window_data.get('class', '').lower() in window_title.lower():
-                        window_title = focused_window_data['class']
-                    elif "desktop" in window_title.lower():
-                        window_title = 'Desktop'
-                
-                tmp_hwnd= focused_window_data.get('id')
             
+            if focused_window_data := macros.get_focused_window_info():
+                
+                window_class = focused_window_data.get('class', '') 
+                window_title_raw = focused_window_data.get('name', '')
+            
+                if ' - ' in window_title_raw:
+                    window_title = window_title_raw.split(' - ')[-1]
+                    
+                elif focused_window_data.get('class', '').lower() in window_title_raw.lower():
+                    window_title = focused_window_data['class']
+                    
+                elif "desktop" in window_title_raw.lower() or window_title_raw == '':
+                    window_title = 'desktop'
+                    
+                # should only happen when on desktop    
+                else: 
+                    window_title = "desktop"
+                
+                tmp_hwnd = focused_window_data.get('id', '')
+                # logger.warning(window_title)
+                # logger.warning(focused_window_data)
+                
+                # raw_name = window_title_raw.split(' - ')
+                raw_name = window_title_raw
+                
             else:
                 window_title = "desktop"
-                tmp_hwnd='0'
-                
-            app_data = {"app": window_title, "hwnd": tmp_hwnd}
-        
+                tmp_hwnd= ""
+                window_class = ""
+                raw_name = ""
+
+            app_aliases = build_app_aliases(raw_name, window_class)
+            app_data = {
+            "app": window_title,
+            "hwnd": tmp_hwnd,
+            "window_class": window_class,
+            "raw_name": raw_name,
+            "app_aliases": app_aliases,
+            }
+            
+            # app_data = {"app": window_title, "hwnd": tmp_hwnd, "window_class": window_class, "raw_name":raw_name}
+                        
         elif self.sys_name == 'windows':
             focused_window_title, focused_window_hwnd = macros.get_focused_name()
             
             if not focused_window_title:
                 app = 'Desktop'
-            else:
-                separators = [" - ", " — "]
+            else:              
                 app_title = focused_window_title
                 for sep in separators:
                     if sep in app_title:
@@ -193,7 +263,13 @@ class MacroDriver:
                         break
                 app = app_title.strip()
             
-            app_data = {"app": app, "hwnd": focused_window_hwnd}
+            # app_data = {"app": app, "hwnd": focused_window_hwnd}
+            app_data = {
+            "app": app,
+            "hwnd": focused_window_hwnd,
+            "raw_name": raw_name,
+            "app_aliases": build_app_aliases(raw_name),
+            }
         
         else:
             logger.warning(f"Unsupported platform for window focus: {self.sys_name}")

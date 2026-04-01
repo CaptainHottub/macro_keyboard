@@ -7,7 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 <!-- and this project adheres to [Semantic Versioning](http://semver.org/). -->
 
-## [2.4.002] - 2025-01-13
+## [2.4.004] - 2026-04-01
+
+New Expermental Feature only tested on linux,
+Adds "app alliases" to the app_data in device.py
+
+Its intented so you can have macros for a specific tab in chrome. 
+Previously instead of having Google Chrome as the only specifier for app_data, it now has multiple:
+  Example: 'Tables - Google Sheets - Google Chrome' ->
+  ['Google Sheets - Google Chrome', 'Google Sheets', 'Google Chrome', <window_class?>]
+
+This allows for 'Google Sheets' as a app in the macro specifier. 
+
+
+## [2.4.002] - 2026-01-13
 
 Minor changes. Updated to python 3.14.2
 Adding comments

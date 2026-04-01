@@ -102,25 +102,34 @@ except Exception as e:
 def button_handler(event_data, mode, app_data, macro_driver):
     button_id = event_data['ButtonId']
     layers = tuple(sorted(event_data.get('Layers', [])))
-    app_name = app_data['app']
-    focused_window_hwnd = app_data['hwnd']
-    logger.debug(f"Handling Button: ID={button_id}, App={app_name}, Mode={mode}, Layers={layers}")
-        
-    # Generate Priority List
-    candidate_keys = [
-        (app_name, mode, button_id, layers),
-        (app_name, None, button_id, layers),
-        (None, mode, button_id, layers),
-        (None, None, button_id, layers)
-    ]
-    # builds a list of possible input combinations using the button_id, app_name, mode and layers list
+    
+    # Use aliases if present, otherwise fall back to the old single app string
+    app_candidates = app_data.get("app_aliases") or [app_data.get("app")]
+    app_candidates = [a for a in app_candidates if a] # drop None/empty
 
+    focused_window_hwnd = app_data['hwnd']
+    
+    # logger.debug(f"Handling Button: ID={button_id}, App={app_name}, Mode={mode}, Layers={layers}")
+    logger.debug(f"Handling Button: ID={button_id}, Apps={app_candidates}, Mode={mode}, Layers={layers}")
+        
+    # Build candidate key list in priority order:
+    # For each app alias: (app, mode) then (app, any mode)
+    # Then fall back to (any app, mode) then global
+    candidate_keys = []
+    for app_name in app_candidates:
+        candidate_keys.append((app_name, mode, button_id, layers))
+        candidate_keys.append((app_name, None, button_id, layers))
+        candidate_keys.extend([
+        (None, mode, button_id, layers),
+        (None, None, button_id, layers),
+    ])
+    # builds a list of possible input combinations using the button_id, app_name, mode and layers list
     # view all the loaded macros?, 
     # key is the button combo needed and value is a pointer to the func
     
-    # for key, value in MACRO_REGISTRY.items():
-    #     print(key, value)
-
+    # Optional: de-dupe while preserving order (nice if aliases repeat)
+    seen = set()
+    candidate_keys = [k for k in candidate_keys if not (k in seen or seen.add(k))]
     
     # loops through the input combination keys
     for key in candidate_keys:
@@ -134,14 +143,15 @@ def button_handler(event_data, mode, app_data, macro_driver):
             sig = inspect.signature(action)
             params = sig.parameters
             
+            matched_app = key[0]
             # Prepare the arguments we CAN provide
             # You can add more context variables here if you want!
             possible_args = {
                 'mode': mode,
-                'app': app_name,
+                'app': matched_app,
                 'button': button_id,
-                'hwnd': focused_window_hwnd
-            }
+                'hwnd': focused_window_hwnd,
+                }
             
             # Filter: Only pass the arguments the function actually requested
             kwargs = {k: v for k, v in possible_args.items() if k in params}
@@ -178,60 +188,58 @@ def show_mode(mode):
 def spotify_play_pause():
     Spotify.press()
 
-@button_register(button=5)
-def text_to_speech():
-    macros.textToSpeech()
+# @button_register(button=5)
+# def text_to_speech():
+#     macros.textToSpeech()
 
-@button_register(button=6)
-def stop_speech():
-    macros.stopSpeech()
-
-
+# @button_register(button=6)
+# def stop_speech():
+#     macros.stopSpeech()
 
 
 # --- ENCODER HANDLER ---
 
 def encoder_handler(event_data, mode, app_data):
     encoder_id = event_data['Encoder'][0]['Id']
-    action_type = event_data['Encoder'][0]['Value'] # 'CCW', 'CW', etc.
+    action_type = event_data['Encoder'][0]['Value']
     layers = tuple(sorted(event_data.get('Layers', [])))
-    app_name = app_data['app']
 
-    logger.debug(f"Handling Encoder: ID={encoder_id}, Action={action_type}, App={app_name}")
+    app_candidates = app_data.get("app_aliases") or [app_data.get("app")]
+    app_candidates = [a for a in app_candidates if a]
 
-    # Priority List:
-    # 1. Exact Match (App + Mode)
-    # 2. App Specific (Any Mode)
-    # 3. Mode Specific (Any App)
-    # 4. Global (Any App, Any Mode)
-    candidate_keys = [
-        (app_name, mode, encoder_id, action_type, layers),
-        (app_name, None, encoder_id, action_type, layers),
+    logger.debug(f"Handling Encoder: ID={encoder_id}, Action={action_type}, Apps={app_candidates}, Mode={mode}, Layers={layers}")
+
+    candidate_keys = []
+    for app_name in app_candidates:
+        candidate_keys.append((app_name, mode, encoder_id, action_type, layers))
+        candidate_keys.append((app_name, None, encoder_id, action_type, layers))
+    candidate_keys.extend([
         (None, mode, encoder_id, action_type, layers),
-        (None, None, encoder_id, action_type, layers)
-    ]
+        (None, None, encoder_id, action_type, layers),
+    ])
+
+    seen = set()
+    candidate_keys = [k for k in candidate_keys if not (k in seen or seen.add(k))]
 
     for key in candidate_keys:
         if key in ENCODER_REGISTRY:
             func = ENCODER_REGISTRY[key]
-            
-            # Inspect the function
+
             sig = inspect.signature(func)
             params = sig.parameters
 
-            # Prepare args (Encoders might want different data)
+            matched_app = key[0]
             possible_args = {
                 'mode': mode,
-                'app': app_name,
+                'app': matched_app,
                 'encoder_id': encoder_id,
-                'action': action_type
+                'action': action_type,
             }
-            
+
             kwargs = {k: v for k, v in possible_args.items() if k in params}
-            
             EXECUTOR.submit(func, **kwargs)
             return
-        
+
     logger.info(f"No macro found for Encoder {encoder_id} action {action_type}")
     
     

@@ -4,7 +4,7 @@ USER MACROS
 """
 from macro_handlers import logger, button_register, register_encoder, play_user_sound, Spotify
 import macros
-
+import time
 """
 # -- Examples, not expected to run --
 # Example 1: Overwrite Button 5 to print "Hello World"
@@ -95,26 +95,41 @@ def mv_desktop_left(app):
 def mv_desktop_right(app):    
     logger.debug("Change desktop right")
     macros.change_desktop('right', app)
+
+@button_register(button=7, app="Google Sheets")
+def sheets_transpose_selected():    
+    logger.debug("Transposes the selected are in google sheets")
+    macros.sheets_transpose_selected()
+
+@button_register(button=8, app="Google Sheets")
+def sheets_merge_cells():
+    # (see note below about the shortcut)
+    macros.perform_hotkey(['alt', 'o']) # open Format
+    time.sleep(0.05)
+    macros.perform_press('m') # Merge cells submenu
+    time.sleep(0.05)
+    macros.perform_press('a') # Merge all (often 'A' / or Enter depending UI)
+
+
+# @button_register(button=5)
+# def tts_start():    
+#     logger.debug("Text to Speech")
+#     macros.textToSpeech()
     
-@button_register(button=5)
-def tts_start():    
-    logger.debug("Text to Speech")
-    macros.textToSpeech()
+# @button_register(button=6)
+# def tts_stop():    
+#     logger.debug("Stop Speech")
+#     macros.stopSpeech()
     
-@button_register(button=6)
-def tts_stop():    
-    logger.debug("Stop Speech")
-    macros.stopSpeech()
+# @button_register(button=7)
+# def copy():    
+#     logger.debug("Copy (Ctrl + C)")
+#     macros.perform_hotkey(['ctrl', 'c'])
     
-@button_register(button=7)
-def copy():    
-    logger.debug("Copy (Ctrl + C)")
-    macros.perform_hotkey(['ctrl', 'c'])
-    
-@button_register(button=8)
-def past():    
-    logger.debug("Paste (Ctrl + V)")
-    macros.perform_hotkey(['ctrl', 'v'])
+# @button_register(button=8)
+# def past():    
+#     logger.debug("Paste (Ctrl + V)")
+#     macros.perform_hotkey(['ctrl', 'v'])
     
 @button_register(button=9)
 def search_highlighted_text():    
@@ -126,7 +141,7 @@ def task_manager():
     logger.debug("Start Task manager")
     macros.start_task_viwer()
     
-@button_register(button=1)
+@button_register(button=11)
 def screenshot_to_text():    
 # case (11, _, _, []):
     logger.debug("Screenshot to text")
